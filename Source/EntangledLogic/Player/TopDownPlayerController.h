@@ -1,0 +1,24 @@
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/PlayerController.h"
+#include "TopDownPlayerController.generated.h"
+
+UCLASS()
+class ENTANGLEDLOGIC_API ATopDownPlayerController : public APlayerController
+{
+	GENERATED_BODY()
+
+public:
+	ATopDownPlayerController();
+
+	UPROPERTY(EditDefaultsOnly);
+	class UInputMappingContext* PlayerControls;
+	
+protected:
+	virtual void BeginPlay() override;
+
+	virtual void SetupInputComponent() override;
+
+};
