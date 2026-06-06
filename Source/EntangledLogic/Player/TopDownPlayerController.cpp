@@ -29,4 +29,7 @@ void ATopDownPlayerController::SetupInputComponent()
 			UE_LOG(LogTemp, Display, TEXT("Player Controls mapping context added"));
 		}
 	}
+
+	const FInputModeGameAndUI InputMode;
+	SetInputMode(InputMode);
 }
