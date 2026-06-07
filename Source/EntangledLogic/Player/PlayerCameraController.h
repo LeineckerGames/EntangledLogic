@@ -4,9 +4,20 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "EnhancedInputLibrary.h"
+#include "Math/Vector2D.h"
 #include "PlayerCameraController.generated.h"
 
 struct FInputActionValue;
+
+// Might want to move to grid placement manager
+UENUM()
+enum class EPlacementMode : uint8
+{
+	Disabled,
+	Placing,
+	Editing,
+	Deletion
+};
 
 UCLASS()
 class ENTANGLEDLOGIC_API APlayerCameraController : public APawn
@@ -17,11 +28,23 @@ public:
 	// Sets default values for this pawn's properties
 	APlayerCameraController();
 
+private:
+	bool isDragging = false;
+	int DragSensitivity = 100;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	class APlayerController* TopDownPlayerController;
+
 	void Move(const FInputActionValue& Value);
+
+	void DragMove(const FInputActionValue& Value);
+
+	void OnLeftClick(const FInputActionValue& Value);
+
+	void OnLeftClickCompleted(const FInputActionValue& Value);
 
 public:	
 	// Called every frame
@@ -30,6 +53,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	EPlacementMode PlacementMode = EPlacementMode::Disabled;
 
 	// Attached Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -50,5 +74,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UInputAction* DragMovement;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UInputAction* LeftClick;
 
 };
