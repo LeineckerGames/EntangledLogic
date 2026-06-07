@@ -109,7 +109,7 @@ void APlayerCameraController::DragMove(const FInputActionValue& Value)
 		{
 			// Get Delta Vector and Normalize it (to make the movement snappy)
 			const FVector2D MouseVector = Value.Get<FVector2D>();
-			FVector2D NormalMouseVector = MouseVector.GetSafeNormal();
+			const FVector2D NormalMouseVector = MouseVector.GetSafeNormal();
 			//UE_LOG(LogTemp, Display, TEXT("X: %f, Y: %f"), MouseVector.X, MouseVector.Y);
 
 			// Use the value to move the screen the amount the mouse has moved
