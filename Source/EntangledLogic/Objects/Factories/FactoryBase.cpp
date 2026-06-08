@@ -2,12 +2,21 @@
 
 
 #include "FactoryBase.h"
+#include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 
 // Sets default values
 AFactoryBase::AFactoryBase()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	// Create Mesh and attach to root
+	FactoryMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FactoryMesh"));
+	FactoryMesh->SetupAttachment(RootComponent);
+
+	// Create Grid Placement and attach to mesh
+	GridPlacementComponent = CreateDefaultSubobject<UGridPlacementComponent>(TEXT("GridPlacementComponent"));
+	GridPlacementComponent->SetupAttachment(FactoryMesh);
 
 }
 

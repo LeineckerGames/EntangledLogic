@@ -20,6 +20,15 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	// Factory Shape Info
+	UPROPERTY(EditAnywhere, Category = "Factory Shape")
+	int32 FactorySize;
+	UPROPERTY(EditAnywhere, Category = "Factory Shape")
+	TArray<bool> FactoryShape;
+	UPROPERTY(EditAnywhere, Category = "Factory Shape")
+	FVector PlacementOffset;
+
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
