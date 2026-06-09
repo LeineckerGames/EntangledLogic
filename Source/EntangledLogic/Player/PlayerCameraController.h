@@ -9,16 +9,6 @@
 
 struct FInputActionValue;
 
-// Might want to move to grid placement manager
-UENUM()
-enum class EPlacementMode : uint8
-{
-	Disabled,
-	Placing,
-	Editing,
-	Deletion
-};
-
 UCLASS()
 class ENTANGLEDLOGIC_API APlayerCameraController : public APawn
 {
@@ -52,8 +42,6 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	EPlacementMode PlacementMode = EPlacementMode::Disabled;
 
 	// Attached Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

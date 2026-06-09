@@ -2,6 +2,7 @@
 #include "Components/Image.h"
 #include "Blueprint/UserWidget.h"
 #include "FactorySelectionWidget.h"
+#include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 
 void UFactoryItemSlot::NativeOnInitialized()
 {
@@ -22,8 +23,10 @@ FReply UFactoryItemSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, co
 	UE_LOG(LogTemp, Display, TEXT("Clicked on %s"), *FactoryName);
 	
 	// Get Grid Placement Subsystem Here instead
+	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
 
 	// Set the held factory to item selection.
+	
 
 	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 }

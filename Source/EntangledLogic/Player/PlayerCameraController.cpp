@@ -6,6 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Camera/CameraComponent.h"
+#include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 
 // Sets default values
 APlayerCameraController::APlayerCameraController()
@@ -75,7 +76,9 @@ void APlayerCameraController::Move(const FInputActionValue& Value)
 
 void APlayerCameraController::OnLeftClick(const FInputActionValue& Value)
 {
-	switch (PlacementMode)
+	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
+
+	switch (GridPlacement->GetPlacementMode())
 	{
 		case EPlacementMode::Disabled:
 			isDragging = true;
@@ -93,7 +96,9 @@ void APlayerCameraController::OnLeftClick(const FInputActionValue& Value)
 }
 void APlayerCameraController::OnLeftClickCompleted(const FInputActionValue& Value)
 {
-	if (PlacementMode == EPlacementMode::Disabled)
+	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
+
+	if (GridPlacement->GetPlacementMode() == EPlacementMode::Disabled)
 	{
 		isDragging = false;
 	}

@@ -1,6 +1,27 @@
 
 #include "GridPlacementSubsystem.h"
 
+void UGridPlacementSubsystem::SetSelectedFactory(TSubclassOf<AActor> FactoryClass)
+{
+	SelectedFactoryClass = FactoryClass;
+	SelectedFactory = SpawnActorToPlaceFromClass(SelectedFactoryClass);
+
+
+
+}
+
+AActor* UGridPlacementSubsystem::SpawnActorToPlaceFromClass(TSubclassOf<AActor> SelectedActor)
+{
+	FRotator SpawnRotation = FRotator::ZeroRotator;
+	//Maybe change this to be 0,0,0 idk
+	FVector SpawnLocation = FVector(0, 0, 0);
+
+	FActorSpawnParameters SpawnParams;
+
+	AActor* SelectedActorToPlace = GetWorld()->SpawnActor<AActor>(SelectedActor->GetDefaultObject()->GetClass(), SpawnLocation, SpawnRotation, SpawnParams);
+	return SelectedActorToPlace;
+}
+
 void UGridPlacementSubsystem::SetPlacedPositionMap(int32 GridXPosition, int32 GridYPosition, bool isPlacedToSet)
 {
 	FGridCoordinate GridCoordinate;
@@ -24,4 +45,9 @@ bool UGridPlacementSubsystem::GetPlacedPositionMap(int32 GridXPosition, int32 Gr
 		return isPlaced;
 	}
 	return false;
+}
+
+EPlacementMode UGridPlacementSubsystem::GetPlacementMode() const
+{
+	return PlacementMode;
 }
