@@ -17,12 +17,17 @@ class ENTANGLEDLOGIC_API UFactoryItemSlot : public UUserWidget
 public:
 	void SetFactoryIcon(UTexture2D* FactoryIconToSet);
 	void SetFactoryName(FString FactoryNameToSet);
+	void SetFactoryDescription(FString FactoryDescriptionToSet);
 	void SetFactoryActorClass(TSubclassOf<AActor> FactoryActorToSet);
+	class UFactorySelectionWidget* FactorySelectionWidget;
 
 protected:
 	virtual void NativeOnInitialized() override;
 	virtual void NativeConstruct() override;
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
+	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
 
 	// UI Elements
 	UPROPERTY(VisibleAnywhere, Category = "Inventory Slot", meta = (BindWidget))
@@ -33,6 +38,8 @@ protected:
 
 	// Factory Info
 	FString FactoryName;
+
+	FString FactoryDescription;
 
 	class UTexture2D* FactoryIcon;
 

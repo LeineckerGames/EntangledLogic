@@ -1,5 +1,7 @@
 #include "FactoryItemSlot.h"
 #include "Components/Image.h"
+#include "Blueprint/UserWidget.h"
+#include "FactorySelectionWidget.h"
 
 void UFactoryItemSlot::NativeOnInitialized()
 {
@@ -26,6 +28,24 @@ FReply UFactoryItemSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, co
 	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 }
 
+void UFactoryItemSlot::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	if (FactorySelectionWidget)
+	{
+		FactorySelectionWidget->SetNameAndDescriptionText(FactoryName, FactoryDescription);
+	}
+}
+
+void UFactoryItemSlot::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
+{
+	if (FactorySelectionWidget)
+	{
+		FactorySelectionWidget->ClearNameAndDescriptionText();
+	}
+}
+
+// Setters
+
 void UFactoryItemSlot::SetFactoryIcon(UTexture2D* FactoryIconToSet)
 {
 	FactoryIcon = FactoryIconToSet;
@@ -35,6 +55,12 @@ void UFactoryItemSlot::SetFactoryName(FString FactoryNameToSet)
 {
 	FactoryName = FactoryNameToSet;
 }
+
+void UFactoryItemSlot::SetFactoryDescription(FString FactoryDescriptionToSet)
+{
+	FactoryDescription = FactoryDescriptionToSet;
+}
+
 void UFactoryItemSlot::SetFactoryActorClass(TSubclassOf<AActor> FactoryActorToSet)
 {
 	FactoryActor = FactoryActorToSet;

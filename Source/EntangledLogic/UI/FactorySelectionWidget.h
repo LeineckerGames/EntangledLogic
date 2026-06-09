@@ -17,6 +17,9 @@ class ENTANGLEDLOGIC_API UFactorySelectionWidget : public UUserWidget
 	
 public:
 	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* FactoryTextBox;
+
+	UPROPERTY(meta = (BindWidget))
 	class UWrapBox* InventoryWrapBox;
 
 	UPROPERTY(EditAnywhere)
@@ -24,6 +27,11 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UFactoryItemSlot> InventoryItemSlotClass;
+
+	void SetNameAndDescriptionText(FString FactoryName, FString FactoryDescription);
+
+	void ClearNameAndDescriptionText();
+
 
 protected:
 	virtual void NativeOnInitialized() override;
