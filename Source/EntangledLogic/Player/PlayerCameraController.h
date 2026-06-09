@@ -28,6 +28,8 @@ protected:
 
 	class APlayerController* TopDownPlayerController;
 
+	class UGridPlacementSubsystem* GridPlacement;
+
 	void Move(const FInputActionValue& Value);
 
 	void DragMove(const FInputActionValue& Value);
@@ -35,6 +37,9 @@ protected:
 	void OnLeftClick(const FInputActionValue& Value);
 
 	void OnLeftClickCompleted(const FInputActionValue& Value);
+
+	FVector GetWorldMousePosition();
+
 
 public:	
 	// Called every frame

@@ -10,6 +10,11 @@ AFactoryBase::AFactoryBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Create Root Component
+	DefaultRoot = CreateDefaultSubobject<USceneComponent>("DefaultRootComponent");
+
+	SetRootComponent(DefaultRoot);
+
 	// Create Mesh and attach to root
 	FactoryMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FactoryMesh"));
 	FactoryMesh->SetupAttachment(RootComponent);

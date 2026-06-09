@@ -1,16 +1,10 @@
-
-
-
 #include "GridPlacementComponent.h"
+#include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 
-// Sets default values for this component's properties
 UGridPlacementComponent::UGridPlacementComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
 }
 
 
@@ -19,7 +13,8 @@ void UGridPlacementComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
+	GridSize = GridPlacement->GetGridSize();
 	
 }
 
@@ -29,6 +24,19 @@ void UGridPlacementComponent::TickComponent(float DeltaTime, ELevelTick TickType
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
 }
 
+FVector UGridPlacementComponent::GetPlacementOffset() const
+{
+	return PlacementOffset;
+}
+
+int32 UGridPlacementComponent::GetFactorySize() const
+{
+	return FactorySize;
+}
+
+TArray<bool> UGridPlacementComponent::GetFactoryShape() const
+{
+	return FactoryShape;
+}

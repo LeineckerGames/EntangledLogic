@@ -46,7 +46,7 @@ protected:
 
 	AActor* SelectedFactory;
 
-	float GridSize;
+	float GridSize = 100;
 
 	// Change this to store factory pointer or make a seperate Tmap/ arr for saving
 	TMap<FGridCoordinate, bool> PlacedPositionMap;
@@ -56,13 +56,27 @@ protected:
 public:
 
 	void SetPlacedPositionMap(int32 GridXPosition, int32 GridYPosition, bool isPlacedToSet);
+	void SetPlacedPositionMap(TArray<FGridCoordinate> GridLocations, TArray<bool> FactoryShape, bool isPlacedToSet);
 
 	bool GetPlacedPositionMap(int32 GridXPosition, int32 GridYPosition);
+
+	float GetGridSize() const;
 
 	void SetSelectedFactory(TSubclassOf<AActor> FactoryClass);
 
 	AActor* SpawnActorToPlaceFromClass(TSubclassOf<AActor> SelectedActor);
 
+	void PlaceSelectedActor();
+
 	EPlacementMode GetPlacementMode() const;
 
+	FVector GetWorldGridLocation(FVector Location, FVector GridOffset);
+
+	FVector GetGridLocation(FVector Location, FVector GridOffset) const;
+
+	void MoveSelectedFactoryOnGrid(FVector Location);
+
+	bool CollisionCheck(TArray<FGridCoordinate> GridLocations, TArray<bool> FactoryShape);
+
+	TArray<FGridCoordinate> GridComponentToCoordinates(class UGridPlacementComponent* GridPlacementComponent);
 };

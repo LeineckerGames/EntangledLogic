@@ -26,7 +26,7 @@ FReply UFactoryItemSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, co
 	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
 
 	// Set the held factory to item selection.
-	
+	GridPlacement->SetSelectedFactory(FactoryActor);
 
 	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 }

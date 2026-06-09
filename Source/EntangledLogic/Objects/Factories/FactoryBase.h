@@ -20,6 +20,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere)
+	class USceneComponent* DefaultRoot;
+
+	UPROPERTY(VisibleAnywhere)
 	class UGridPlacementComponent* GridPlacementComponent;
 
 	UPROPERTY(VisibleAnywhere)

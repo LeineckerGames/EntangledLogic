@@ -7,6 +7,7 @@
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Camera/CameraComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 APlayerCameraController::APlayerCameraController()
@@ -33,6 +34,7 @@ void APlayerCameraController::BeginPlay()
 	Super::BeginPlay();
 	
 	TopDownPlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+	GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
 }
 
 // Called every frame
@@ -40,6 +42,12 @@ void APlayerCameraController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// If in placing mode move factory to mouse grid location
+	if (GridPlacement->GetPlacementMode() == EPlacementMode::Placing)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Placement Mode set to Placing"));
+		GridPlacement->MoveSelectedFactoryOnGrid(GetWorldMousePosition());
+	}
 }
 
 // Called to bind functionality to input
@@ -76,7 +84,6 @@ void APlayerCameraController::Move(const FInputActionValue& Value)
 
 void APlayerCameraController::OnLeftClick(const FInputActionValue& Value)
 {
-	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
 
 	switch (GridPlacement->GetPlacementMode())
 	{
@@ -85,6 +92,7 @@ void APlayerCameraController::OnLeftClick(const FInputActionValue& Value)
 			break;
 		case EPlacementMode::Placing:
 			// Grid Placement Manager Placing Stuff
+			GridPlacement->PlaceSelectedActor();
 			break;
 		case EPlacementMode::Editing:
 			// Send factory to pickup to grid placement manager
@@ -96,12 +104,23 @@ void APlayerCameraController::OnLeftClick(const FInputActionValue& Value)
 }
 void APlayerCameraController::OnLeftClickCompleted(const FInputActionValue& Value)
 {
-	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
+	isDragging = false;
+}
 
-	if (GridPlacement->GetPlacementMode() == EPlacementMode::Disabled)
+FVector APlayerCameraController::GetWorldMousePosition()
+{
+	FHitResult HitResult;
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (PlayerController)
 	{
-		isDragging = false;
+		bool IsHit = PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, HitResult);
+		if (IsHit)
+		{
+			FVector WorldLocation = HitResult.Location;
+			return WorldLocation;
+		}
 	}
+	return FVector(0.0f, 0.0f, 0.0f);
 }
 
 // Used For Drag Movement with Mouse

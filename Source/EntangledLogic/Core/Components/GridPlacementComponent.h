@@ -28,10 +28,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Factory Shape")
 	FVector PlacementOffset;
 
+	float GridSize;
+
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+	FVector GetPlacementOffset() const;
+	
+	int32 GetFactorySize() const;
+	
+	TArray<bool> GetFactoryShape() const;
 
-		
 };
