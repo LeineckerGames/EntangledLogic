@@ -19,7 +19,6 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UWrapBox* InventoryWrapBox;
 
-
 	UPROPERTY(EditAnywhere)
 	class UDataTable* FactoriesTable;
 

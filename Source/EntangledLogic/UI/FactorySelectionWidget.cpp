@@ -1,6 +1,8 @@
 #include "FactorySelectionWidget.h"
 #include "EntangledLogic/Core/Framework/ItemDataStructs.h"
 #include "FactoryItemSlot.h"
+#include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
 
 void UFactorySelectionWidget::NativeOnInitialized()
 {
