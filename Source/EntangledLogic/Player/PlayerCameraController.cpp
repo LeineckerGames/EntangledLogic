@@ -45,7 +45,6 @@ void APlayerCameraController::Tick(float DeltaTime)
 	// If in placing mode move factory to mouse grid location
 	if (GridPlacement->GetPlacementMode() == EPlacementMode::Placing)
 	{
-		UE_LOG(LogTemp, Display, TEXT("Placement Mode set to Placing"));
 		GridPlacement->MoveSelectedFactoryOnGrid(GetWorldMousePosition());
 	}
 }

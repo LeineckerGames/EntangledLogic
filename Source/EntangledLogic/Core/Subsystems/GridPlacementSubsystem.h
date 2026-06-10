@@ -79,4 +79,6 @@ public:
 	bool CollisionCheck(TArray<FGridCoordinate> GridLocations, TArray<bool> FactoryShape);
 
 	TArray<FGridCoordinate> GridComponentToCoordinates(class UGridPlacementComponent* GridPlacementComponent);
+
+	void DebugPrints();
 };

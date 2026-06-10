@@ -28,7 +28,8 @@ FReply UFactoryItemSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, co
 	// Set the held factory to item selection.
 	GridPlacement->SetSelectedFactory(FactoryActor);
 
-	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+	// Return Handled so mouse doesnt click below
+	return FReply::Handled();
 }
 
 void UFactoryItemSlot::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
