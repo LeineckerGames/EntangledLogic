@@ -75,4 +75,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UInputAction* CancelPlacement;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UInputAction* DeletionMode;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UInputAction* EditingMode;
+
 };

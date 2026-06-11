@@ -40,6 +40,8 @@ void APlayerCameraController::BeginPlay()
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
 		EnhancedInputComponent->BindAction(CancelPlacement, ETriggerEvent::Triggered, GridPlacement, &UGridPlacementSubsystem::DeselectSelectedActor);
+		EnhancedInputComponent->BindAction(DeletionMode, ETriggerEvent::Triggered, GridPlacement, &UGridPlacementSubsystem::SetPlacementModeToDeletion);
+		EnhancedInputComponent->BindAction(EditingMode, ETriggerEvent::Triggered, GridPlacement, &UGridPlacementSubsystem::SetPlacementModeToEditing);
 	}
 }
 

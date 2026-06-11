@@ -54,6 +54,8 @@ protected:
 
 	EPlacementMode PlacementMode = EPlacementMode::Disabled;
 
+	void DeleteSelectedFactory() const;
+
 public:
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -84,5 +86,9 @@ public:
 	bool CollisionCheck(TArray<FGridCoordinate> GridLocations, TArray<bool> FactoryShape);
 
 	TArray<FGridCoordinate> GridComponentToCoordinates(class UGridPlacementComponent* GridPlacementComponent);
+
+	void SetPlacementModeToDeletion();
+	
+	void SetPlacementModeToEditing();
 
 };

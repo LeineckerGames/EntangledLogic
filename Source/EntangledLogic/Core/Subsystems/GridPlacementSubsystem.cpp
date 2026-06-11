@@ -12,11 +12,7 @@ void UGridPlacementSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 void UGridPlacementSubsystem::SetSelectedFactory(TSubclassOf<AActor> FactoryClass)
 {
-	// If a factory is currently selected, delete it before selecting new one
-	if (SelectedFactory)
-	{
-		SelectedFactory->Destroy();
-	}
+	DeleteSelectedFactory();
 
 	SelectedFactoryClass = FactoryClass;
 	SelectedFactory = SpawnActorToPlaceFromClass(SelectedFactoryClass);
@@ -141,11 +137,7 @@ void UGridPlacementSubsystem::PlaceSelectedActor()
 void UGridPlacementSubsystem::DeselectSelectedActor()
 {
 	UE_LOG(LogTemp, Display, TEXT("Deselecting Actor"));
-	// If a factory is currently selected, delete it before selecting new one
-	if (SelectedFactory)
-	{
-		SelectedFactory->Destroy();
-	}
+	DeleteSelectedFactory();
 	SelectedFactoryClass = nullptr;
 	PlacementMode = EPlacementMode::Disabled;
 
@@ -204,3 +196,26 @@ TArray<FGridCoordinate> UGridPlacementSubsystem::GridComponentToCoordinates(UGri
 	return GridLocations;
 }
 
+
+void UGridPlacementSubsystem::DeleteSelectedFactory() const
+{
+	// If a factory is currently selected, delete it before selecting new one
+	if (SelectedFactory)
+	{
+		SelectedFactory->Destroy();
+	}
+}
+
+void UGridPlacementSubsystem::SetPlacementModeToDeletion()
+{
+	UE_LOG(LogTemp, Display, TEXT("Placement Mode set to Deletion"));
+	DeleteSelectedFactory();
+	PlacementMode = EPlacementMode::Deletion;
+}
+
+void UGridPlacementSubsystem::SetPlacementModeToEditing()
+{
+	UE_LOG(LogTemp, Display, TEXT("Placement Mode set to Editing"));
+	DeleteSelectedFactory();
+	PlacementMode = EPlacementMode::Editing;
+}
