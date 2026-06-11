@@ -29,7 +29,7 @@ AFactoryBase::AFactoryBase()
 void AFactoryBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame
@@ -38,4 +38,3 @@ void AFactoryBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-

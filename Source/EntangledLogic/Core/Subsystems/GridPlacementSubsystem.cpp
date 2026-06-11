@@ -5,6 +5,12 @@
 
 void UGridPlacementSubsystem::SetSelectedFactory(TSubclassOf<AActor> FactoryClass)
 {
+	// If a factory is currently selected, delete it before selecting new one
+	if (SelectedFactory)
+	{
+		SelectedFactory->Destroy();
+	}
+
 	SelectedFactoryClass = FactoryClass;
 	SelectedFactory = SpawnActorToPlaceFromClass(SelectedFactoryClass);
 	PlacementMode = EPlacementMode::Placing;
@@ -28,7 +34,7 @@ void UGridPlacementSubsystem::SetPlacedPositionMap(int32 GridXPosition, int32 Gr
 	GridCoordinate.XCoordinate = GridXPosition;
 	GridCoordinate.YCoordinate = GridYPosition;
 	PlacedPositionMap.Emplace(GridCoordinate, isPlacedToSet);
-	UE_LOG(LogTemp, Display, TEXT("Set to %d at coordinates X:%d, Y:%d"), isPlacedToSet, GridXPosition, GridYPosition);
+	//UE_LOG(LogTemp, Display, TEXT("Set to %d at coordinates X:%d, Y:%d"), isPlacedToSet, GridXPosition, GridYPosition);
 }
 
 // Overload for Grid Arrays
@@ -41,7 +47,7 @@ void UGridPlacementSubsystem::SetPlacedPositionMap(TArray<FGridCoordinate> GridL
 		if (FactoryShape[i] == true)
 		{
 			PlacedPositionMap.Emplace(GridCoord, isPlacedToSet);
-			UE_LOG(LogTemp, Display, TEXT("Set to %d at coordinates X:%d, Y:%d"), isPlacedToSet, GridCoord.XCoordinate, GridCoord.YCoordinate);
+			//UE_LOG(LogTemp, Display, TEXT("Set to %d at coordinates X:%d, Y:%d"), isPlacedToSet, GridCoord.XCoordinate, GridCoord.YCoordinate);
 		}
 		i++;
 	}
@@ -57,7 +63,7 @@ bool UGridPlacementSubsystem::GetPlacedPositionMap(int32 GridXPosition, int32 Gr
 	if (isPlacedPointer)
 	{
 		bool isPlaced = *isPlacedPointer;
-		UE_LOG(LogTemp, Display, TEXT("%d is found at coordinates X:%d, Y:%d"), isPlaced, GridXPosition, GridYPosition);
+		//UE_LOG(LogTemp, Display, TEXT("%d is found at coordinates X:%d, Y:%d"), isPlaced, GridXPosition, GridYPosition);
 		return isPlaced;
 	}
 	return false;
@@ -96,8 +102,13 @@ FVector UGridPlacementSubsystem::GetWorldGridLocation(FVector Location, FVector 
 void UGridPlacementSubsystem::MoveSelectedFactoryOnGrid(FVector Location)
 {
 	UGridPlacementComponent* GridPlacementComponent = SelectedFactory->GetComponentByClass<UGridPlacementComponent>();
+	// Might want to change this not to run every frame
+	bool CollisonPass = CollisionCheck(GridComponentToCoordinates(GridPlacementComponent), GridPlacementComponent->GetFactoryShape());
+	GridPlacementComponent->UpdateCollisionMaterialParam(!CollisonPass);
+
 	FVector PlacementOffset = GridPlacementComponent->GetPlacementOffset();
 	FVector GridLocation = GetWorldGridLocation(Location, PlacementOffset);
+
 	SelectedFactory->SetActorLocation(GridLocation);
 }
 
@@ -109,6 +120,7 @@ void UGridPlacementSubsystem::PlaceSelectedActor()
 	if (DidCollide == false)
 	{
 		UE_LOG(LogTemp, Display, TEXT("Placing Actor"));
+		GridPlacementComponent->RemoveOverlayMaterial();
 		SetPlacedPositionMap(GridLocations, GridPlacementComponent->GetFactoryShape(), true);
 		SelectedFactory = SpawnActorToPlaceFromClass(SelectedFactoryClass);
 	}

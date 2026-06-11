@@ -15,6 +15,16 @@ void UGridPlacementComponent::BeginPlay()
 
 	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
 	GridSize = GridPlacement->GetGridSize();
+
+	// Gets all the meshes attached to the parent actor
+	GetOwner()->GetComponents<UMeshComponent>(ActorsAttachedMeshes);
+
+	// Creates Dynamic material instance
+	if (FactoryCollisionOverlayMaterial)
+	{
+		OverlayMaterial = UMaterialInstanceDynamic::Create(FactoryCollisionOverlayMaterial, this);
+		UpdateOverlayMaterial(ActorsAttachedMeshes);
+	}
 	
 }
 
@@ -23,8 +33,33 @@ void UGridPlacementComponent::BeginPlay()
 void UGridPlacementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 }
+
+void UGridPlacementComponent::UpdateOverlayMaterial(TArray<UMeshComponent*> MeshesToUpdate)
+{
+	if (OverlayMaterial)
+	{
+		for (UMeshComponent* Mesh : MeshesToUpdate)
+		{
+			Mesh->SetOverlayMaterial(OverlayMaterial);
+		}
+	}
+}
+
+void UGridPlacementComponent::RemoveOverlayMaterial()
+{
+		for (UMeshComponent* Mesh : ActorsAttachedMeshes)
+		{
+			Mesh->SetOverlayMaterial(nullptr);
+		}
+}
+
+void UGridPlacementComponent::UpdateCollisionMaterialParam(bool CollisionPass)
+{
+	OverlayMaterial->SetScalarParameterValue(FName("CollisionPass"), CollisionPass);
+}
+
+// Getters
 
 FVector UGridPlacementComponent::GetPlacementOffset() const
 {
@@ -39,4 +74,9 @@ int32 UGridPlacementComponent::GetFactorySize() const
 TArray<bool> UGridPlacementComponent::GetFactoryShape() const
 {
 	return FactoryShape;
+}
+
+TArray<UMeshComponent*> UGridPlacementComponent::GetActorsAttachedMeshes() const
+{
+	return ActorsAttachedMeshes;
 }

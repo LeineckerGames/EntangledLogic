@@ -30,6 +30,19 @@ protected:
 
 	float GridSize;
 
+	// Materials
+	UPROPERTY(EditAnywhere, Category = "Grid Materials")
+	class UMaterialInterface* FactoryCollisionOverlayMaterial;
+
+	// Might combine this into above material
+	UPROPERTY(EditAnywhere, Category = "Grid Materials")
+	class UMaterialInterface* FactoryOutlineOverlayMaterial;
+
+	class UMaterialInstanceDynamic* OverlayMaterial;
+
+	TArray<UMeshComponent*> ActorsAttachedMeshes;
+
+	void UpdateOverlayMaterial(TArray<UMeshComponent*> MeshesToUpdate);
 
 public:	
 	// Called every frame
@@ -40,5 +53,11 @@ public:
 	int32 GetFactorySize() const;
 	
 	TArray<bool> GetFactoryShape() const;
+	
+	TArray<UMeshComponent*> GetActorsAttachedMeshes() const;
+
+	void RemoveOverlayMaterial();
+
+	void UpdateCollisionMaterialParam(bool CollisionPass);
 
 };
