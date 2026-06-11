@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
+#include "EnhancedInputLibrary.h"
 #include "GridPlacementSubsystem.generated.h"
 
 USTRUCT()
@@ -55,6 +56,8 @@ protected:
 
 public:
 
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
 	void SetPlacedPositionMap(int32 GridXPosition, int32 GridYPosition, bool isPlacedToSet);
 	void SetPlacedPositionMap(TArray<FGridCoordinate> GridLocations, TArray<bool> FactoryShape, bool isPlacedToSet);
 
@@ -68,6 +71,8 @@ public:
 
 	void PlaceSelectedActor();
 
+	void DeselectSelectedActor();
+
 	EPlacementMode GetPlacementMode() const;
 
 	FVector GetWorldGridLocation(FVector Location, FVector GridOffset);
@@ -80,5 +85,4 @@ public:
 
 	TArray<FGridCoordinate> GridComponentToCoordinates(class UGridPlacementComponent* GridPlacementComponent);
 
-	void DebugPrints();
 };

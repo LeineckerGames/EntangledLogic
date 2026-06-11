@@ -61,7 +61,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UFloatingPawnMovement* FloatingPawnMovement;
 
-	// Input Actions
+	// Player Input Actions
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UInputAction* KeyboardMovement;
 
@@ -70,5 +70,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UInputAction* LeftClick;
+
+	// Grid Input Actions
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UInputAction* CancelPlacement;
 
 };

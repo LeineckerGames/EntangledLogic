@@ -15,7 +15,14 @@ public:
 
 	UPROPERTY(EditDefaultsOnly);
 	class UInputMappingContext* PlayerControls;
+
+	UPROPERTY(EditDefaultsOnly);
+	class UInputMappingContext* GridControls;
 	
+	void AddMappingContext(UInputMappingContext* InputMappingContext, int32 Priority);
+
+	void RemoveMappingContext(UInputMappingContext* PlayerControls);
+
 protected:
 	virtual void BeginPlay() override;
 

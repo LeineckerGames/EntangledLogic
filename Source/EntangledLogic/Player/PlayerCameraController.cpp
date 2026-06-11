@@ -35,6 +35,12 @@ void APlayerCameraController::BeginPlay()
 	
 	TopDownPlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
 	GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
+
+	// Bind Grid Controls
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
+	{
+		EnhancedInputComponent->BindAction(CancelPlacement, ETriggerEvent::Triggered, GridPlacement, &UGridPlacementSubsystem::DeselectSelectedActor);
+	}
 }
 
 // Called every frame
@@ -56,6 +62,7 @@ void APlayerCameraController::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
+		// Player Controls
 		EnhancedInputComponent->BindAction(KeyboardMovement, ETriggerEvent::Triggered, this, &APlayerCameraController::Move);
 		EnhancedInputComponent->BindAction(DragMovement, ETriggerEvent::Triggered, this, &APlayerCameraController::DragMove);
 		EnhancedInputComponent->BindAction(LeftClick, ETriggerEvent::Started, this, &APlayerCameraController::OnLeftClick);

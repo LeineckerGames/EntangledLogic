@@ -19,17 +19,37 @@ void ATopDownPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
+	AddMappingContext(PlayerControls, 0);
+	UE_LOG(LogTemp, Display, TEXT("Player Controls mapping context added"));
+
+	const FInputModeGameAndUI InputMode;
+	SetInputMode(InputMode);
+}
+
+void ATopDownPlayerController::AddMappingContext(UInputMappingContext* InputMappingContext, int32 Priority)
+{
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
 	if (Subsystem)
 	{
-		if (PlayerControls)
+		if (InputMappingContext)
 		{
-			Subsystem->AddMappingContext(PlayerControls, 0);
-			UE_LOG(LogTemp, Display, TEXT("Player Controls mapping context added"));
+			Subsystem->AddMappingContext(InputMappingContext, Priority);
+			//UE_LOG(LogTemp, Display, TEXT("Player Controls mapping context added"));
 		}
 	}
+}
 
-	const FInputModeGameAndUI InputMode;
-	SetInputMode(InputMode);
+void ATopDownPlayerController::RemoveMappingContext(UInputMappingContext* InputMappingContext)
+{
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+
+	if (Subsystem)
+	{
+		if (InputMappingContext)
+		{
+			Subsystem->RemoveMappingContext(InputMappingContext);
+			//UE_LOG(LogTemp, Display, TEXT("Player Controls mapping context added"));
+		}
+	}
 }

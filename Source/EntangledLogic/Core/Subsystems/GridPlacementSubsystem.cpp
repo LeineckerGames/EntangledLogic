@@ -2,6 +2,13 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/EngineTypes.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
+#include "EntangledLogic/Player/TopDownPlayerController.h"
+
+void UGridPlacementSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+}
 
 void UGridPlacementSubsystem::SetSelectedFactory(TSubclassOf<AActor> FactoryClass)
 {
@@ -14,6 +21,11 @@ void UGridPlacementSubsystem::SetSelectedFactory(TSubclassOf<AActor> FactoryClas
 	SelectedFactoryClass = FactoryClass;
 	SelectedFactory = SpawnActorToPlaceFromClass(SelectedFactoryClass);
 	PlacementMode = EPlacementMode::Placing;
+
+	// Add IMC to Player Controller
+	ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
+	TopDownPlayerController->AddMappingContext(TopDownPlayerController->GridControls, 1);
+	UE_LOG(LogTemp, Display, TEXT("Added Grid Mapping Context"));
 }
 
 AActor* UGridPlacementSubsystem::SpawnActorToPlaceFromClass(TSubclassOf<AActor> SelectedActor)
@@ -126,6 +138,21 @@ void UGridPlacementSubsystem::PlaceSelectedActor()
 	}
 }
 
+void UGridPlacementSubsystem::DeselectSelectedActor()
+{
+	UE_LOG(LogTemp, Display, TEXT("Deselecting Actor"));
+	// If a factory is currently selected, delete it before selecting new one
+	if (SelectedFactory)
+	{
+		SelectedFactory->Destroy();
+	}
+	SelectedFactoryClass = nullptr;
+	PlacementMode = EPlacementMode::Disabled;
+
+	ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
+	TopDownPlayerController->RemoveMappingContext(TopDownPlayerController->GridControls);
+}
+
 // Returns True if it collides with something
 bool UGridPlacementSubsystem::CollisionCheck(TArray<FGridCoordinate> GridLocations, TArray<bool> FactoryShape)
 {
@@ -176,3 +203,4 @@ TArray<FGridCoordinate> UGridPlacementSubsystem::GridComponentToCoordinates(UGri
 	}
 	return GridLocations;
 }
+
