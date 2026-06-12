@@ -37,6 +37,9 @@ enum class EPlacementMode : uint8
 	Deletion
 };
 
+// Delegates
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlacementModeChanged, EPlacementMode, NewPlacementMode);
+
 UCLASS()
 class ENTANGLEDLOGIC_API UGridPlacementSubsystem : public UWorldSubsystem
 {
@@ -55,6 +58,8 @@ protected:
 	EPlacementMode PlacementMode = EPlacementMode::Disabled;
 
 	void DeleteSelectedFactory() const;
+
+	void AddGridPlacementIMC();
 
 public:
 
@@ -76,8 +81,10 @@ public:
 	void DeselectSelectedActor();
 
 	EPlacementMode GetPlacementMode() const;
+	
+	void SetPlacementMode(EPlacementMode PlacementModeToSet);
 
-	FVector GetWorldGridLocation(FVector Location, FVector GridOffset);
+	FVector GetWorldGridLocation(FVector Location, FVector GridOffset) const;
 
 	FVector GetGridLocation(FVector Location, FVector GridOffset) const;
 
@@ -91,4 +98,7 @@ public:
 	
 	void SetPlacementModeToEditing();
 
+	FOnPlacementModeChanged OnPlacementModeChanged;
+
+	void OnLeftClick();
 };

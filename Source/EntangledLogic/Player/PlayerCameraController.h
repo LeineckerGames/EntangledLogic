@@ -40,7 +40,6 @@ protected:
 
 	FVector GetWorldMousePosition();
 
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -69,7 +68,7 @@ public:
 	class UInputAction* DragMovement;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	class UInputAction* LeftClick;
+	class UInputAction* PlayerLeftClick;
 
 	// Grid Input Actions
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -80,5 +79,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UInputAction* EditingMode;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UInputAction* GridLeftClick;
 
 };

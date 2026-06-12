@@ -16,12 +16,9 @@ void UGridPlacementSubsystem::SetSelectedFactory(TSubclassOf<AActor> FactoryClas
 
 	SelectedFactoryClass = FactoryClass;
 	SelectedFactory = SpawnActorToPlaceFromClass(SelectedFactoryClass);
-	PlacementMode = EPlacementMode::Placing;
+	SetPlacementMode(EPlacementMode::Placing);
 
-	// Add IMC to Player Controller
-	ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
-	TopDownPlayerController->AddMappingContext(TopDownPlayerController->GridControls, 1);
-	UE_LOG(LogTemp, Display, TEXT("Added Grid Mapping Context"));
+	AddGridPlacementIMC();
 }
 
 AActor* UGridPlacementSubsystem::SpawnActorToPlaceFromClass(TSubclassOf<AActor> SelectedActor)
@@ -95,7 +92,7 @@ FVector UGridPlacementSubsystem::GetGridLocation(FVector Location, FVector GridO
 	return GridPosition;
 }
 
-FVector UGridPlacementSubsystem::GetWorldGridLocation(FVector Location, FVector GridOffset)
+FVector UGridPlacementSubsystem::GetWorldGridLocation(FVector Location, FVector GridOffset) const
 {
 	float HalfGridSize = GridSize / 2;
 	FVector GridPosition = GetGridLocation(Location, GridOffset);
@@ -139,7 +136,7 @@ void UGridPlacementSubsystem::DeselectSelectedActor()
 	UE_LOG(LogTemp, Display, TEXT("Deselecting Actor"));
 	DeleteSelectedFactory();
 	SelectedFactoryClass = nullptr;
-	PlacementMode = EPlacementMode::Disabled;
+	SetPlacementMode(EPlacementMode::Disabled);
 
 	ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
 	TopDownPlayerController->RemoveMappingContext(TopDownPlayerController->GridControls);
@@ -206,16 +203,48 @@ void UGridPlacementSubsystem::DeleteSelectedFactory() const
 	}
 }
 
+void UGridPlacementSubsystem::SetPlacementMode(EPlacementMode PlacementModeToSet)
+{
+	PlacementMode = PlacementModeToSet;
+	OnPlacementModeChanged.Broadcast(PlacementMode);
+}
+
 void UGridPlacementSubsystem::SetPlacementModeToDeletion()
 {
 	UE_LOG(LogTemp, Display, TEXT("Placement Mode set to Deletion"));
 	DeleteSelectedFactory();
-	PlacementMode = EPlacementMode::Deletion;
+	SetPlacementMode(EPlacementMode::Deletion);
+	AddGridPlacementIMC();
 }
 
 void UGridPlacementSubsystem::SetPlacementModeToEditing()
 {
 	UE_LOG(LogTemp, Display, TEXT("Placement Mode set to Editing"));
 	DeleteSelectedFactory();
-	PlacementMode = EPlacementMode::Editing;
+	SetPlacementMode(EPlacementMode::Editing);
+	AddGridPlacementIMC();
+}
+
+void UGridPlacementSubsystem::OnLeftClick()
+{
+	switch (PlacementMode)
+	{
+		case EPlacementMode::Placing:
+			PlaceSelectedActor();
+			break;
+		case EPlacementMode::Deletion:
+			UE_LOG(LogTemp, Display, TEXT("Clicked While Deleted Mode"));
+			break;
+		case EPlacementMode::Editing:
+			UE_LOG(LogTemp, Display, TEXT("Clicked While Editing Mode"));
+			break;
+	}
+}
+
+void UGridPlacementSubsystem::AddGridPlacementIMC()
+{
+	// Add IMC to Player Controller
+	ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
+	TopDownPlayerController->AddMappingContext(TopDownPlayerController->GridControls, 1);
+	UE_LOG(LogTemp, Display, TEXT("Added Grid Mapping Context"));
 }

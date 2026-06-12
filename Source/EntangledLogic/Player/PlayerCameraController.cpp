@@ -39,9 +39,10 @@ void APlayerCameraController::BeginPlay()
 	// Bind Grid Controls
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
-		EnhancedInputComponent->BindAction(CancelPlacement, ETriggerEvent::Triggered, GridPlacement, &UGridPlacementSubsystem::DeselectSelectedActor);
-		EnhancedInputComponent->BindAction(DeletionMode, ETriggerEvent::Triggered, GridPlacement, &UGridPlacementSubsystem::SetPlacementModeToDeletion);
-		EnhancedInputComponent->BindAction(EditingMode, ETriggerEvent::Triggered, GridPlacement, &UGridPlacementSubsystem::SetPlacementModeToEditing);
+		EnhancedInputComponent->BindAction(CancelPlacement, ETriggerEvent::Completed, GridPlacement, &UGridPlacementSubsystem::DeselectSelectedActor);
+		EnhancedInputComponent->BindAction(DeletionMode, ETriggerEvent::Completed, GridPlacement, &UGridPlacementSubsystem::SetPlacementModeToDeletion);
+		EnhancedInputComponent->BindAction(EditingMode, ETriggerEvent::Completed, GridPlacement, &UGridPlacementSubsystem::SetPlacementModeToEditing);
+		EnhancedInputComponent->BindAction(GridLeftClick, ETriggerEvent::Completed, GridPlacement, &UGridPlacementSubsystem::OnLeftClick);
 	}
 }
 
@@ -67,8 +68,8 @@ void APlayerCameraController::SetupPlayerInputComponent(UInputComponent* PlayerI
 		// Player Controls
 		EnhancedInputComponent->BindAction(KeyboardMovement, ETriggerEvent::Triggered, this, &APlayerCameraController::Move);
 		EnhancedInputComponent->BindAction(DragMovement, ETriggerEvent::Triggered, this, &APlayerCameraController::DragMove);
-		EnhancedInputComponent->BindAction(LeftClick, ETriggerEvent::Started, this, &APlayerCameraController::OnLeftClick);
-		EnhancedInputComponent->BindAction(LeftClick, ETriggerEvent::Completed, this, &APlayerCameraController::OnLeftClick);
+		EnhancedInputComponent->BindAction(PlayerLeftClick, ETriggerEvent::Started, this, &APlayerCameraController::OnLeftClick);
+		EnhancedInputComponent->BindAction(PlayerLeftClick, ETriggerEvent::Completed, this, &APlayerCameraController::OnLeftClick);
 	}
 
 }
@@ -100,7 +101,6 @@ void APlayerCameraController::OnLeftClick(const FInputActionValue& Value)
 			break;
 		case EPlacementMode::Placing:
 			// Grid Placement Manager Placing Stuff
-			GridPlacement->PlaceSelectedActor();
 			break;
 		case EPlacementMode::Editing:
 			// Send factory to pickup to grid placement manager
@@ -137,7 +137,7 @@ void APlayerCameraController::DragMove(const FInputActionValue& Value)
 	if (Controller)
 	{
 		// Check if dragging
-		if (isDragging)
+		if (isDragging && GridPlacement->GetPlacementMode() == EPlacementMode::Disabled)
 		{
 			// Get Delta Vector and Normalize it (to make the movement snappy)
 			const FVector2D MouseVector = Value.Get<FVector2D>();
