@@ -15,6 +15,7 @@ void UGridPlacementComponent::BeginPlay()
 
 	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
 	GridSize = GridPlacement->GetGridSize();
+	GridPlacement->OnPlacementModeChanged.AddUObject(this, &UGridPlacementComponent::OnPlacementModeChanged);
 
 	// Gets all the meshes attached to the parent actor
 	GetOwner()->GetComponents<UMeshComponent>(ActorsAttachedMeshes);
@@ -26,11 +27,33 @@ void UGridPlacementComponent::BeginPlay()
 		UpdateOverlayMaterial(ActorsAttachedMeshes);
 	}
 
-	// Sets Render Custom Depth to true so we can use the outline material
-	UpdateRenderCustomDepth(ActorsAttachedMeshes);
+	UpdateRenderCustomDepth(ActorsAttachedMeshes, false);
 	
 }
 
+void UGridPlacementComponent::OnPlacementModeChanged(EPlacementMode CurrentPlacementMode)
+{
+	UE_LOG(LogTemp, Display, TEXT("Placement changed in grid comp"));
+	switch (CurrentPlacementMode)
+	{
+	case EPlacementMode::Disabled:
+		// can make this handle the remove overlays now
+		RemoveOverlayMaterial();
+		UpdateRenderCustomDepth(ActorsAttachedMeshes, false);
+		break;
+	case EPlacementMode::Placing:
+		UpdateRenderCustomDepth(ActorsAttachedMeshes, false);
+		break;
+	case EPlacementMode::Editing:
+		RemoveOverlayMaterial();
+		UpdateRenderCustomDepth(ActorsAttachedMeshes, false);
+		break;
+	case EPlacementMode::Deletion:
+		RemoveOverlayMaterial();
+		UpdateRenderCustomDepth(ActorsAttachedMeshes, false);
+		break;
+	}
+}
 
 // Called every frame
 void UGridPlacementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -49,11 +72,20 @@ void UGridPlacementComponent::UpdateOverlayMaterial(TArray<UMeshComponent*> Mesh
 	}
 }
 
-void UGridPlacementComponent::UpdateRenderCustomDepth(TArray<UMeshComponent*> MeshesToUpdate)
+void UGridPlacementComponent::UpdateRenderCustomDepth(TArray<UMeshComponent*> MeshesToUpdate, bool value)
 {
 		for (UMeshComponent* Mesh : MeshesToUpdate)
 		{
-			Mesh->SetRenderCustomDepth(true);
+			Mesh->SetRenderCustomDepth(value);
+		}
+}
+
+// 1 for Delete, 2 For Edit, 3 for rainbow
+void UGridPlacementComponent::UpdateCustomDepthStencilValue(TArray<UMeshComponent*> MeshesToUpdate, int32 value)
+{
+		for (UMeshComponent* Mesh : MeshesToUpdate)
+		{
+			Mesh->SetCustomDepthStencilValue(value);
 		}
 }
 
@@ -68,6 +100,23 @@ void UGridPlacementComponent::RemoveOverlayMaterial()
 void UGridPlacementComponent::UpdateCollisionMaterialParam(bool CollisionPass)
 {
 	OverlayMaterial->SetScalarParameterValue(FName("CollisionPass"), CollisionPass);
+}
+
+void UGridPlacementComponent::EnableEditOutline()
+{
+	UpdateRenderCustomDepth(ActorsAttachedMeshes, true);
+	UpdateCustomDepthStencilValue(ActorsAttachedMeshes, 2);
+}
+
+void UGridPlacementComponent::EnableDeleteOutline()
+{
+	UpdateRenderCustomDepth(ActorsAttachedMeshes, true);
+	UpdateCustomDepthStencilValue(ActorsAttachedMeshes, 1);
+}
+
+void UGridPlacementComponent::DisableOutline()
+{
+	UpdateRenderCustomDepth(ActorsAttachedMeshes, false);
 }
 
 // Getters

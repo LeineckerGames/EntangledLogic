@@ -7,7 +7,9 @@
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Camera/CameraComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
+#include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "Kismet/GameplayStatics.h"
+
 
 // Sets default values
 APlayerCameraController::APlayerCameraController()
@@ -69,6 +71,12 @@ void APlayerCameraController::Tick(float DeltaTime)
 	{
 		GridPlacement->MoveSelectedFactoryOnGrid(GetWorldMousePosition());
 	}
+
+	if (GridPlacement->GetPlacementMode() == EPlacementMode::Editing || GridPlacement->GetPlacementMode() == EPlacementMode::Deletion)
+	{
+		OutlineHoveredFactory();
+	}
+
 }
 
 // Called to bind functionality to input
@@ -189,4 +197,42 @@ void APlayerCameraController::OnPlacementModeChanged(EPlacementMode CurrentPlace
 		break;
 	}
 	
+}
+
+void APlayerCameraController::OutlineHoveredFactory()
+{
+	FHitResult HitResult;
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (PlayerController)
+	{
+		bool IsHit = PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Camera, false, HitResult);
+		if (IsHit)
+		{
+			UGridPlacementComponent* FactoryGridPlacementComponent = HitResult.GetActor()->GetComponentByClass<UGridPlacementComponent>();
+			if (FactoryGridPlacementComponent)
+			{
+				if (RecentlyHoveredFactoryGPC)
+				{
+					RecentlyHoveredFactoryGPC->DisableOutline();
+				}
+				if (GridPlacement->GetPlacementMode() == EPlacementMode::Editing)
+				{
+					FactoryGridPlacementComponent->EnableEditOutline();
+				}
+				if (GridPlacement->GetPlacementMode() == EPlacementMode::Deletion)
+				{
+					FactoryGridPlacementComponent->EnableDeleteOutline();
+				}
+				RecentlyHoveredFactoryGPC = FactoryGridPlacementComponent;
+			}
+			else
+			{
+				if (RecentlyHoveredFactoryGPC)
+				{
+					RecentlyHoveredFactoryGPC->DisableOutline();
+					RecentlyHoveredFactoryGPC = nullptr;
+				}
+			}
+		}
+	}
 }

@@ -42,6 +42,10 @@ protected:
 
 	void OnPlacementModeChanged(EPlacementMode CurrentPlacementMode);
 
+	void OutlineHoveredFactory();
+
+	class UGridPlacementComponent* RecentlyHoveredFactoryGPC;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
