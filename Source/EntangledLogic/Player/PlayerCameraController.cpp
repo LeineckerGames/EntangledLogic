@@ -21,6 +21,9 @@ APlayerCameraController::APlayerCameraController()
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(RootComponent);
 
+	GridPlane = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GridPlane"));
+	GridPlane->SetupAttachment(RootComponent);
+
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 
@@ -36,6 +39,13 @@ void APlayerCameraController::BeginPlay()
 	TopDownPlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
 	GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
 
+	// Creates Dynamic Grid Material instance
+	if (GridMaterial)
+	{
+		GridMaterialInstance = UMaterialInstanceDynamic::Create(GridMaterial, this);
+		GridPlane->SetMaterial(0, GridMaterialInstance);
+	}
+
 	// Bind Grid Controls
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
@@ -44,6 +54,9 @@ void APlayerCameraController::BeginPlay()
 		EnhancedInputComponent->BindAction(EditingMode, ETriggerEvent::Completed, GridPlacement, &UGridPlacementSubsystem::SetPlacementModeToEditing);
 		EnhancedInputComponent->BindAction(GridLeftClick, ETriggerEvent::Completed, GridPlacement, &UGridPlacementSubsystem::OnLeftClick);
 	}
+
+	// Bind Delegates
+	GridPlacement->OnPlacementModeChanged.AddUObject(this, &APlayerCameraController::OnPlacementModeChanged);
 }
 
 // Called every frame
@@ -155,4 +168,25 @@ void APlayerCameraController::DragMove(const FInputActionValue& Value)
 			AddMovementInput(Right, NormalMouseVector.X * DragSensitivity, true);
 		}
 	}
+}
+
+void APlayerCameraController::OnPlacementModeChanged(EPlacementMode CurrentPlacementMode)
+{
+	switch (CurrentPlacementMode)
+	{
+	case EPlacementMode::Disabled:
+		GridMaterialInstance->SetScalarParameterValue(FName("DeletionMode"), false);
+		break;
+	case EPlacementMode::Placing:
+		GridMaterialInstance->SetScalarParameterValue(FName("DeletionMode"), false);
+		break;
+	case EPlacementMode::Editing:
+		GridMaterialInstance->SetScalarParameterValue(FName("DeletionMode"), false);
+		break;
+	case EPlacementMode::Deletion:
+		UE_LOG(LogTemp, Display, TEXT("Placement Mode CHanged to DELETe"));
+		GridMaterialInstance->SetScalarParameterValue(FName("DeletionMode"), true);
+		break;
+	}
+	
 }

@@ -8,7 +8,7 @@
 #include "PlayerCameraController.generated.h"
 
 struct FInputActionValue;
-
+enum class EPlacementMode : uint8;
 UCLASS()
 class ENTANGLEDLOGIC_API APlayerCameraController : public APawn
 {
@@ -40,6 +40,8 @@ protected:
 
 	FVector GetWorldMousePosition();
 
+	void OnPlacementModeChanged(EPlacementMode CurrentPlacementMode);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -59,6 +61,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UFloatingPawnMovement* FloatingPawnMovement;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UStaticMeshComponent* GridPlane;
+
+	UPROPERTY(EditAnywhere, Category = "Grid Material")
+	class UMaterialInterface* GridMaterial;
+
+	class UMaterialInstanceDynamic* GridMaterialInstance;
 
 	// Player Input Actions
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
