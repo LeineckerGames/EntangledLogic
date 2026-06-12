@@ -152,6 +152,22 @@ FVector APlayerCameraController::GetWorldMousePosition()
 	return FVector(0.0f, 0.0f, 0.0f);
 }
 
+// Returns nullptr if no actor is found
+AActor* APlayerCameraController::GetHoveredActorFromMousePosition()
+{
+	FHitResult HitResult;
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (PlayerController)
+	{
+		bool IsHit = PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Camera, false, HitResult);
+		if (IsHit)
+		{
+			return HitResult.GetActor();
+		}
+	}
+	return nullptr;
+}
+
 // Used For Drag Movement with Mouse
 void APlayerCameraController::DragMove(const FInputActionValue& Value)
 {

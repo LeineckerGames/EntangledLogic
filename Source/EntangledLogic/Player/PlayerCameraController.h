@@ -53,6 +53,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	class AActor* GetHoveredActorFromMousePosition();
+
 	// Attached Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UCapsuleComponent* CapsuleComponent;

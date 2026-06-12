@@ -3,6 +3,8 @@
 #include "Engine/EngineTypes.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Player/TopDownPlayerController.h"
+#include "EntangledLogic/Player/PlayerCameraController.h"
+
 
 void UGridPlacementSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -193,7 +195,6 @@ TArray<FGridCoordinate> UGridPlacementSubsystem::GridComponentToCoordinates(UGri
 	return GridLocations;
 }
 
-
 void UGridPlacementSubsystem::DeleteSelectedFactory() const
 {
 	// If a factory is currently selected, delete it before selecting new one
@@ -233,8 +234,24 @@ void UGridPlacementSubsystem::OnLeftClick()
 			PlaceSelectedActor();
 			break;
 		case EPlacementMode::Deletion:
-			UE_LOG(LogTemp, Display, TEXT("Clicked While Deleted Mode"));
+		{
+			// I dont like doing this might want to refactor this part
+			// Using an interface might work better for hovering / selection
+			ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
+			APlayerCameraController* PlayerCameraController = Cast<APlayerCameraController>(TopDownPlayerController->GetPawn());
+			AActor* HoveredActor = PlayerCameraController->GetHoveredActorFromMousePosition();
+			UGridPlacementComponent* HoveredActorGPC = HoveredActor->GetComponentByClass<UGridPlacementComponent>();
+			if (HoveredActor && HoveredActorGPC)
+			{
+				// Remove from collision map
+				TArray<FGridCoordinate> GridLocations = GridComponentToCoordinates(HoveredActorGPC);
+				SetPlacedPositionMap(GridLocations, HoveredActorGPC->GetFactoryShape(), false);
+				// Destroy Actor
+				HoveredActor->Destroy();
+				UE_LOG(LogTemp, Display, TEXT("Deleted Actor"));
+			}
 			break;
+		}
 		case EPlacementMode::Editing:
 			UE_LOG(LogTemp, Display, TEXT("Clicked While Editing Mode"));
 			break;
