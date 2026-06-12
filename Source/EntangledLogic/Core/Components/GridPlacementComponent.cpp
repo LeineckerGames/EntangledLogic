@@ -15,6 +15,8 @@ void UGridPlacementComponent::BeginPlay()
 
 	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
 	GridSize = GridPlacement->GetGridSize();
+	GridPlacement->OnPlacementModeChanged.AddUObject(this, &UGridPlacementComponent::OnPlacementModeChanged);
+
 
 	// Gets all the meshes attached to the parent actor
 	GetOwner()->GetComponents<UMeshComponent>(ActorsAttachedMeshes);
@@ -22,12 +24,11 @@ void UGridPlacementComponent::BeginPlay()
 	// Creates Dynamic material instance
 	if (FactoryCollisionOverlayMaterial)
 	{
-		OverlayMaterial = UMaterialInstanceDynamic::Create(FactoryCollisionOverlayMaterial, this);
-		UpdateOverlayMaterial(ActorsAttachedMeshes);
+		CollisionOverlayMaterial = UMaterialInstanceDynamic::Create(FactoryCollisionOverlayMaterial, this);
+		UpdateOverlayMaterial(ActorsAttachedMeshes, CollisionOverlayMaterial);
 	}
 
-	// Sets Render Custom Depth to true so we can use the outline material
-	UpdateRenderCustomDepth(ActorsAttachedMeshes);
+	UpdateRenderCustomDepth(ActorsAttachedMeshes, false);
 	
 }
 
@@ -38,22 +39,60 @@ void UGridPlacementComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UGridPlacementComponent::UpdateOverlayMaterial(TArray<UMeshComponent*> MeshesToUpdate)
+void UGridPlacementComponent::OnPlacementModeChanged(EPlacementMode CurrentPlacementMode)
 {
-	if (OverlayMaterial)
+	UE_LOG(LogTemp, Display, TEXT("Placement changed in grid comp"));
+	switch (CurrentPlacementMode)
+	{
+	case EPlacementMode::Disabled:
+		// can make this handle the remove overlays now
+		RemoveOverlayMaterial();
+		UpdateRenderCustomDepth(ActorsAttachedMeshes, false);
+		break;
+	case EPlacementMode::Placing:
+		UpdateRenderCustomDepth(ActorsAttachedMeshes, false);
+		break;
+	case EPlacementMode::Editing:
+		RemoveOverlayMaterial();
+		// Enable Outline & set to green
+		// need to change to be on hover not all meshes next
+		UpdateRenderCustomDepth(ActorsAttachedMeshes, true);
+		UpdateCustomDepthStencilValue(ActorsAttachedMeshes, 2);
+		break;
+	case EPlacementMode::Deletion:
+		RemoveOverlayMaterial();
+		// Enable Outline & set to red
+		UpdateRenderCustomDepth(ActorsAttachedMeshes, true);
+		UpdateCustomDepthStencilValue(ActorsAttachedMeshes, 1);
+		break;
+	}
+}
+
+void UGridPlacementComponent::UpdateOverlayMaterial(TArray<UMeshComponent*> MeshesToUpdate, UMaterialInstanceDynamic* Material)
+{
+	if (Material)
 	{
 		for (UMeshComponent* Mesh : MeshesToUpdate)
 		{
-			Mesh->SetOverlayMaterial(OverlayMaterial);
+			Mesh->SetOverlayMaterial(Material);
 		}
 	}
 }
 
-void UGridPlacementComponent::UpdateRenderCustomDepth(TArray<UMeshComponent*> MeshesToUpdate)
+void UGridPlacementComponent::UpdateRenderCustomDepth(TArray<UMeshComponent*> MeshesToUpdate, bool value)
 {
 		for (UMeshComponent* Mesh : MeshesToUpdate)
 		{
-			Mesh->SetRenderCustomDepth(true);
+			Mesh->SetRenderCustomDepth(value);
+		}
+}
+
+// 1 For Delete, 2 For Edit
+void UGridPlacementComponent::UpdateCustomDepthStencilValue(TArray<UMeshComponent*> MeshesToUpdate, int32 value)
+{
+		for (UMeshComponent* Mesh : MeshesToUpdate)
+		{
+			Mesh->SetCustomDepthStencilValue(value);
 		}
 }
 
@@ -67,7 +106,7 @@ void UGridPlacementComponent::RemoveOverlayMaterial()
 
 void UGridPlacementComponent::UpdateCollisionMaterialParam(bool CollisionPass)
 {
-	OverlayMaterial->SetScalarParameterValue(FName("CollisionPass"), CollisionPass);
+	CollisionOverlayMaterial->SetScalarParameterValue(FName("CollisionPass"), CollisionPass);
 }
 
 // Getters
