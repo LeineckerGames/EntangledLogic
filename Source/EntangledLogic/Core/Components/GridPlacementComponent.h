@@ -44,6 +44,8 @@ protected:
 
 	void UpdateOverlayMaterial(TArray<UMeshComponent*> MeshesToUpdate);
 
+	void UpdateRenderCustomDepth(TArray<UMeshComponent*> MeshesToUpdate);
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

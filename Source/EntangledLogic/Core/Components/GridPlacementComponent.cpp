@@ -25,6 +25,9 @@ void UGridPlacementComponent::BeginPlay()
 		OverlayMaterial = UMaterialInstanceDynamic::Create(FactoryCollisionOverlayMaterial, this);
 		UpdateOverlayMaterial(ActorsAttachedMeshes);
 	}
+
+	// Sets Render Custom Depth to true so we can use the outline material
+	UpdateRenderCustomDepth(ActorsAttachedMeshes);
 	
 }
 
@@ -44,6 +47,14 @@ void UGridPlacementComponent::UpdateOverlayMaterial(TArray<UMeshComponent*> Mesh
 			Mesh->SetOverlayMaterial(OverlayMaterial);
 		}
 	}
+}
+
+void UGridPlacementComponent::UpdateRenderCustomDepth(TArray<UMeshComponent*> MeshesToUpdate)
+{
+		for (UMeshComponent* Mesh : MeshesToUpdate)
+		{
+			Mesh->SetRenderCustomDepth(true);
+		}
 }
 
 void UGridPlacementComponent::RemoveOverlayMaterial()
