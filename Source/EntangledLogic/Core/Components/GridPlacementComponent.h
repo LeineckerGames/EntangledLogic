@@ -1,10 +1,12 @@
+
+
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
 #include "GridPlacementComponent.generated.h"
 
-enum class EPlacementMode : uint8;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ENTANGLEDLOGIC_API UGridPlacementComponent : public USceneComponent
 {
@@ -32,17 +34,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Grid Materials")
 	class UMaterialInterface* FactoryCollisionOverlayMaterial;
 
-	class UMaterialInstanceDynamic* CollisionOverlayMaterial;
+	// Might combine this into above material
+	UPROPERTY(EditAnywhere, Category = "Grid Materials")
+	class UMaterialInterface* FactoryOutlineOverlayMaterial;
+
+	class UMaterialInstanceDynamic* OverlayMaterial;
 
 	TArray<UMeshComponent*> ActorsAttachedMeshes;
 
-	void UpdateOverlayMaterial(TArray<UMeshComponent*> MeshesToUpdate, UMaterialInstanceDynamic* Material);
+	void UpdateOverlayMaterial(TArray<UMeshComponent*> MeshesToUpdate);
 
-	void UpdateRenderCustomDepth(TArray<UMeshComponent*> MeshesToUpdate, bool value);
-
-	void UpdateCustomDepthStencilValue(TArray<UMeshComponent*> MeshesToUpdate, int32 value);
-
-	void OnPlacementModeChanged(EPlacementMode CurrentPlacementMode);
+	void UpdateRenderCustomDepth(TArray<UMeshComponent*> MeshesToUpdate);
 
 public:	
 	// Called every frame
