@@ -253,8 +253,25 @@ void UGridPlacementSubsystem::OnLeftClick()
 			break;
 		}
 		case EPlacementMode::Editing:
-			UE_LOG(LogTemp, Display, TEXT("Clicked While Editing Mode"));
+		{
+			ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
+			APlayerCameraController* PlayerCameraController = Cast<APlayerCameraController>(TopDownPlayerController->GetPawn());
+			AActor* HoveredActor = PlayerCameraController->GetHoveredActorFromMousePosition();
+			UGridPlacementComponent* HoveredActorGPC = HoveredActor->GetComponentByClass<UGridPlacementComponent>();
+			if (HoveredActor && HoveredActorGPC)
+			{
+				// Remove from collision map
+				TArray<FGridCoordinate> GridLocations = GridComponentToCoordinates(HoveredActorGPC);
+				SetPlacedPositionMap(GridLocations, HoveredActorGPC->GetFactoryShape(), false);
+				
+				// Set the Actor as Selected and update class and Placement mode
+				SelectedFactory = HoveredActor;
+				SelectedFactoryClass = HoveredActor->GetClass();
+				SetPlacementMode(EPlacementMode::Placing);
+				UE_LOG(LogTemp, Display, TEXT("Picked Up Actor"));
+			}
 			break;
+		}
 	}
 }
 
