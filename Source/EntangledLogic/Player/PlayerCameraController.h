@@ -20,7 +20,10 @@ public:
 
 private:
 	bool isDragging = false;
-	int DragSensitivity = 100;
+	bool isRotating = false;
+	int32 DragSensitivity = 100;
+	int32 RotateSensitivity = 2;
+	int32 ZoomSpeed = 50;
 
 protected:
 	// Called when the game starts or when spawned
@@ -34,9 +37,17 @@ protected:
 
 	void DragMove(const FInputActionValue& Value);
 
+	void ZoomCamera(const FInputActionValue& Value);
+
+	void RotateCamera(const FInputActionValue& Value);
+
 	void OnLeftClick(const FInputActionValue& Value);
 
 	void OnLeftClickCompleted(const FInputActionValue& Value);
+
+	void OnRightClick(const FInputActionValue& Value);
+
+	void OnRightClickCompleted(const FInputActionValue& Value);
 
 	FVector GetWorldMousePosition();
 
@@ -85,6 +96,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UInputAction* PlayerLeftClick;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UInputAction* PlayerRightClick;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UInputAction* Zoom;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UInputAction* Rotate;
 
 	// Grid Input Actions
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

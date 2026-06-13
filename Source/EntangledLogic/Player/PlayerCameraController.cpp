@@ -91,7 +91,11 @@ void APlayerCameraController::SetupPlayerInputComponent(UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(KeyboardMovement, ETriggerEvent::Triggered, this, &APlayerCameraController::Move);
 		EnhancedInputComponent->BindAction(DragMovement, ETriggerEvent::Triggered, this, &APlayerCameraController::DragMove);
 		EnhancedInputComponent->BindAction(PlayerLeftClick, ETriggerEvent::Started, this, &APlayerCameraController::OnLeftClick);
-		EnhancedInputComponent->BindAction(PlayerLeftClick, ETriggerEvent::Completed, this, &APlayerCameraController::OnLeftClick);
+		EnhancedInputComponent->BindAction(PlayerLeftClick, ETriggerEvent::Completed, this, &APlayerCameraController::OnLeftClickCompleted);
+		EnhancedInputComponent->BindAction(PlayerRightClick, ETriggerEvent::Started, this, &APlayerCameraController::OnRightClick);
+		EnhancedInputComponent->BindAction(PlayerRightClick, ETriggerEvent::Completed, this, &APlayerCameraController::OnRightClickCompleted);
+		EnhancedInputComponent->BindAction(Zoom, ETriggerEvent::Triggered, this, &APlayerCameraController::ZoomCamera);
+		EnhancedInputComponent->BindAction(Rotate, ETriggerEvent::Triggered, this, &APlayerCameraController::RotateCamera);
 	}
 
 }
@@ -110,6 +114,31 @@ void APlayerCameraController::Move(const FInputActionValue& Value)
 
 		AddMovementInput(Forward, MovementInput.Y);
 		AddMovementInput(Right, MovementInput.X);
+	}
+}
+
+void APlayerCameraController::ZoomCamera(const FInputActionValue& Value)
+{
+	float ZoomDirection = Value.Get<float>();
+	
+	SpringArm->TargetArmLength = FMath::Clamp(SpringArm->TargetArmLength + (ZoomDirection * ZoomSpeed), 300.0f, 5000.0f);
+}
+
+void APlayerCameraController::RotateCamera(const FInputActionValue& Value)
+{
+	if (isRotating)
+	{
+		// Spring Vertical Rotation
+		FVector2D RotateVector = Value.Get<FVector2D>() * RotateSensitivity;
+		FRotator CurrentSpringArmRotation = SpringArm->GetTargetRotation();
+		FRotator SpringArmRotation = FRotator(FMath::Clamp(CurrentSpringArmRotation.Pitch + RotateVector.Y, -80.0f, -10.0f), CurrentSpringArmRotation.Yaw, 0.0f);
+		
+		// Actor Horizontal Rotation
+		FRotator CurrentActorRotation = GetActorRotation();
+		FRotator ActorRotation = FRotator(CurrentActorRotation.Pitch, FMath::Clamp(CurrentActorRotation.Yaw + RotateVector.X, -360.0f, 360.0f), 0.0f);
+		
+		SpringArm->SetWorldRotation(SpringArmRotation);
+		SetActorRotation(ActorRotation);
 	}
 }
 
@@ -132,9 +161,20 @@ void APlayerCameraController::OnLeftClick(const FInputActionValue& Value)
 			break;
 	}
 }
+
 void APlayerCameraController::OnLeftClickCompleted(const FInputActionValue& Value)
 {
 	isDragging = false;
+}
+
+void APlayerCameraController::OnRightClick(const FInputActionValue& Value)
+{
+	isRotating = true;
+}
+
+void APlayerCameraController::OnRightClickCompleted(const FInputActionValue& Value)
+{
+	isRotating = false;
 }
 
 FVector APlayerCameraController::GetWorldMousePosition()
@@ -189,8 +229,8 @@ void APlayerCameraController::DragMove(const FInputActionValue& Value)
 			const FVector Forward = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 			const FVector Right = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-			AddMovementInput(Forward, NormalMouseVector.Y * DragSensitivity, true);
-			AddMovementInput(Right, NormalMouseVector.X * DragSensitivity, true);
+			AddMovementInput(Forward, NormalMouseVector.Y * DragSensitivity, false);
+			AddMovementInput(Right, NormalMouseVector.X * DragSensitivity, false);
 		}
 	}
 }

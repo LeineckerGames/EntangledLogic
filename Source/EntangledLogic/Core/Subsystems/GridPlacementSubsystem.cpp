@@ -152,8 +152,11 @@ void UGridPlacementSubsystem::DeselectSelectedActor()
 	SelectedFactoryClass = nullptr;
 	SetPlacementMode(EPlacementMode::Disabled);
 
-	ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
-	TopDownPlayerController->RemoveMappingContext(TopDownPlayerController->GridControls);
+	// Crashed here, this should fix but might want to look into more
+	if (ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController()))
+	{
+		TopDownPlayerController->RemoveMappingContext(TopDownPlayerController->GridControls);
+	}
 }
 
 // Returns True if it collides with something
