@@ -193,12 +193,27 @@ TArray<FGridCoordinate> UGridPlacementSubsystem::GridComponentToCoordinates(UGri
 	int32 RoundedY = FMath::FloorToInt(GridLocation.Y - 0.5f);
 	//UE_LOG(LogTemp, Display, TEXT("RoundedGridLocation: X = %d, Y = %d"), RoundedX, RoundedY);
 	FGridCoordinate GridCoordinate = FGridCoordinate(RoundedX, RoundedY);
+
+	FTransform ComponentTransform = GridPlacementComponent->GetComponentTransform();
+
+	// Get direction vectors
+	FVector ForwardDir = ComponentTransform.GetRotation().GetForwardVector();
+	FVector RightDir = ComponentTransform.GetRotation().GetRightVector();
+
+	// Convert vectors to ints for direction
+	int32 ForwardStepX = FMath::RoundToInt(ForwardDir.X);
+	int32 ForwardStepY = FMath::RoundToInt(ForwardDir.Y);
+	int32 RightStepX = FMath::RoundToInt(RightDir.X);
+	int32 RightStepY = FMath::RoundToInt(RightDir.Y);
 	int count = 0;
 	for (int i = 0; i < FactorySize; i++)
 	{
 		for (int j = 0; j < FactorySize; j++)
 		{
-			FGridCoordinate AdjustedGridCoordinate = FGridCoordinate(GridCoordinate.XCoordinate - i, GridCoordinate.YCoordinate + j);
+			int32 AdjustedX = GridCoordinate.XCoordinate + (i * ForwardStepX) + (j * RightStepX);
+			int32 AdjustedY = GridCoordinate.YCoordinate + (i * ForwardStepY) + (j * RightStepY);
+
+			FGridCoordinate AdjustedGridCoordinate = FGridCoordinate(AdjustedX, AdjustedY);
 			//UE_LOG(LogTemp, Display, TEXT("[%d] Grid Coordinate: X = %d, Y = %d"), count, AdjustedGridCoordinate.XCoordinate, AdjustedGridCoordinate.YCoordinate);
 			GridLocations.Add(AdjustedGridCoordinate);
 			count++;
