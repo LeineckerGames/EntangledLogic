@@ -99,4 +99,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UInputAction* GridLeftClick;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UInputAction* RotateFactory;
+
 };

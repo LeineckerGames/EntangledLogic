@@ -61,6 +61,8 @@ protected:
 
 	void AddGridPlacementIMC();
 
+	FRotator FactoryCreationRotator = FRotator(0.0f, 0.0f, 0.0f);
+
 public:
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -90,6 +92,8 @@ public:
 
 	void MoveSelectedFactoryOnGrid(FVector Location);
 
+	void RotateSelectedActor();
+
 	bool CollisionCheck(TArray<FGridCoordinate> GridLocations, TArray<bool> FactoryShape);
 
 	TArray<FGridCoordinate> GridComponentToCoordinates(class UGridPlacementComponent* GridPlacementComponent);
@@ -101,4 +105,6 @@ public:
 	FOnPlacementModeChanged OnPlacementModeChanged;
 
 	void OnLeftClick();
+
+	void SetFactoryCreationRotator(FRotator Rotator);
 };

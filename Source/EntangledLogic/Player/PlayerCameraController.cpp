@@ -55,6 +55,7 @@ void APlayerCameraController::BeginPlay()
 		EnhancedInputComponent->BindAction(DeletionMode, ETriggerEvent::Completed, GridPlacement, &UGridPlacementSubsystem::SetPlacementModeToDeletion);
 		EnhancedInputComponent->BindAction(EditingMode, ETriggerEvent::Completed, GridPlacement, &UGridPlacementSubsystem::SetPlacementModeToEditing);
 		EnhancedInputComponent->BindAction(GridLeftClick, ETriggerEvent::Completed, GridPlacement, &UGridPlacementSubsystem::OnLeftClick);
+		EnhancedInputComponent->BindAction(RotateFactory, ETriggerEvent::Completed, GridPlacement, &UGridPlacementSubsystem::RotateSelectedActor);
 	}
 
 	// Bind Delegates

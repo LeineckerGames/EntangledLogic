@@ -25,7 +25,8 @@ void UGridPlacementSubsystem::SetSelectedFactory(TSubclassOf<AActor> FactoryClas
 
 AActor* UGridPlacementSubsystem::SpawnActorToPlaceFromClass(TSubclassOf<AActor> SelectedActor)
 {
-	FRotator SpawnRotation = FRotator::ZeroRotator;
+	FRotator SpawnRotation = FactoryCreationRotator;
+	//FRotator SpawnRotation = FRotator::ZeroRotator;
 	//Maybe change this to be 0,0,0 idk
 	FVector SpawnLocation = FVector(0, 0, 0);
 
@@ -117,6 +118,17 @@ void UGridPlacementSubsystem::MoveSelectedFactoryOnGrid(FVector Location)
 	FVector GridLocation = GetWorldGridLocation(Location, PlacementOffset);
 
 	SelectedFactory->SetActorLocation(GridLocation);
+}
+
+void UGridPlacementSubsystem::RotateSelectedActor()
+{
+	if (SelectedFactory)
+	{
+		FRotator Rotator = FRotator(0.0f, 90.0f, 0.0f);
+		FQuat QuatRotation = FQuat(Rotator);
+		SelectedFactory->AddActorLocalRotation(QuatRotation, false, 0, ETeleportType::None);
+		FactoryCreationRotator = SelectedFactory->GetActorRotation();
+	}
 }
 
 void UGridPlacementSubsystem::PlaceSelectedActor()
@@ -226,6 +238,11 @@ void UGridPlacementSubsystem::SetPlacementModeToEditing()
 	AddGridPlacementIMC();
 }
 
+void UGridPlacementSubsystem::SetFactoryCreationRotator(FRotator Rotator)
+{
+	FactoryCreationRotator = Rotator;
+}
+
 void UGridPlacementSubsystem::OnLeftClick()
 {
 	switch (PlacementMode)
@@ -267,6 +284,7 @@ void UGridPlacementSubsystem::OnLeftClick()
 				// Set the Actor as Selected and update class and Placement mode
 				SelectedFactory = HoveredActor;
 				SelectedFactoryClass = HoveredActor->GetClass();
+				FactoryCreationRotator = HoveredActor->GetActorRotation();
 				SetPlacementMode(EPlacementMode::Placing);
 				UE_LOG(LogTemp, Display, TEXT("Picked Up Actor"));
 			}
