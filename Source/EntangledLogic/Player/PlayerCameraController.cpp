@@ -240,17 +240,17 @@ void APlayerCameraController::OnPlacementModeChanged(EPlacementMode CurrentPlace
 	switch (CurrentPlacementMode)
 	{
 	case EPlacementMode::Disabled:
-		GridMaterialInstance->SetScalarParameterValue(FName("DeletionMode"), 2.0f);
+		GridMaterialInstance->SetScalarParameterValue(FName("DeletionMode"), false);
 		break;
 	case EPlacementMode::Placing:
-		GridMaterialInstance->SetScalarParameterValue(FName("DeletionMode"), 0.0f);
+		GridMaterialInstance->SetScalarParameterValue(FName("DeletionMode"), false);
 		break;
 	case EPlacementMode::Editing:
-		GridMaterialInstance->SetScalarParameterValue(FName("DeletionMode"), 0.0f);
+		GridMaterialInstance->SetScalarParameterValue(FName("DeletionMode"), false);
 		break;
 	case EPlacementMode::Deletion:
 		UE_LOG(LogTemp, Display, TEXT("Placement Mode CHanged to DELETe"));
-		GridMaterialInstance->SetScalarParameterValue(FName("DeletionMode"), 1.0f);
+		GridMaterialInstance->SetScalarParameterValue(FName("DeletionMode"), true);
 		break;
 	}
 	

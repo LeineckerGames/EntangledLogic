@@ -1,5 +1,0 @@
-
-
-
-#include "CNOTGateFactory.h"
-

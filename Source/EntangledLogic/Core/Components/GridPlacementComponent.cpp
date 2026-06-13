@@ -99,10 +99,7 @@ void UGridPlacementComponent::RemoveOverlayMaterial()
 
 void UGridPlacementComponent::UpdateCollisionMaterialParam(bool CollisionPass)
 {
-	if (OverlayMaterial)
-	{
-		OverlayMaterial->SetScalarParameterValue(FName("CollisionPass"), CollisionPass);
-	}
+	OverlayMaterial->SetScalarParameterValue(FName("CollisionPass"), CollisionPass);
 }
 
 void UGridPlacementComponent::EnableEditOutline()
