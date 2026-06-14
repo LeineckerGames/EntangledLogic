@@ -112,8 +112,8 @@ void APlayerCameraController::Move(const FInputActionValue& Value)
 		const FVector Forward = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		const FVector Right = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-		AddMovementInput(Forward, MovementInput.Y);
-		AddMovementInput(Right, MovementInput.X);
+		AddMovementInput(Forward, MovementInput.Y * ZoomSensitivityMultiplier);
+		AddMovementInput(Right, MovementInput.X * ZoomSensitivityMultiplier);
 	}
 }
 
@@ -122,6 +122,12 @@ void APlayerCameraController::ZoomCamera(const FInputActionValue& Value)
 	float ZoomDirection = Value.Get<float>();
 	
 	SpringArm->TargetArmLength = FMath::Clamp(SpringArm->TargetArmLength + (ZoomDirection * ZoomSpeed), 300.0f, 5000.0f);
+	ZoomSensitivityMultiplier = 1.0f + ((SpringArm->TargetArmLength - 1500.0f) / 3500.0f) * 1.5f;
+
+	// Scale Grid by multiplier as well
+	FVector GridScale = FVector(100.0f, 100.0f, 100.0f) * ZoomSensitivityMultiplier;
+	GridPlane->SetRelativeScale3D(GridScale);
+	UE_LOG(LogTemp, Display, TEXT("ZoomSensitivityMultiplier: %f"), ZoomSensitivityMultiplier);
 }
 
 void APlayerCameraController::RotateCamera(const FInputActionValue& Value)
@@ -217,9 +223,7 @@ void APlayerCameraController::DragMove(const FInputActionValue& Value)
 		// Check if dragging
 		if (isDragging && GridPlacement->GetPlacementMode() == EPlacementMode::Disabled)
 		{
-			// Get Delta Vector and Normalize it (to make the movement snappy)
 			const FVector2D MouseVector = Value.Get<FVector2D>();
-			const FVector2D NormalMouseVector = MouseVector.GetSafeNormal();
 			//UE_LOG(LogTemp, Display, TEXT("X: %f, Y: %f"), MouseVector.X, MouseVector.Y);
 
 			// Use the value to move the screen the amount the mouse has moved
@@ -229,8 +233,9 @@ void APlayerCameraController::DragMove(const FInputActionValue& Value)
 			const FVector Forward = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 			const FVector Right = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-			AddMovementInput(Forward, NormalMouseVector.Y * DragSensitivity, false);
-			AddMovementInput(Right, NormalMouseVector.X * DragSensitivity, false);
+			FVector DeltaLocation = (Forward * MouseVector.Y) + (Right * MouseVector.X);
+			DeltaLocation *= DragSensitivity * ZoomSensitivityMultiplier;
+			AddActorWorldOffset(DeltaLocation, false);
 		}
 	}
 }
