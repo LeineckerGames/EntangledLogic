@@ -71,6 +71,8 @@ public:
 
 	void EnableDeleteOutline();
 
+	void EnableInteractionOutline();
+
 	void DisableOutline();
 
 };

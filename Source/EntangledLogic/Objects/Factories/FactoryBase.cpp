@@ -48,6 +48,7 @@ void AFactoryBase::BeginHover(EPlacementMode PlacementMode)
 	{
 	case EPlacementMode::Disabled:
 		// Make Placing outline for clicking on factories to open UI
+		GridPlacementComponent->EnableInteractionOutline();
 		break;
 	case EPlacementMode::Placing:
 		
@@ -90,6 +91,7 @@ void AFactoryBase::Interact(EPlacementMode PlacementMode)
 	{
 		case EPlacementMode::Disabled:
 			UE_LOG(LogTemp, Display, TEXT("Selecting Actor %s"), *GetActorNameOrLabel());
+			// Open selected pop up UI
 			break;
 		case EPlacementMode::Placing:
 
@@ -113,28 +115,3 @@ void AFactoryBase::Interact(EPlacementMode PlacementMode)
 		} break;
 	}
 }
-
-//if (HoveredActor && HoveredActorGPC)
-//{
-//	// Remove from collision map
-//	TArray<FGridCoordinate> GridLocations = GridComponentToCoordinates(HoveredActorGPC);
-//	SetPlacedPositionMap(GridLocations, HoveredActorGPC->GetFactoryShape(), false);
-//
-//	// Set the Actor as Selected and update class and Placement mode
-//	SelectedFactory = HoveredActor;
-//	SelectedFactoryClass = HoveredActor->GetClass();
-//	FactoryCreationRotator = HoveredActor->GetActorRotation();
-//	SetPlacementMode(EPlacementMode::Placing);
-//	UE_LOG(LogTemp, Display, TEXT("Picked Up Actor"));
-//}
-
-
-//if (HoveredActor && HoveredActorGPC)
-//{
-//	// Remove from collision map
-//	TArray<FGridCoordinate> GridLocations = GridComponentToCoordinates(HoveredActorGPC);
-//	SetPlacedPositionMap(GridLocations, HoveredActorGPC->GetFactoryShape(), false);
-//	// Destroy Actor
-//	HoveredActor->Destroy();
-//	UE_LOG(LogTemp, Display, TEXT("Deleted Actor"));
-//}

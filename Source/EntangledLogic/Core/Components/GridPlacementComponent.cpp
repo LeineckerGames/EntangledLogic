@@ -117,6 +117,12 @@ void UGridPlacementComponent::EnableDeleteOutline()
 	UpdateCustomDepthStencilValue(ActorsAttachedMeshes, 1);
 }
 
+void UGridPlacementComponent::EnableInteractionOutline()
+{
+	UpdateRenderCustomDepth(ActorsAttachedMeshes, true);
+	UpdateCustomDepthStencilValue(ActorsAttachedMeshes, 3);
+}
+
 void UGridPlacementComponent::DisableOutline()
 {
 	UpdateRenderCustomDepth(ActorsAttachedMeshes, false);
