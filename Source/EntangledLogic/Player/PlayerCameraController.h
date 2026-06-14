@@ -56,7 +56,7 @@ protected:
 
 	void OutlineHoveredFactory();
 
-	class UGridPlacementComponent* RecentlyHoveredFactoryGPC;
+	class IFactoryInteractionInterface* PreviousInteraction;
 
 public:	
 	// Called every frame
@@ -66,6 +66,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	class AActor* GetHoveredActorFromMousePosition();
+
+	class IFactoryInteractionInterface* GetIFactoryInteractionFromMouse();
 
 	// Attached Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

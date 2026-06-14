@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
+#include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -66,16 +67,16 @@ void APlayerCameraController::BeginPlay()
 void APlayerCameraController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
+	if (GridPlacement->GetPlacementMode() != EPlacementMode::Placing)
+	{
+		OutlineHoveredFactory();
+	}
+	
 	// If in placing mode move factory to mouse grid location
 	if (GridPlacement->GetPlacementMode() == EPlacementMode::Placing)
 	{
 		GridPlacement->MoveSelectedFactoryOnGrid(GetWorldMousePosition());
-	}
-
-	if (GridPlacement->GetPlacementMode() == EPlacementMode::Editing || GridPlacement->GetPlacementMode() == EPlacementMode::Deletion)
-	{
-		OutlineHoveredFactory();
 	}
 
 }
@@ -149,22 +150,10 @@ void APlayerCameraController::RotateCamera(const FInputActionValue& Value)
 }
 
 void APlayerCameraController::OnLeftClick(const FInputActionValue& Value)
-{
-
-	switch (GridPlacement->GetPlacementMode())
+{	
+	if (GridPlacement->GetPlacementMode() == EPlacementMode::Disabled)
 	{
-		case EPlacementMode::Disabled:
-			isDragging = true;
-			break;
-		case EPlacementMode::Placing:
-			// Grid Placement Manager Placing Stuff
-			break;
-		case EPlacementMode::Editing:
-			// Send factory to pickup to grid placement manager
-			break;
-		case EPlacementMode::Deletion:
-			// Grid Placement Manager Deltion Stuff
-			break;
+		isDragging = true;
 	}
 }
 
@@ -261,7 +250,8 @@ void APlayerCameraController::OnPlacementModeChanged(EPlacementMode CurrentPlace
 	
 }
 
-void APlayerCameraController::OutlineHoveredFactory()
+// Returns a nullptr if not Interaction is found
+IFactoryInteractionInterface* APlayerCameraController::GetIFactoryInteractionFromMouse()
 {
 	FHitResult HitResult;
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
@@ -270,31 +260,36 @@ void APlayerCameraController::OutlineHoveredFactory()
 		bool IsHit = PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Camera, false, HitResult);
 		if (IsHit)
 		{
-			UGridPlacementComponent* FactoryGridPlacementComponent = HitResult.GetActor()->GetComponentByClass<UGridPlacementComponent>();
-			if (FactoryGridPlacementComponent)
 			{
-				if (RecentlyHoveredFactoryGPC)
+				IFactoryInteractionInterface* CurrentInteraction = Cast<IFactoryInteractionInterface>(HitResult.GetActor());
+				if (CurrentInteraction)
 				{
-					RecentlyHoveredFactoryGPC->DisableOutline();
-				}
-				if (GridPlacement->GetPlacementMode() == EPlacementMode::Editing)
-				{
-					FactoryGridPlacementComponent->EnableEditOutline();
-				}
-				if (GridPlacement->GetPlacementMode() == EPlacementMode::Deletion)
-				{
-					FactoryGridPlacementComponent->EnableDeleteOutline();
-				}
-				RecentlyHoveredFactoryGPC = FactoryGridPlacementComponent;
-			}
-			else
-			{
-				if (RecentlyHoveredFactoryGPC)
-				{
-					RecentlyHoveredFactoryGPC->DisableOutline();
-					RecentlyHoveredFactoryGPC = nullptr;
+					return CurrentInteraction;
 				}
 			}
 		}
+	}
+	return nullptr;
+}
+
+void APlayerCameraController::OutlineHoveredFactory()
+{
+	IFactoryInteractionInterface* CurrentInteraction = GetIFactoryInteractionFromMouse();
+	if (CurrentInteraction)
+	{
+		if (PreviousInteraction && PreviousInteraction != CurrentInteraction)
+		{
+			PreviousInteraction->EndHover(GridPlacement->GetPlacementMode());
+		}
+		CurrentInteraction->BeginHover(GridPlacement->GetPlacementMode());
+		PreviousInteraction = CurrentInteraction;
+	}
+	else
+	{
+		if (PreviousInteraction)
+		{
+			PreviousInteraction->EndHover(GridPlacement->GetPlacementMode());
+		}
+		PreviousInteraction = nullptr;
 	}
 }

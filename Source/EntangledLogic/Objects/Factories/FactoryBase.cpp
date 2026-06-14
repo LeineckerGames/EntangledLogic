@@ -3,6 +3,7 @@
 
 #include "FactoryBase.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
+#include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 
 // Sets default values
 AFactoryBase::AFactoryBase()
@@ -42,15 +43,98 @@ void AFactoryBase::Tick(float DeltaTime)
 // Factory Interaction Interface
 void AFactoryBase::BeginHover(EPlacementMode PlacementMode)
 {
-
+	//UE_LOG(LogTemp, Display, TEXT("Hovered On %s"), *GetActorNameOrLabel());
+	switch (PlacementMode)
+	{
+	case EPlacementMode::Disabled:
+		// Make Placing outline for clicking on factories to open UI
+		break;
+	case EPlacementMode::Placing:
+		
+		break;
+	case EPlacementMode::Editing:
+		GridPlacementComponent->EnableEditOutline();
+		break;
+	case EPlacementMode::Deletion:
+		GridPlacementComponent->EnableDeleteOutline();
+		break;
+	}
 }
 
 void AFactoryBase::EndHover(EPlacementMode PlacementMode)
 {
-
+	//UE_LOG(LogTemp, Display, TEXT("Exited %s"), *GetActorNameOrLabel());
+	switch (PlacementMode)
+	{
+	case EPlacementMode::Disabled:
+		// Make Placing outline for clicking on factories to open UI
+		GridPlacementComponent->DisableOutline();
+		break;
+	case EPlacementMode::Placing:
+		GridPlacementComponent->DisableOutline();
+		break;
+	case EPlacementMode::Editing:
+		GridPlacementComponent->DisableOutline();
+		break;
+	case EPlacementMode::Deletion:
+		GridPlacementComponent->DisableOutline();
+		break;
+	}
 }
 
 void AFactoryBase::Interact(EPlacementMode PlacementMode)
 {
+	UE_LOG(LogTemp, Display, TEXT("Clicked on %s"), *GetActorNameOrLabel());
+	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
+	switch (PlacementMode)
+	{
+		case EPlacementMode::Disabled:
+			UE_LOG(LogTemp, Display, TEXT("Selecting Actor %s"), *GetActorNameOrLabel());
+			break;
+		case EPlacementMode::Placing:
 
+			break;
+		case EPlacementMode::Editing:
+		{
+			//UE_LOG(LogTemp, Display, TEXT("Picking up Actor %s"), *GetActorNameOrLabel());
+			// Remove from collision map
+			TArray<FGridCoordinate> GridLocations = GridPlacement->GridComponentToCoordinates(GridPlacementComponent);
+			GridPlacement->SetPlacedPositionMap(GridLocations, GridPlacementComponent->GetFactoryShape(), false);
+
+			GridPlacement->PickupFactory(this);
+		} break;
+		case EPlacementMode::Deletion:
+		{
+			//UE_LOG(LogTemp, Display, TEXT("Deleting Actor %s"), *GetActorNameOrLabel());
+			// Update Collision and then delete
+			TArray<FGridCoordinate> GridLocations = GridPlacement->GridComponentToCoordinates(GridPlacementComponent);
+			GridPlacement->SetPlacedPositionMap(GridLocations, GridPlacementComponent->GetFactoryShape(), false);
+			Destroy();
+		} break;
+	}
 }
+
+//if (HoveredActor && HoveredActorGPC)
+//{
+//	// Remove from collision map
+//	TArray<FGridCoordinate> GridLocations = GridComponentToCoordinates(HoveredActorGPC);
+//	SetPlacedPositionMap(GridLocations, HoveredActorGPC->GetFactoryShape(), false);
+//
+//	// Set the Actor as Selected and update class and Placement mode
+//	SelectedFactory = HoveredActor;
+//	SelectedFactoryClass = HoveredActor->GetClass();
+//	FactoryCreationRotator = HoveredActor->GetActorRotation();
+//	SetPlacementMode(EPlacementMode::Placing);
+//	UE_LOG(LogTemp, Display, TEXT("Picked Up Actor"));
+//}
+
+
+//if (HoveredActor && HoveredActorGPC)
+//{
+//	// Remove from collision map
+//	TArray<FGridCoordinate> GridLocations = GridComponentToCoordinates(HoveredActorGPC);
+//	SetPlacedPositionMap(GridLocations, HoveredActorGPC->GetFactoryShape(), false);
+//	// Destroy Actor
+//	HoveredActor->Destroy();
+//	UE_LOG(LogTemp, Display, TEXT("Deleted Actor"));
+//}

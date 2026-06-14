@@ -2,6 +2,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/EngineTypes.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
+#include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
 #include "EntangledLogic/Player/TopDownPlayerController.h"
 #include "EntangledLogic/Player/PlayerCameraController.h"
 
@@ -145,6 +146,14 @@ void UGridPlacementSubsystem::PlaceSelectedActor()
 	}
 }
 
+void UGridPlacementSubsystem::PickupFactory(AActor* FactoryToPickup)
+{
+	SelectedFactory = FactoryToPickup;
+	SelectedFactoryClass = FactoryToPickup->GetClass();
+	FactoryCreationRotator = FactoryToPickup->GetActorRotation();
+	SetPlacementMode(EPlacementMode::Placing);
+}
+
 void UGridPlacementSubsystem::DeselectSelectedActor()
 {
 	UE_LOG(LogTemp, Display, TEXT("Deselecting Actor"));
@@ -266,51 +275,16 @@ void UGridPlacementSubsystem::SetFactoryCreationRotator(FRotator Rotator)
 
 void UGridPlacementSubsystem::OnLeftClick()
 {
-	switch (PlacementMode)
+	if (PlacementMode == EPlacementMode::Placing)
 	{
-		case EPlacementMode::Placing:
-			PlaceSelectedActor();
-			break;
-		case EPlacementMode::Deletion:
-		{
-			// I dont like doing this might want to refactor this part
-			// Using an interface might work better for hovering / selection
-			ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
-			APlayerCameraController* PlayerCameraController = Cast<APlayerCameraController>(TopDownPlayerController->GetPawn());
-			AActor* HoveredActor = PlayerCameraController->GetHoveredActorFromMousePosition();
-			UGridPlacementComponent* HoveredActorGPC = HoveredActor->GetComponentByClass<UGridPlacementComponent>();
-			if (HoveredActor && HoveredActorGPC)
-			{
-				// Remove from collision map
-				TArray<FGridCoordinate> GridLocations = GridComponentToCoordinates(HoveredActorGPC);
-				SetPlacedPositionMap(GridLocations, HoveredActorGPC->GetFactoryShape(), false);
-				// Destroy Actor
-				HoveredActor->Destroy();
-				UE_LOG(LogTemp, Display, TEXT("Deleted Actor"));
-			}
-			break;
-		}
-		case EPlacementMode::Editing:
-		{
-			ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
-			APlayerCameraController* PlayerCameraController = Cast<APlayerCameraController>(TopDownPlayerController->GetPawn());
-			AActor* HoveredActor = PlayerCameraController->GetHoveredActorFromMousePosition();
-			UGridPlacementComponent* HoveredActorGPC = HoveredActor->GetComponentByClass<UGridPlacementComponent>();
-			if (HoveredActor && HoveredActorGPC)
-			{
-				// Remove from collision map
-				TArray<FGridCoordinate> GridLocations = GridComponentToCoordinates(HoveredActorGPC);
-				SetPlacedPositionMap(GridLocations, HoveredActorGPC->GetFactoryShape(), false);
-				
-				// Set the Actor as Selected and update class and Placement mode
-				SelectedFactory = HoveredActor;
-				SelectedFactoryClass = HoveredActor->GetClass();
-				FactoryCreationRotator = HoveredActor->GetActorRotation();
-				SetPlacementMode(EPlacementMode::Placing);
-				UE_LOG(LogTemp, Display, TEXT("Picked Up Actor"));
-			}
-			break;
-		}
+		PlaceSelectedActor();
+	}
+	ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
+	APlayerCameraController* PlayerCameraController = Cast<APlayerCameraController>(TopDownPlayerController->GetPawn());
+	IFactoryInteractionInterface* CurrentInteraction = PlayerCameraController->GetIFactoryInteractionFromMouse();
+	if (CurrentInteraction)
+	{
+		CurrentInteraction->Interact(PlacementMode);
 	}
 }
 

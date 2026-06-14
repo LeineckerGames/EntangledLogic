@@ -17,9 +17,9 @@ class ENTANGLEDLOGIC_API IFactoryInteractionInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void BeginHover(EPlacementMode PlacementMode);
-	virtual void EndHover(EPlacementMode PlacementMode);
+	virtual void BeginHover(EPlacementMode PlacementMode) = 0;
+	virtual void EndHover(EPlacementMode PlacementMode) = 0;
 
-	virtual void Interact(EPlacementMode PlacementMode);
+	virtual void Interact(EPlacementMode PlacementMode) = 0;
 
 };
