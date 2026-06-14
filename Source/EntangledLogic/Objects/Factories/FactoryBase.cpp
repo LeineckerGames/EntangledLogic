@@ -1,7 +1,5 @@
-
-
-
 #include "FactoryBase.h"
+#include "Components/WidgetComponent.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 
@@ -20,6 +18,14 @@ AFactoryBase::AFactoryBase()
 	FactoryMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FactoryMesh"));
 	FactoryMesh->SetupAttachment(RootComponent);
 
+
+	// Creates the UI above the factory
+	FactoryDisplayWindow = CreateDefaultSubobject<UWidgetComponent>(TEXT("FactoryDisplayWindow"));
+	FactoryDisplayWindow->SetupAttachment(RootComponent);
+	FactoryDisplayWindow->SetRelativeLocation(FVector(0.0f, 0.0f, 150.0f));
+	FactoryDisplayWindow->SetWidgetSpace(EWidgetSpace::Screen);
+	FactoryDisplayWindow->SetDrawAtDesiredSize(true);
+
 	// Create Grid Placement and attach to mesh
 	GridPlacementComponent = CreateDefaultSubobject<UGridPlacementComponent>(TEXT("GridPlacementComponent"));
 	GridPlacementComponent->SetupAttachment(FactoryMesh);
@@ -30,7 +36,7 @@ AFactoryBase::AFactoryBase()
 void AFactoryBase::BeginPlay()
 {
 	Super::BeginPlay();
-
+	FactoryDisplayWindow->SetVisibility(false);
 }
 
 // Called every frame
@@ -91,6 +97,8 @@ void AFactoryBase::Interact(EPlacementMode PlacementMode)
 	{
 		case EPlacementMode::Disabled:
 			UE_LOG(LogTemp, Display, TEXT("Selecting Actor %s"), *GetActorNameOrLabel());
+			FactoryDisplayWindow->ToggleVisibility();
+
 			// Open selected pop up UI
 			break;
 		case EPlacementMode::Placing:

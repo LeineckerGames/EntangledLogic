@@ -27,6 +27,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UStaticMeshComponent* FactoryMesh;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UWidgetComponent* FactoryDisplayWindow;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

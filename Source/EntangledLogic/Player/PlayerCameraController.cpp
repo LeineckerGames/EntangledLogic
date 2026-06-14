@@ -128,7 +128,7 @@ void APlayerCameraController::ZoomCamera(const FInputActionValue& Value)
 	// Scale Grid by multiplier as well
 	FVector GridScale = FVector(100.0f, 100.0f, 100.0f) * ZoomSensitivityMultiplier;
 	GridPlane->SetRelativeScale3D(GridScale);
-	UE_LOG(LogTemp, Display, TEXT("ZoomSensitivityMultiplier: %f"), ZoomSensitivityMultiplier);
+	//UE_LOG(LogTemp, Display, TEXT("ZoomSensitivityMultiplier: %f"), ZoomSensitivityMultiplier);
 }
 
 void APlayerCameraController::RotateCamera(const FInputActionValue& Value)
@@ -154,6 +154,11 @@ void APlayerCameraController::OnLeftClick(const FInputActionValue& Value)
 	if (GridPlacement->GetPlacementMode() == EPlacementMode::Disabled)
 	{
 		isDragging = true;
+		IFactoryInteractionInterface* CurrentInteraction = GetIFactoryInteractionFromMouse();
+		if (CurrentInteraction)
+		{
+			CurrentInteraction->Interact(GridPlacement->GetPlacementMode());
+		}
 	}
 }
 
