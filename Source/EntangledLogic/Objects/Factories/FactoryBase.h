@@ -2,10 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
 #include "FactoryBase.generated.h"
 
 UCLASS()
-class ENTANGLEDLOGIC_API AFactoryBase : public AActor
+class ENTANGLEDLOGIC_API AFactoryBase : public AActor, public IFactoryInteractionInterface
 {
 	GENERATED_BODY()
 	
@@ -30,4 +31,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// Factory Interacton Interface
+	virtual void BeginHover(EPlacementMode PlacementMode) override;
+	virtual void EndHover(EPlacementMode PlacementMode) override;
+
+	virtual void Interact(EPlacementMode PlacementMode) override;
 };

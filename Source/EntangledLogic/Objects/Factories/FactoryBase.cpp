@@ -38,3 +38,19 @@ void AFactoryBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
+
+// Factory Interaction Interface
+void AFactoryBase::BeginHover(EPlacementMode PlacementMode)
+{
+
+}
+
+void AFactoryBase::EndHover(EPlacementMode PlacementMode)
+{
+
+}
+
+void AFactoryBase::Interact(EPlacementMode PlacementMode)
+{
+
+}
