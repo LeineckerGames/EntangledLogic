@@ -14,6 +14,9 @@ public:
 
 	virtual void Interact(EPlacementMode PlacementMode) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class USoundWave* YaySound;
+
 protected:
 
 	virtual void BeginPlay() override;

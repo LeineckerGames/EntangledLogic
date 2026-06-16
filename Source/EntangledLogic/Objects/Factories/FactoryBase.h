@@ -34,6 +34,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void RotateUIToCamera();
+
 	// Factory Interacton Interface
 	virtual void BeginHover(EPlacementMode PlacementMode) override;
 	virtual void EndHover(EPlacementMode PlacementMode) override;

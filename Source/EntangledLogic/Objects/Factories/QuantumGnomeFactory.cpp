@@ -1,5 +1,6 @@
 #include "QuantumGnomeFactory.h"
 #include "Components/AudioComponent.h"
+#include "Sound/SoundWave.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
@@ -43,6 +44,9 @@ void AQuantumGnomeFactory::Interact(EPlacementMode PlacementMode)
 		if (ClickCount >= 10)
 		{
 			// Make gnome explode
+			AudioComponenet->SetSound(YaySound);
+			AudioComponenet->SetPitchMultiplier(1.0f);
+			AudioComponenet->Play();
 			Explode();
 			UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
 			TArray<FGridCoordinate> GridLocations = GridPlacement->GridComponentToCoordinates(GridPlacementComponent);
@@ -51,7 +55,7 @@ void AQuantumGnomeFactory::Interact(EPlacementMode PlacementMode)
 		}
 		else
 		{
-			AudioComponenet->SetPitchMultiplier(ClickCount / 5);
+			AudioComponenet->SetPitchMultiplier(ClickCount / 5.0f);
 			AudioComponenet->Play();
 		}
 	}

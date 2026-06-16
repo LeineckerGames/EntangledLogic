@@ -2,6 +2,9 @@
 #include "Components/WidgetComponent.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Camera/PlayerCameraManager.h"
 
 // Sets default values
 AFactoryBase::AFactoryBase()
@@ -43,7 +46,19 @@ void AFactoryBase::BeginPlay()
 void AFactoryBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (FactoryDisplayWindow->IsVisible())
+	{
+		RotateUIToCamera();
+	}
+}
 
+void AFactoryBase::RotateUIToCamera()
+{
+	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+	FRotator RotationTowardCamera = UKismetMathLibrary::FindLookAtRotation(
+		FactoryDisplayWindow->GetComponentLocation() ,
+		CameraManager->GetTransformComponent()->GetComponentLocation());
+	FactoryDisplayWindow->SetWorldRotation(RotationTowardCamera);
 }
 
 // Factory Interaction Interface
