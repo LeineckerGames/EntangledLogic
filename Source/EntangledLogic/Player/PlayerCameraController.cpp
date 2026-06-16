@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
+#include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -66,16 +67,16 @@ void APlayerCameraController::BeginPlay()
 void APlayerCameraController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
+	if (GridPlacement->GetPlacementMode() != EPlacementMode::Placing)
+	{
+		OutlineHoveredFactory();
+	}
+	
 	// If in placing mode move factory to mouse grid location
 	if (GridPlacement->GetPlacementMode() == EPlacementMode::Placing)
 	{
 		GridPlacement->MoveSelectedFactoryOnGrid(GetWorldMousePosition());
-	}
-
-	if (GridPlacement->GetPlacementMode() == EPlacementMode::Editing || GridPlacement->GetPlacementMode() == EPlacementMode::Deletion)
-	{
-		OutlineHoveredFactory();
 	}
 
 }
@@ -112,8 +113,8 @@ void APlayerCameraController::Move(const FInputActionValue& Value)
 		const FVector Forward = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		const FVector Right = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-		AddMovementInput(Forward, MovementInput.Y);
-		AddMovementInput(Right, MovementInput.X);
+		AddMovementInput(Forward, MovementInput.Y * ZoomSensitivityMultiplier);
+		AddMovementInput(Right, MovementInput.X * ZoomSensitivityMultiplier);
 	}
 }
 
@@ -122,6 +123,12 @@ void APlayerCameraController::ZoomCamera(const FInputActionValue& Value)
 	float ZoomDirection = Value.Get<float>();
 	
 	SpringArm->TargetArmLength = FMath::Clamp(SpringArm->TargetArmLength + (ZoomDirection * ZoomSpeed), 300.0f, 5000.0f);
+	ZoomSensitivityMultiplier = 1.0f + ((SpringArm->TargetArmLength - 1500.0f) / 3500.0f) * 1.5f;
+
+	// Scale Grid by multiplier as well
+	FVector GridScale = FVector(100.0f, 100.0f, 100.0f) * ZoomSensitivityMultiplier;
+	GridPlane->SetRelativeScale3D(GridScale);
+	//UE_LOG(LogTemp, Display, TEXT("ZoomSensitivityMultiplier: %f"), ZoomSensitivityMultiplier);
 }
 
 void APlayerCameraController::RotateCamera(const FInputActionValue& Value)
@@ -143,22 +150,15 @@ void APlayerCameraController::RotateCamera(const FInputActionValue& Value)
 }
 
 void APlayerCameraController::OnLeftClick(const FInputActionValue& Value)
-{
-
-	switch (GridPlacement->GetPlacementMode())
+{	
+	if (GridPlacement->GetPlacementMode() == EPlacementMode::Disabled)
 	{
-		case EPlacementMode::Disabled:
-			isDragging = true;
-			break;
-		case EPlacementMode::Placing:
-			// Grid Placement Manager Placing Stuff
-			break;
-		case EPlacementMode::Editing:
-			// Send factory to pickup to grid placement manager
-			break;
-		case EPlacementMode::Deletion:
-			// Grid Placement Manager Deltion Stuff
-			break;
+		isDragging = true;
+		IFactoryInteractionInterface* CurrentInteraction = GetIFactoryInteractionFromMouse();
+		if (CurrentInteraction)
+		{
+			CurrentInteraction->Interact(GridPlacement->GetPlacementMode());
+		}
 	}
 }
 
@@ -217,9 +217,7 @@ void APlayerCameraController::DragMove(const FInputActionValue& Value)
 		// Check if dragging
 		if (isDragging && GridPlacement->GetPlacementMode() == EPlacementMode::Disabled)
 		{
-			// Get Delta Vector and Normalize it (to make the movement snappy)
 			const FVector2D MouseVector = Value.Get<FVector2D>();
-			const FVector2D NormalMouseVector = MouseVector.GetSafeNormal();
 			//UE_LOG(LogTemp, Display, TEXT("X: %f, Y: %f"), MouseVector.X, MouseVector.Y);
 
 			// Use the value to move the screen the amount the mouse has moved
@@ -229,8 +227,9 @@ void APlayerCameraController::DragMove(const FInputActionValue& Value)
 			const FVector Forward = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 			const FVector Right = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-			AddMovementInput(Forward, NormalMouseVector.Y * DragSensitivity, false);
-			AddMovementInput(Right, NormalMouseVector.X * DragSensitivity, false);
+			FVector DeltaLocation = (Forward * MouseVector.Y) + (Right * MouseVector.X);
+			DeltaLocation *= DragSensitivity * ZoomSensitivityMultiplier;
+			AddActorWorldOffset(DeltaLocation, false);
 		}
 	}
 }
@@ -256,7 +255,8 @@ void APlayerCameraController::OnPlacementModeChanged(EPlacementMode CurrentPlace
 	
 }
 
-void APlayerCameraController::OutlineHoveredFactory()
+// Returns a nullptr if not Interaction is found
+IFactoryInteractionInterface* APlayerCameraController::GetIFactoryInteractionFromMouse()
 {
 	FHitResult HitResult;
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
@@ -265,31 +265,36 @@ void APlayerCameraController::OutlineHoveredFactory()
 		bool IsHit = PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Camera, false, HitResult);
 		if (IsHit)
 		{
-			UGridPlacementComponent* FactoryGridPlacementComponent = HitResult.GetActor()->GetComponentByClass<UGridPlacementComponent>();
-			if (FactoryGridPlacementComponent)
 			{
-				if (RecentlyHoveredFactoryGPC)
+				IFactoryInteractionInterface* CurrentInteraction = Cast<IFactoryInteractionInterface>(HitResult.GetActor());
+				if (CurrentInteraction)
 				{
-					RecentlyHoveredFactoryGPC->DisableOutline();
-				}
-				if (GridPlacement->GetPlacementMode() == EPlacementMode::Editing)
-				{
-					FactoryGridPlacementComponent->EnableEditOutline();
-				}
-				if (GridPlacement->GetPlacementMode() == EPlacementMode::Deletion)
-				{
-					FactoryGridPlacementComponent->EnableDeleteOutline();
-				}
-				RecentlyHoveredFactoryGPC = FactoryGridPlacementComponent;
-			}
-			else
-			{
-				if (RecentlyHoveredFactoryGPC)
-				{
-					RecentlyHoveredFactoryGPC->DisableOutline();
-					RecentlyHoveredFactoryGPC = nullptr;
+					return CurrentInteraction;
 				}
 			}
 		}
+	}
+	return nullptr;
+}
+
+void APlayerCameraController::OutlineHoveredFactory()
+{
+	IFactoryInteractionInterface* CurrentInteraction = GetIFactoryInteractionFromMouse();
+	if (CurrentInteraction)
+	{
+		if (PreviousInteraction && PreviousInteraction != CurrentInteraction)
+		{
+			PreviousInteraction->EndHover(GridPlacement->GetPlacementMode());
+		}
+		CurrentInteraction->BeginHover(GridPlacement->GetPlacementMode());
+		PreviousInteraction = CurrentInteraction;
+	}
+	else
+	{
+		if (PreviousInteraction)
+		{
+			PreviousInteraction->EndHover(GridPlacement->GetPlacementMode());
+		}
+		PreviousInteraction = nullptr;
 	}
 }

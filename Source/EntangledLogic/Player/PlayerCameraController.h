@@ -21,9 +21,10 @@ public:
 private:
 	bool isDragging = false;
 	bool isRotating = false;
-	int32 DragSensitivity = 100;
+	float DragSensitivity = 50.0f;
 	int32 RotateSensitivity = 2;
 	int32 ZoomSpeed = 50;
+	float ZoomSensitivityMultiplier = 1.0f;
 
 protected:
 	// Called when the game starts or when spawned
@@ -55,7 +56,7 @@ protected:
 
 	void OutlineHoveredFactory();
 
-	class UGridPlacementComponent* RecentlyHoveredFactoryGPC;
+	class IFactoryInteractionInterface* PreviousInteraction;
 
 public:	
 	// Called every frame
@@ -65,6 +66,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	class AActor* GetHoveredActorFromMousePosition();
+
+	class IFactoryInteractionInterface* GetIFactoryInteractionFromMouse();
 
 	// Attached Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

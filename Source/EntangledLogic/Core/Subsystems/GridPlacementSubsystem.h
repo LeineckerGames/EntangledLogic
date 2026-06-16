@@ -80,6 +80,8 @@ public:
 
 	void PlaceSelectedActor();
 
+	void PickupFactory(AActor* FactoryToPickup);
+
 	void DeselectSelectedActor();
 
 	EPlacementMode GetPlacementMode() const;

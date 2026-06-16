@@ -310,3 +310,4 @@ RELEASE_MSG
 /.ignore
 
 Build/*
+Config/DefaultEngine.ini
