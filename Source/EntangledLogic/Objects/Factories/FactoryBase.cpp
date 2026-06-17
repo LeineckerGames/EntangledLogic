@@ -2,6 +2,7 @@
 #include "Components/WidgetComponent.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
+#include "EntangledLogic/UI/Factory/FactoryInfoUI.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Camera/PlayerCameraManager.h"
@@ -40,6 +41,19 @@ void AFactoryBase::BeginPlay()
 {
 	Super::BeginPlay();
 	FactoryDisplayWindow->SetVisibility(false);
+	UUserWidget* FactoryWidget = FactoryDisplayWindow->GetUserWidgetObject();
+	if (FactoryWidget)
+	{
+		FactoryInfoWidget = Cast<UFactoryInfoUI>(FactoryDisplayWindow->GetUserWidgetObject());
+	}
+
+	if (FactoryInfoWidget)
+	{
+		FactoryInfoWidget->SetHeaderText(GetActorNameOrLabel());
+		FactoryInfoWidget->SetFactoryInfoText("he was here too");
+		FactoryInfoWidget->SetFactoryDescriptionText("a gnome was here");
+	}
+	
 }
 
 // Called every frame
