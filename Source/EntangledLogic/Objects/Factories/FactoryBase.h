@@ -30,7 +30,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UWidgetComponent* FactoryDisplayWindow;
 
-	class UFactoryInfoUI* FactoryInfoWidget;
+	class UUserWidget* FactoryWidget;
 
 public:	
 	// Called every frame

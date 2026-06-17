@@ -3,6 +3,7 @@
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "EntangledLogic/UI/Factory/FactoryInfoUI.h"
+#include "EntangledLogic/UI/Factory/FactoryDevUI.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Camera/PlayerCameraManager.h"
@@ -40,18 +41,30 @@ AFactoryBase::AFactoryBase()
 void AFactoryBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Setup Floating UI
 	FactoryDisplayWindow->SetVisibility(false);
-	UUserWidget* FactoryWidget = FactoryDisplayWindow->GetUserWidgetObject();
+	FactoryWidget = FactoryDisplayWindow->GetUserWidgetObject();
+	UFactoryInfoUI* FactoryInfoWidget = nullptr;
+	UFactoryDevUI* FactoryDevWidget = nullptr;
 	if (FactoryWidget)
 	{
-		FactoryInfoWidget = Cast<UFactoryInfoUI>(FactoryDisplayWindow->GetUserWidgetObject());
+		FactoryInfoWidget = Cast<UFactoryInfoUI>(FactoryWidget);
+		FactoryDevWidget = Cast<UFactoryDevUI>(FactoryWidget);
 	}
 
+	// UI for 1x1 Factories
 	if (FactoryInfoWidget)
 	{
 		FactoryInfoWidget->SetHeaderText(GetActorNameOrLabel());
-		FactoryInfoWidget->SetFactoryInfoText("he was here too");
 		FactoryInfoWidget->SetFactoryDescriptionText("a gnome was here");
+		FactoryInfoWidget->SetFactoryInfoText("he was here too");
+	}
+
+	// UI for Dev Menu Cube
+	if (FactoryDevWidget)
+	{
+		FactoryDevWidget->SetHeaderText("Dev Menu");
 	}
 	
 }
