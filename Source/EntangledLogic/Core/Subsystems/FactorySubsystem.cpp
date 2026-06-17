@@ -12,9 +12,31 @@ void UFactorySubsystem::OnWorldBeginPlay(UWorld& InWorld)
 	
 }
 
+bool UFactorySubsystem::GetTickPaused() const
+{
+	return isTickPaused;
+}
+
+void UFactorySubsystem::SetTickPaused(bool TickPausedValue)
+{
+	isTickPaused = TickPausedValue;
+}
+
 void UFactorySubsystem::SetTickTrue()
 {
-	CanTick = true;
+	if (isTickPaused)
+	{
+		CanTick = false;
+	}
+	else
+	{
+		CanTick = true;
+	}
+}
+
+void UFactorySubsystem::SetCanTick(bool CanTickValue)
+{
+	CanTick = CanTickValue;
 }
 
 void UFactorySubsystem::Tick(float DeltaTime)

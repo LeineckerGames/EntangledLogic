@@ -25,6 +25,18 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	class UButton* ClearFactoriesButton;
 
+	UPROPERTY(meta = (BindWidget))
+	class UButton* TickPauseButton;
+
+	UPROPERTY(meta = (BindWidget))
+	class UButton* TickPlayButton;
+
+	UPROPERTY(meta = (BindWidget))
+	class UButton* NextTickButton;
+
+	UPROPERTY(meta = (BindWidget))
+	class UWidgetSwitcher* PlayPauseSwitch;
+
 	virtual void NativeConstruct() override;
 
 	UFUNCTION()
@@ -38,6 +50,12 @@ protected:
 
 	UFUNCTION()
 	void ClearFactories();
+
+	UFUNCTION()
+	void ToggleFactoryTick();
+
+	UFUNCTION()
+	void NextFactoryTick();
 
 
 public:

@@ -13,6 +13,8 @@ class ENTANGLEDLOGIC_API UFactorySubsystem : public UWorldSubsystem, public FTic
 protected:
 
 	bool CanTick = false;
+	
+	bool isTickPaused = false;
 
 	FTimerManager TimerManager;
 
@@ -25,5 +27,11 @@ public:
 	virtual TStatId GetStatId() const override;
 
 	void SetTickTrue();
+
+	void SetCanTick(bool CanTickValue);
+
+	bool GetTickPaused() const;
+
+	void SetTickPaused(bool TickPausedValue);
 
 };
