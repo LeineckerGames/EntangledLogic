@@ -30,6 +30,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UWidgetComponent* FactoryDisplayWindow;
 
+	class UFactoryInfoUI* FactoryInfoWidget;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

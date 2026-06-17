@@ -79,6 +79,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UCameraComponent* Camera;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UWidgetInteractionComponent* WidgetInteractionComponent;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UFloatingPawnMovement* FloatingPawnMovement;
 

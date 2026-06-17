@@ -5,6 +5,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
+#include "Components/WidgetInteractionComponent.h" 
 #include "Camera/CameraComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
@@ -23,6 +24,9 @@ APlayerCameraController::APlayerCameraController()
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(RootComponent);
+
+	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponent"));
+	WidgetInteractionComponent->SetupAttachment(RootComponent);
 
 	GridPlane = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GridPlane"));
 	GridPlane->SetupAttachment(RootComponent);
@@ -159,12 +163,14 @@ void APlayerCameraController::OnLeftClick(const FInputActionValue& Value)
 		{
 			CurrentInteraction->Interact(GridPlacement->GetPlacementMode());
 		}
+		WidgetInteractionComponent->PressPointerKey(EKeys::LeftMouseButton);
 	}
 }
 
 void APlayerCameraController::OnLeftClickCompleted(const FInputActionValue& Value)
 {
 	isDragging = false;
+	WidgetInteractionComponent->ReleasePointerKey(EKeys::LeftMouseButton);
 }
 
 void APlayerCameraController::OnRightClick(const FInputActionValue& Value)

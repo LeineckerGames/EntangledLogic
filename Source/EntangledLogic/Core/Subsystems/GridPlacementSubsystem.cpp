@@ -118,6 +118,11 @@ void UGridPlacementSubsystem::MoveSelectedFactoryOnGrid(FVector Location)
 	FVector PlacementOffset = GridPlacementComponent->GetPlacementOffset();
 	FVector GridLocation = GetWorldGridLocation(Location, PlacementOffset);
 
+	if (!IsValid(SelectedFactory))
+	{
+		return;
+	}
+
 	SelectedFactory->SetActorLocation(GridLocation);
 }
 
