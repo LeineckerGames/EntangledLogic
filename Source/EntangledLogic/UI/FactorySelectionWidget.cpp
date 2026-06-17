@@ -1,5 +1,6 @@
 #include "FactorySelectionWidget.h"
 #include "EntangledLogic/Core/Framework/ItemDataStructs.h"
+#include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
 #include "FactoryItemSlot.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
@@ -27,7 +28,9 @@ void UFactorySelectionWidget::PopulateInventory()
 			FItemData* RowData = FactoriesTable->FindRow<FItemData>(name, ContextString);
 			if (RowData)
 			{
-				if (RowData->ItemAssetData.Icon) {
+				UFactorySubsystem* FactorySubsystem = GetWorld()->GetSubsystem<UFactorySubsystem>();
+				bool isUnlocked = FactorySubsystem->CheckIfUnlocked(RowData->ItemAssetData.UnlockRequirement);
+				if (RowData->ItemAssetData.Icon && isUnlocked) {
 					UFactoryItemSlot* ItemSlot = CreateWidget<UFactoryItemSlot>(this, InventoryItemSlotClass);
 					ItemSlot->SetFactoryIcon(RowData->ItemAssetData.Icon);
 					ItemSlot->SetFactoryName(RowData->ItemTextData.Name.ToString());

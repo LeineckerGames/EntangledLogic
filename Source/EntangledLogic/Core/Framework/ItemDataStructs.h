@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "UnlockablesEnum.h"
 #include "ItemDataStructs.generated.h"
 
 USTRUCT()
@@ -27,6 +28,9 @@ struct FItemAssetData
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AActor> ActorComponent;
+
+	UPROPERTY(EditAnywhere)
+	EUnlockables UnlockRequirement;
 
 };
 

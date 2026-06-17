@@ -32,10 +32,9 @@ public:
 
 	void ClearNameAndDescriptionText();
 
+	void PopulateInventory();
 
 protected:
 	virtual void NativeOnInitialized() override;
-
-	void PopulateInventory();
 
 };

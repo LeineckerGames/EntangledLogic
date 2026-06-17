@@ -17,6 +17,8 @@ public:
 
 	APlayerHUD();
 
+	void RepopulateFactorySelectionWidget();
+
 protected:
 	virtual void BeginPlay() override;
 

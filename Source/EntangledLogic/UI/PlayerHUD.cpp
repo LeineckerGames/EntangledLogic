@@ -19,3 +19,11 @@ void APlayerHUD::BeginPlay()
 	}
 
 }
+
+void APlayerHUD::RepopulateFactorySelectionWidget()
+{
+	if (FactorySelectionWidget)
+	{
+		FactorySelectionWidget->PopulateInventory();
+	}
+}
