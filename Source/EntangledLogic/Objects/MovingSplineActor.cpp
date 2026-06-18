@@ -1,17 +1,23 @@
-#include "TestingWire.h"
+// Fill out your copyright notice in the Description page of Project Settings.
 
-ATestingWire::ATestingWire()
+
+#include "MovingSplineActor.h"
+
+// Sets default values
+AMovingSplineActor::AMovingSplineActor()
 {
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	SplineComponent = CreateDefaultSubobject<USplineComponent>(TEXT("Spline Component"));
-	SplineComponent->SetupAttachment(GetRootComponent());
+	RootComponent = SplineComponent;
 
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Component"));
 	MeshComponent->SetupAttachment(SplineComponent);
 }
 
-void ATestingWire::BeginPlay()
+// Called when the game starts or when spawned
+void AMovingSplineActor::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -21,7 +27,7 @@ void ATestingWire::BeginPlay()
 	// Bind the Y key to the StartMovement function
 	if (InputComponent)
 	{
-		InputComponent->BindKey(EKeys::Y, IE_Pressed, this, &ATestingWire::StartMovement);
+		InputComponent->BindKey(EKeys::Y, IE_Pressed, this, &AMovingSplineActor::StartMovement);
 	}
 
 	// Initialize timeline function bindings
@@ -39,7 +45,8 @@ void ATestingWire::BeginPlay()
 	}
 }
 
-void ATestingWire::Tick(float DeltaTime)
+// Called every frame
+void AMovingSplineActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
@@ -49,12 +56,14 @@ void ATestingWire::Tick(float DeltaTime)
 	}
 }
 
-void ATestingWire::StartMovement()
+// Starts the movement along the spline from the beginning
+void AMovingSplineActor::StartMovement()
 {
 	MovementTimeline.PlayFromStart();
 }
 
-void ATestingWire::ProcessMovementTimeline(float Value) 
+// Move mesh along the spline
+void AMovingSplineActor::ProcessMovementTimeline(float Value) 
 {
 	// Obtain number of points along the spline
 	const float SplineLength = SplineComponent->GetSplineLength();
@@ -67,8 +76,7 @@ void ATestingWire::ProcessMovementTimeline(float Value)
 	MeshComponent->SetWorldLocationAndRotation(CurrentSplineLocation, CurrentSplineRotation);
 }
 
-void ATestingWire::OnEndMovementTimeline() 
+void AMovingSplineActor::OnEndMovementTimeline() 
 {
 
 }
-

@@ -1,26 +1,28 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Wire.h"
 #include "Components/SplineComponent.h"
-#include "Components/TimelineComponent.h"
-#include "TestingWire.generated.h"
+#include "GameFramework/Actor.h"
+#include <Components/TimelineComponent.h>
+#include "MovingSplineActor.generated.h"
 
-/**
- * 
- */
 UCLASS()
-class ENTANGLEDLOGIC_API ATestingWire : public AWire
+class ENTANGLEDLOGIC_API AMovingSplineActor : public AActor
 {
 	GENERATED_BODY()
-	
+
 public:
-	ATestingWire();
+	// Sets default values for this actor's properties
+	AMovingSplineActor();
 
 protected:
+	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
+	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
