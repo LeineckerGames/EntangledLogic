@@ -111,11 +111,14 @@ void APlayerCameraController::Move(const FInputActionValue& Value)
 	const FVector2D MovementInput = Value.Get<FVector2D>();
 	if (Controller)
 	{
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
+		//const FRotator Rotation = Controller->GetControlRotation();
+		//const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		const FVector Forward = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		const FVector Right = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		//const FVector Forward = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		//const FVector Right = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+		const FVector Forward = GetActorForwardVector();
+		const FVector Right = GetActorRightVector();
 
 		AddMovementInput(Forward, MovementInput.Y * ZoomSensitivityMultiplier);
 		AddMovementInput(Right, MovementInput.X * ZoomSensitivityMultiplier);
