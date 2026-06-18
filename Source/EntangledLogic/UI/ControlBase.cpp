@@ -2,6 +2,7 @@
 #include "Engine/Texture2D.h"
 #include "Components/TextBlock.h"
 #include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Image.h"
 
@@ -14,7 +15,15 @@ void UControlBase::AddIconToUI(UTexture2D* IconToAdd)
 		if (Image)
 		{
 			Image->SetBrushFromTexture(IconToAdd);
-			IconBox->AddChild(Image);
+			UHorizontalBoxSlot* HorizontalSlot = Cast<UHorizontalBoxSlot>(IconBox->AddChild(Image));
+			if (HorizontalSlot)
+			{
+				FSlateChildSize SizeRules;
+				SizeRules.SizeRule = ESlateSizeRule::Automatic;
+				SizeRules.Value = 100.0f;
+				HorizontalSlot->SetSize(SizeRules);
+			}
+			
 		}
 	}
 }

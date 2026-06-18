@@ -5,12 +5,12 @@
 #include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
 #include "EntangledLogic/Player/TopDownPlayerController.h"
 #include "EntangledLogic/Player/PlayerCameraController.h"
+#include "EntangledLogic/UI/PlayerHUD.h"
 
 
 void UGridPlacementSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
-
 }
 
 void UGridPlacementSubsystem::SetSelectedFactory(TSubclassOf<AActor> FactoryClass)
@@ -172,6 +172,7 @@ void UGridPlacementSubsystem::DeselectSelectedActor()
 		if (ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController()))
 		{
 			TopDownPlayerController->RemoveMappingContext(TopDownPlayerController->GridControls);
+			UpdateControlUI();
 		}
 	}
 }
@@ -298,5 +299,24 @@ void UGridPlacementSubsystem::AddGridPlacementIMC()
 	// Add IMC to Player Controller
 	ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
 	TopDownPlayerController->AddMappingContext(TopDownPlayerController->GridControls, 1);
+	UpdateControlUI();
 	UE_LOG(LogTemp, Display, TEXT("Added Grid Mapping Context"));
 }
+
+void UGridPlacementSubsystem::UpdateControlUI()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		APlayerController* PlayerController = World->GetFirstPlayerController();
+		if (PlayerController)
+		{
+			APlayerHUD* PlayerHUD = Cast<APlayerHUD>(PlayerController->GetHUD());
+			if (PlayerHUD)
+			{
+				PlayerHUD->UpdatePlayerControlsUI(PlacementMode);
+			}
+		}
+	}
+}
+

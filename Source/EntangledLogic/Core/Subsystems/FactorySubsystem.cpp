@@ -89,19 +89,6 @@ void UFactorySubsystem::Tick(float DeltaTime)
 {
 	if (CanTick)
 	{
-		// Temp for testing control UI
-		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-		if (PlayerController)
-		{
-			APlayerHUD* PlayerHUD = Cast<APlayerHUD>(PlayerController->GetHUD());
-			if (PlayerHUD)
-			{
-				PlayerHUD->UpdatePlayerControlsUI();
-			}
-		}
-
-
-
 		CanTick = false;
 		UE_LOG(LogTemp, Display, TEXT("FACTORY TICK"));
 	}

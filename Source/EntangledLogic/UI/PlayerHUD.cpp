@@ -1,5 +1,6 @@
 #include "PlayerHUD.h"
 #include "FactorySelectionWidget.h"
+#include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "PlayerControlsUI.h"
 
 APlayerHUD::APlayerHUD()
@@ -10,6 +11,12 @@ APlayerHUD::APlayerHUD()
 void APlayerHUD::BeginPlay()
 {
 	Super::BeginPlay();
+	if (UWorld* World = GetWorld())
+	{
+		UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
+		GridPlacement->OnPlacementModeChanged.AddUObject(this, &APlayerHUD::UpdatePlayerControlsUI);
+	}
+	
 
 	// If Widget Class is set in editor Create it and add to screen
 	if (FactorySelectionWidgetClass)
@@ -28,7 +35,7 @@ void APlayerHUD::BeginPlay()
 
 }
 
-void APlayerHUD::UpdatePlayerControlsUI()
+void APlayerHUD::UpdatePlayerControlsUI(EPlacementMode PlacementMode)
 {
 	if (PlayerControlsUIWidget)
 	{

@@ -7,6 +7,7 @@
 class UFactorySelectionWidget;
 class UPlayerControlsUI;
 
+enum class EPlacementMode : uint8;
 UCLASS()
 class ENTANGLEDLOGIC_API APlayerHUD : public AHUD
 {
@@ -23,7 +24,7 @@ public:
 
 	void RepopulateFactorySelectionWidget();
 
-	void UpdatePlayerControlsUI();
+	void UpdatePlayerControlsUI(EPlacementMode PlacementMode);
 
 protected:
 	virtual void BeginPlay() override;

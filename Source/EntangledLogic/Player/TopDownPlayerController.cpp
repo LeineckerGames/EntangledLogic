@@ -1,6 +1,7 @@
-
 #include "TopDownPlayerController.h"
 #include "EnhancedInputSubsystems.h"
+#include "EntangledLogic/UI/PlayerHUD.h"
+#include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 
 
 ATopDownPlayerController::ATopDownPlayerController()
@@ -12,7 +13,9 @@ ATopDownPlayerController::ATopDownPlayerController()
 void ATopDownPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
+	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
+	APlayerHUD* PlayerHUD = Cast<APlayerHUD>(GetHUD());
+	PlayerHUD->UpdatePlayerControlsUI(GridPlacement->GetPlacementMode());
 }
 
 void ATopDownPlayerController::SetupInputComponent()

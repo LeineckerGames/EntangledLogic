@@ -9,6 +9,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Engine/Texture2D.h"
 #include "Components/VerticalBox.h"
+#include "Components/VerticalBoxSlot.h"
 #include "EntangledLogic/Core/Framework/KeyboardIconKeymappingsData.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 
@@ -22,13 +23,19 @@ void UPlayerControlsUI::UpdatePlayerControlsUI()
 	for (FControlData ControlData : ControlList)
 	{
 		UControlBase* ControlUI = CreateControlUIFromControlData(ControlData);
-		ControlVerticalBox->AddChild(ControlUI);
+		UPanelSlot* ControlUIPanelSlot = ControlVerticalBox->AddChild(ControlUI);
+		// Set the Alignment to Bottom Left
+		UVerticalBoxSlot* VerticalBoxSlot = Cast<UVerticalBoxSlot>(ControlUIPanelSlot);
+		if (VerticalBoxSlot)
+		{
+			VerticalBoxSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Bottom);
+			VerticalBoxSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Left);
+		}
 	}
 }
 
 UControlBase* UPlayerControlsUI::CreateControlUIFromControlData(FControlData ControlData)
 {
-	UE_LOG(LogTemp, Display, TEXT("Before World"));
 	UWorld* World = GetWorld();
 	if (World)
 	{
@@ -45,7 +52,6 @@ UControlBase* UPlayerControlsUI::CreateControlUIFromControlData(FControlData Con
 						if (ControlData.InputAction)
 						{
 							TArray<FKey> BoundKeys = Subsystem->QueryKeysMappedToAction(ControlData.InputAction);
-							UE_LOG(LogTemp, Display, TEXT("BoundKeys.Num() = %d"), BoundKeys.Num());
 							if (BoundKeys.Num() > 0)
 							{
 								UControlBase* ControlBase = CreateWidget<UControlBase>(World, ControlBaseClass);
@@ -68,9 +74,6 @@ UControlBase* UPlayerControlsUI::CreateControlUIFromControlData(FControlData Con
 									ControlBase->AddIconToUI(KeyIcon);
 								}
 								return ControlBase;
-								//UE_LOG(LogTemp, Display, TEXT("Bound Key"));
-								//FKey ActiveKey = BoundKeys[0]; // Get the primary key
-								//UE_LOG(LogTemp, Display, TEXT("Primary Key %s"), *ActiveKey.GetDisplayName().ToString());
 							}
 						}
 					}
