@@ -15,6 +15,7 @@ void APlayerHUD::BeginPlay()
 	{
 		UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
 		GridPlacement->OnPlacementModeChanged.AddUObject(this, &APlayerHUD::UpdatePlayerControlsUI);
+		World->OnWorldBeginPlay.AddUObject(this, &APlayerHUD::UpdatePlayerControlsUI);
 	}
 	
 
@@ -33,6 +34,14 @@ void APlayerHUD::BeginPlay()
 		//PlayerControlsUIWidget->UpdatePlayerControlsUI();
 	}
 
+}
+
+void APlayerHUD::UpdatePlayerControlsUI()
+{
+	if (PlayerControlsUIWidget)
+	{
+		PlayerControlsUIWidget->UpdatePlayerControlsUI();
+	}
 }
 
 void APlayerHUD::UpdatePlayerControlsUI(EPlacementMode PlacementMode)

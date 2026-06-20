@@ -24,6 +24,8 @@ public:
 
 	void RepopulateFactorySelectionWidget();
 
+	void UpdatePlayerControlsUI();
+
 	void UpdatePlayerControlsUI(EPlacementMode PlacementMode);
 
 protected:

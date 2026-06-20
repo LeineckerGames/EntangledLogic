@@ -37,7 +37,10 @@ void ATopDownPlayerController::AddMappingContext(UInputMappingContext* InputMapp
 	{
 		if (InputMappingContext)
 		{
-			Subsystem->AddMappingContext(InputMappingContext, Priority);
+			FModifyContextOptions Options;
+			Options.bForceImmediately = true;
+
+			Subsystem->AddMappingContext(InputMappingContext, Priority, Options);
 			//UE_LOG(LogTemp, Display, TEXT("Player Controls mapping context added"));
 		}
 	}
@@ -51,7 +54,10 @@ void ATopDownPlayerController::RemoveMappingContext(UInputMappingContext* InputM
 	{
 		if (InputMappingContext)
 		{
-			Subsystem->RemoveMappingContext(InputMappingContext);
+			FModifyContextOptions Options;
+			Options.bForceImmediately = true;
+
+			Subsystem->RemoveMappingContext(InputMappingContext, Options);
 			//UE_LOG(LogTemp, Display, TEXT("Player Controls mapping context added"));
 		}
 	}

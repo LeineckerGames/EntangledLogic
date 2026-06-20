@@ -54,6 +54,7 @@ UControlBase* UPlayerControlsUI::CreateControlUIFromControlData(FControlData Con
 							TArray<FKey> BoundKeys = Subsystem->QueryKeysMappedToAction(ControlData.InputAction);
 							if (BoundKeys.Num() > 0)
 							{
+								UE_LOG(LogTemp, Display, TEXT("ControlData.InputAction = %s"), *ControlData.InputAction->GetName());
 								UControlBase* ControlBase = CreateWidget<UControlBase>(World, ControlBaseClass);
 								
 								ControlBase->SetControlText(*DescriptionText);
@@ -65,6 +66,7 @@ UControlBase* UPlayerControlsUI::CreateControlUIFromControlData(FControlData Con
 									if (PointerKeyIcon)
 									{
 										KeyIcon = *PointerKeyIcon;
+										UE_LOG(LogTemp, Display, TEXT("KeyIcon = %s"), *KeyIcon->GetName());
 									}
 									else
 									{
@@ -73,6 +75,7 @@ UControlBase* UPlayerControlsUI::CreateControlUIFromControlData(FControlData Con
 									}
 									ControlBase->AddIconToUI(KeyIcon);
 								}
+								UE_LOG(LogTemp, Display, TEXT("Returning"));
 								return ControlBase;
 							}
 						}
