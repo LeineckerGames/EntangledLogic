@@ -108,5 +108,7 @@ public:
 
 	void OnLeftClick();
 
+	void UpdateControlUI();
+
 	void SetFactoryCreationRotator(FRotator Rotator);
 };
