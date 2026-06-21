@@ -37,17 +37,18 @@ AActor* UGridPlacementSubsystem::SpawnActorToPlaceFromClass(TSubclassOf<AActor> 
 	return SelectedActorToPlace;
 }
 
-void UGridPlacementSubsystem::SetPlacedPositionMap(int32 GridXPosition, int32 GridYPosition, bool isPlacedToSet)
+void UGridPlacementSubsystem::SetPlacedPositionMap(int32 GridXPosition, int32 GridYPosition, AActor* PlacedFactory)
 {
 	FGridCoordinate GridCoordinate;
 	GridCoordinate.XCoordinate = GridXPosition;
 	GridCoordinate.YCoordinate = GridYPosition;
-	PlacedPositionMap.Emplace(GridCoordinate, isPlacedToSet);
-	//UE_LOG(LogTemp, Display, TEXT("Set to %d at coordinates X:%d, Y:%d"), isPlacedToSet, GridXPosition, GridYPosition);
+	
+	PlacedPositionMap.Emplace(GridCoordinate, PlacedFactory);
+	
 }
 
 // Overload for Grid Arrays
-void UGridPlacementSubsystem::SetPlacedPositionMap(TArray<FGridCoordinate> GridLocations, TArray<bool> FactoryShape, bool isPlacedToSet)
+void UGridPlacementSubsystem::SetPlacedPositionMap(TArray<FGridCoordinate> GridLocations, TArray<bool> FactoryShape, AActor* PlacedFactory)
 {
 	int i = 0;
 	for (FGridCoordinate GridCoord : GridLocations)
@@ -55,27 +56,32 @@ void UGridPlacementSubsystem::SetPlacedPositionMap(TArray<FGridCoordinate> GridL
 		// Skips factory sections that are open
 		if (FactoryShape[i] == true)
 		{
-			PlacedPositionMap.Emplace(GridCoord, isPlacedToSet);
-			//UE_LOG(LogTemp, Display, TEXT("Set to %d at coordinates X:%d, Y:%d"), isPlacedToSet, GridCoord.XCoordinate, GridCoord.YCoordinate);
+			SetPlacedPositionMap(GridCoord.XCoordinate, GridCoord.YCoordinate, PlacedFactory);
+			//UE_LOG(LogTemp, Display, TEXT("Set to %d at coordinates X:%d, Y:%d"), PlacedFactory != nullptr, GridCoord.XCoordinate, GridCoord.YCoordinate);
 		}
 		i++;
 	}
 }
 
-bool UGridPlacementSubsystem::GetPlacedPositionMap(int32 GridXPosition, int32 GridYPosition)
+bool UGridPlacementSubsystem::IsGridPositionOccupied(int32 GridXPosition, int32 GridYPosition)
+{
+	return GetPlacedFactoryAtGridPosition(GridXPosition, GridYPosition) != nullptr;
+}
+
+AActor* UGridPlacementSubsystem::GetPlacedFactoryAtGridPosition(int32 GridXPosition, int32 GridYPosition)
 {
 	FGridCoordinate GridCoordinate;
 	GridCoordinate.XCoordinate = GridXPosition;
 	GridCoordinate.YCoordinate = GridYPosition;
-	bool* isPlacedPointer;
-	isPlacedPointer = PlacedPositionMap.Find(GridCoordinate);
-	if (isPlacedPointer)
+	AActor** PlacedFactoryPointer;
+	PlacedFactoryPointer = PlacedPositionMap.Find(GridCoordinate);
+	if (PlacedFactoryPointer)
 	{
-		bool isPlaced = *isPlacedPointer;
+		AActor* PlacedFactory = *PlacedFactoryPointer;
 		//UE_LOG(LogTemp, Display, TEXT("%d is found at coordinates X:%d, Y:%d"), isPlaced, GridXPosition, GridYPosition);
-		return isPlaced;
+		return PlacedFactory;
 	}
-	return false;
+	return nullptr;
 }
 
 EPlacementMode UGridPlacementSubsystem::GetPlacementMode() const
@@ -141,8 +147,8 @@ void UGridPlacementSubsystem::PlaceSelectedActor()
 	{
 		UE_LOG(LogTemp, Display, TEXT("Placing Actor"));
 		GridPlacementComponent->RemoveOverlayMaterial();
-		SetPlacedPositionMap(GridLocations, GridPlacementComponent->GetFactoryShape(), true);
 		SelectedFactory = SpawnActorToPlaceFromClass(SelectedFactoryClass);
+		SetPlacedPositionMap(GridLocations, GridPlacementComponent->GetFactoryShape(), SelectedFactory);
 	}
 }
 
@@ -180,7 +186,7 @@ bool UGridPlacementSubsystem::CollisionCheck(TArray<FGridCoordinate> GridLocatio
 		// Skips factory sections that are open
 		if (FactoryShape[i] == true)
 		{
-			bool IsPlacedPosition = GetPlacedPositionMap(GridCoord.XCoordinate, GridCoord.YCoordinate);
+			bool IsPlacedPosition = IsGridPositionOccupied(GridCoord.XCoordinate, GridCoord.YCoordinate);
 			if (IsPlacedPosition == true)
 			{
 				return true;

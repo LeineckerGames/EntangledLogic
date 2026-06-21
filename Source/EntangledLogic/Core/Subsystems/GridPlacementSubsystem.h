@@ -53,7 +53,7 @@ protected:
 	float GridSize = 100;
 
 	// Change this to store factory pointer or make a seperate Tmap/ arr for saving
-	TMap<FGridCoordinate, bool> PlacedPositionMap;
+	TMap<FGridCoordinate, AActor*> PlacedPositionMap;
 
 	EPlacementMode PlacementMode = EPlacementMode::Disabled;
 
@@ -67,10 +67,12 @@ public:
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
-	void SetPlacedPositionMap(int32 GridXPosition, int32 GridYPosition, bool isPlacedToSet);
-	void SetPlacedPositionMap(TArray<FGridCoordinate> GridLocations, TArray<bool> FactoryShape, bool isPlacedToSet);
+	void SetPlacedPositionMap(int32 GridXPosition, int32 GridYPosition, AActor* PlacedFactory);
+	void SetPlacedPositionMap(TArray<FGridCoordinate> GridLocations, TArray<bool> FactoryShape, AActor* PlacedFactory);
 
-	bool GetPlacedPositionMap(int32 GridXPosition, int32 GridYPosition);
+	AActor* GetPlacedFactoryAtGridPosition(int32 GridXPosition, int32 GridYPosition);
+
+	bool IsGridPositionOccupied(int32 GridXPosition, int32 GridYPosition);
 
 	float GetGridSize() const;
 
