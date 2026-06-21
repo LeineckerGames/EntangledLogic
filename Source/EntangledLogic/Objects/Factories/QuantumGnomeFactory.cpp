@@ -3,6 +3,7 @@
 #include "Sound/SoundWave.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
+#include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 
 AQuantumGnomeFactory::AQuantumGnomeFactory()
@@ -52,6 +53,9 @@ void AQuantumGnomeFactory::Interact(EPlacementMode PlacementMode)
 			TArray<FGridCoordinate> GridLocations = GridPlacement->GridComponentToCoordinates(GridPlacementComponent);
 			GridPlacement->SetPlacedPositionMap(GridLocations, GridPlacementComponent->GetFactoryShape(), false);
 			SetLifeSpan(5.0f);
+			UFactorySubsystem* FactorySubsystem = GetWorld()->GetSubsystem<UFactorySubsystem>();
+			FactorySubsystem->PersistantStats.GnomesMurdered++;
+			UE_LOG(LogTemp, Display, TEXT("Gnomes Murdered: %d"), FactorySubsystem->PersistantStats.GnomesMurdered);
 		}
 		else
 		{

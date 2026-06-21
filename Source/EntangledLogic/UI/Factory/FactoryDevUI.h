@@ -57,6 +57,9 @@ protected:
 	UFUNCTION()
 	void NextFactoryTick();
 
+	UFUNCTION()
+	void UnlockRealQuantumGnome();
+
 
 public:
 	void SetHeaderText(FString FactoryHeader);

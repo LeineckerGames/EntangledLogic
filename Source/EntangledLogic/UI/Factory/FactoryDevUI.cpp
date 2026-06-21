@@ -4,6 +4,7 @@
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
+#include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
 #include "EntangledLogic/Core/Framework/UnlockablesEnum.h"
 
 void UFactoryDevUI::NativeConstruct()
@@ -70,9 +71,8 @@ void UFactoryDevUI::NextFactoryTick()
 void UFactoryDevUI::SaveGame()
 {
     UE_LOG(LogTemp, Display, TEXT("Save Game Pressed"));
-    // temp using this to test the progression
-    UFactorySubsystem* FactorySubsystem = GetWorld()->GetSubsystem<UFactorySubsystem>();
-    FactorySubsystem->UnlockProgression(EUnlockables::Factory_QuantumGnome);
+    USavingLoadingSubsystem* SavingLoadingSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USavingLoadingSubsystem>();
+    SavingLoadingSubsystem->RequestSave();
 }
 
 void UFactoryDevUI::LoadGame()
@@ -93,4 +93,11 @@ void UFactoryDevUI::ClearFactories()
 void UFactoryDevUI::SetHeaderText(FString FactoryHeader)
 {
 	UIBase->SetHeaderText(FactoryHeader);
+}
+
+void UFactoryDevUI::UnlockRealQuantumGnome()
+{
+    // temp using this to test the progression
+    UFactorySubsystem* FactorySubsystem = GetWorld()->GetSubsystem<UFactorySubsystem>();
+    FactorySubsystem->UnlockProgression(EUnlockables::Factory_QuantumGnome);
 }

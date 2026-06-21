@@ -1,12 +1,27 @@
 #include "FactorySubsystem.h"
 #include "EntangledLogic/Core/Framework/UnlockablesEnum.h"
+#include "EntangledLogic/Core/Framework/FactorySaveGame.h"
+#include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
 #include "EntangledLogic/UI/PlayerHUD.h"
 #include "TimerManager.h"
 
 void UFactorySubsystem::OnWorldBeginPlay(UWorld& InWorld)
 {
     Super::OnWorldBeginPlay(InWorld);
-	if (UWorld* World = GetWorld())
+
+	// Register Subsystem for saving and loading
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		USavingLoadingSubsystem* SavingLoading = World->GetGameInstance()->GetSubsystem<USavingLoadingSubsystem>();
+		if (SavingLoading)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Registering FSS to Saving and Loading"));
+			SavingLoading->RegisterUObjectToSavingLoading(this);
+		}
+	}
+
+	if (World)
 	{
 		FTimerHandle TimerHandle;
 		World->GetTimerManager().SetTimer(TimerHandle, this, &UFactorySubsystem::SetTickTrue, 2, true);
@@ -97,4 +112,16 @@ void UFactorySubsystem::Tick(float DeltaTime)
 TStatId UFactorySubsystem::GetStatId() const
 {
 	RETURN_QUICK_DECLARE_CYCLE_STAT(UFactorySubsystem, STATGROUP_Tickables);
+}
+
+void UFactorySubsystem::SaveData(UFactorySaveGame* SaveGame)
+{
+	UE_LOG(LogTemp, Display, TEXT("Saving PersistantStats Data"));
+	PersistantStats = SaveGame->PersistantStats;
+}
+
+void UFactorySubsystem::LoadData(UFactorySaveGame* SaveGame)
+{
+	UE_LOG(LogTemp, Display, TEXT("Loading PersistantStats Data"));
+	SaveGame->PersistantStats = PersistantStats;
 }

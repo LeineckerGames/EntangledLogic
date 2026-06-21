@@ -2,11 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
+#include "EntangledLogic/Interfaces/SavableInterface.h"
+#include "EntangledLogic/Core/Framework/PersistantStats.h"
 #include "FactorySubsystem.generated.h"
 
 enum class EUnlockables : uint8;
 UCLASS()
-class ENTANGLEDLOGIC_API UFactorySubsystem : public UWorldSubsystem, public FTickableGameObject
+class ENTANGLEDLOGIC_API UFactorySubsystem : public UWorldSubsystem, public FTickableGameObject, public ISavableInterface
 {
 	GENERATED_BODY()
 	
@@ -36,6 +38,8 @@ public:
 
 	TMap<EUnlockables, bool> GetUnlockablesMap() const;
 
+	FPersistantStats PersistantStats;
+
 	bool CheckIfUnlocked(EUnlockables UnlockToCheck);
 
 	void UnlockProgression(EUnlockables ProgressionToUnlock);
@@ -43,5 +47,9 @@ public:
 	void RepopulateFactorySelectionWidget();
 
 	void SetTickPaused(bool TickPausedValue);
+
+	virtual void SaveData(class UFactorySaveGame* SaveGame) override;
+
+	virtual void LoadData(UFactorySaveGame* SaveGame) override;
 
 };
