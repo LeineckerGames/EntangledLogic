@@ -17,5 +17,7 @@ protected:
 public:
 	void SaveAllData(UFactorySaveGame* SaveGame, TArray<UObject*> SavableObjects);
 
+	void LoadRequested(UFactorySaveGame* SaveGame, UObject* Requester);
+
 	FPersistantStats PersistantStats;
 };

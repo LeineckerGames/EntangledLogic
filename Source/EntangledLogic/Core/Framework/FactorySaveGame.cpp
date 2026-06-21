@@ -10,3 +10,12 @@ void UFactorySaveGame::SaveAllData(UFactorySaveGame* SaveGame, TArray<UObject*> 
 		SavableObject->SaveData(this);
 	}
 }
+
+void UFactorySaveGame::LoadRequested(UFactorySaveGame* SaveGame, UObject* Requester)
+{
+	ISavableInterface* SavableObject = Cast<ISavableInterface>(Requester);
+	if (SavableObject)
+	{
+		SavableObject->LoadData(this);
+	}
+}

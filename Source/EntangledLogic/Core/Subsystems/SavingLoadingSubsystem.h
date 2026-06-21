@@ -6,6 +6,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SavingLoadingSubsystem.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FRequestToLoadAll)
 
 UCLASS()
 class ENTANGLEDLOGIC_API USavingLoadingSubsystem : public UGameInstanceSubsystem
@@ -22,7 +23,9 @@ protected:
 
 	void SaveGame();
 
-	void LoadSave();
+	bool LoadSave();
+
+	void OnLoadGameFinished(const FString& SlotName, const int32 UserIndex, class USaveGame* LoadedSave);
 
 public:
 
@@ -32,5 +35,10 @@ public:
 
 	void RequestSave();
 
+	void RequestLoad(UObject* Requester);
+
 	void RegisterUObjectToSavingLoading(UObject* ObjectToRegister);
+
+	FRequestToLoadAll RequestToLoadAll;
+
 };

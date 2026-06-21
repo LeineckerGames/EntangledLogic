@@ -18,9 +18,35 @@ void USavingLoadingSubsystem::CreateSave()
 	}
 }
 
-void USavingLoadingSubsystem::LoadSave()
+void USavingLoadingSubsystem::RequestLoad(UObject* Requester)
 {
+	FactorySaveRef->LoadRequested(FactorySaveRef, Requester);
+}
 
+bool USavingLoadingSubsystem::LoadSave()
+{
+	bool DoesSaveGameExist = UGameplayStatics::DoesSaveGameExist(SaveGameSlotName, 0);
+	if(DoesSaveGameExist)
+	{
+		FAsyncLoadGameFromSlotDelegate LoadDelegate;
+		LoadDelegate.BindUObject(this, &USavingLoadingSubsystem::OnLoadGameFinished);
+
+		UGameplayStatics::AsyncLoadGameFromSlot(SaveGameSlotName, 0, LoadDelegate);
+		return true;
+	}
+	return false;
+}
+
+void USavingLoadingSubsystem::OnLoadGameFinished(const FString& SlotName, const int32 UserIndex, USaveGame* LoadedSave)
+{
+	if (LoadedSave)
+	{
+		UFactorySaveGame* LoadedFactorySaveGame = Cast<UFactorySaveGame>(LoadedSave);
+		if (LoadedFactorySaveGame)
+		{
+			FactorySaveRef = LoadedFactorySaveGame;
+		}
+	}
 }
 
 void USavingLoadingSubsystem::RequestSave()
