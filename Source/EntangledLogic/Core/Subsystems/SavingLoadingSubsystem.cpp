@@ -59,7 +59,15 @@ void USavingLoadingSubsystem::RequestSave()
 
 void USavingLoadingSubsystem::SaveGame()
 {
-	UGameplayStatics::AsyncSaveGameToSlot(FactorySaveRef, SaveGameSlotName, 0);
+	if (FactorySaveRef)
+	{
+		UGameplayStatics::AsyncSaveGameToSlot(FactorySaveRef, SaveGameSlotName, 0);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Display, TEXT("FactorySaveGame Ref is NULL"));
+	}
+	
 }
 
 void USavingLoadingSubsystem::RegisterUObjectToSavingLoading(UObject* ObjectToRegister)

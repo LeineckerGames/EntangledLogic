@@ -19,5 +19,6 @@ public:
 
 	void LoadRequested(UFactorySaveGame* SaveGame, UObject* Requester);
 
+	UPROPERTY()
 	FPersistantStats PersistantStats;
 };

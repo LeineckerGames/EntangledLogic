@@ -18,6 +18,7 @@ void UFactorySubsystem::OnWorldBeginPlay(UWorld& InWorld)
 		{
 			UE_LOG(LogTemp, Display, TEXT("Registering FSS to Saving and Loading"));
 			SavingLoading->RegisterUObjectToSavingLoading(this);
+			SavingLoading->RequestToLoadAll.AddUObject(this, &UFactorySubsystem::RequestLoad);
 		}
 	}
 
@@ -117,11 +118,26 @@ TStatId UFactorySubsystem::GetStatId() const
 void UFactorySubsystem::SaveData(UFactorySaveGame* SaveGame)
 {
 	UE_LOG(LogTemp, Display, TEXT("Saving PersistantStats Data"));
-	PersistantStats = SaveGame->PersistantStats;
+	SaveGame->PersistantStats = PersistantStats;
 }
 
 void UFactorySubsystem::LoadData(UFactorySaveGame* SaveGame)
 {
 	UE_LOG(LogTemp, Display, TEXT("Loading PersistantStats Data"));
-	SaveGame->PersistantStats = PersistantStats;
+	PersistantStats = SaveGame->PersistantStats;
+
+}
+
+void UFactorySubsystem::RequestLoad()
+{
+	// Register Subsystem for saving and loading
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		USavingLoadingSubsystem* SavingLoading = World->GetGameInstance()->GetSubsystem<USavingLoadingSubsystem>();
+		if (SavingLoading)
+		{
+			SavingLoading->RequestLoad(this);
+		}
+	}
 }

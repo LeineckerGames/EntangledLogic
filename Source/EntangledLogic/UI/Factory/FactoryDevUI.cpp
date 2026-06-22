@@ -78,6 +78,16 @@ void UFactoryDevUI::SaveGame()
 void UFactoryDevUI::LoadGame()
 {
     UE_LOG(LogTemp, Display, TEXT("Load Game Pressed"));
+    // Register Subsystem for saving and loading
+    UWorld* World = GetWorld();
+    if (World)
+    {
+        USavingLoadingSubsystem* SavingLoading = World->GetGameInstance()->GetSubsystem<USavingLoadingSubsystem>();
+        if (SavingLoading)
+        {
+            SavingLoading->RequestToLoadAll.Broadcast();
+        }
+    }
 }
 
 void UFactoryDevUI::DeleteSave()
