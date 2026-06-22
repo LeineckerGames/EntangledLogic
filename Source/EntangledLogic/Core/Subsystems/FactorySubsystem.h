@@ -22,8 +22,6 @@ protected:
 
 	TMap<EUnlockables, bool> UnlockablesMap;
 
-	void RequestLoad();
-
 public:
 
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;

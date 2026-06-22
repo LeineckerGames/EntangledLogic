@@ -7,6 +7,7 @@
 void USavingLoadingSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	CreateSave();
+	RequestToLoadAll.AddUObject(this, &USavingLoadingSubsystem::RequestLoad);
 }
 
 void USavingLoadingSubsystem::CreateSave()
@@ -18,12 +19,13 @@ void USavingLoadingSubsystem::CreateSave()
 	}
 }
 
-void USavingLoadingSubsystem::RequestLoad(UObject* Requester)
+void USavingLoadingSubsystem::RequestLoad()
 {
-	FactorySaveRef->LoadRequested(FactorySaveRef, Requester);
+	UE_LOG(LogTemp, Display, TEXT("Load Requested"));
+	LoadSave();
 }
 
-bool USavingLoadingSubsystem::LoadSave()
+void USavingLoadingSubsystem::LoadSave()
 {
 	bool DoesSaveGameExist = UGameplayStatics::DoesSaveGameExist(SaveGameSlotName, 0);
 	if(DoesSaveGameExist)
@@ -32,9 +34,7 @@ bool USavingLoadingSubsystem::LoadSave()
 		LoadDelegate.BindUObject(this, &USavingLoadingSubsystem::OnLoadGameFinished);
 
 		UGameplayStatics::AsyncLoadGameFromSlot(SaveGameSlotName, 0, LoadDelegate);
-		return true;
 	}
-	return false;
 }
 
 void USavingLoadingSubsystem::OnLoadGameFinished(const FString& SlotName, const int32 UserIndex, USaveGame* LoadedSave)
@@ -45,16 +45,20 @@ void USavingLoadingSubsystem::OnLoadGameFinished(const FString& SlotName, const 
 		if (LoadedFactorySaveGame)
 		{
 			FactorySaveRef = LoadedFactorySaveGame;
+			FactorySaveRef->LoadAllData(FactorySaveRef, RegisteredUObjects);
 		}
 	}
 }
 
 void USavingLoadingSubsystem::RequestSave()
 {
-	UE_LOG(LogTemp, Display, TEXT("Save All Data Called"));
-	FactorySaveRef->SaveAllData(FactorySaveRef, RegisteredUObjects);
-	UE_LOG(LogTemp, Display, TEXT("Save Game Called"));
-	SaveGame();
+	if (FactorySaveRef)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Save All Data Called"));
+		FactorySaveRef->SaveAllData(FactorySaveRef, RegisteredUObjects);
+		UE_LOG(LogTemp, Display, TEXT("Save Game Called"));
+		SaveGame();
+	}
 }
 
 void USavingLoadingSubsystem::SaveGame()

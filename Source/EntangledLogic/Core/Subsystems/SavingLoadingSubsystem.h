@@ -15,15 +15,17 @@ class ENTANGLEDLOGIC_API USavingLoadingSubsystem : public UGameInstanceSubsystem
 	
 protected:
 
+	UPROPERTY()
 	class UFactorySaveGame* FactorySaveRef;
 	
 	FString SaveGameSlotName = "Player";
 
+	UPROPERTY()
 	TArray<UObject*> RegisteredUObjects;
 
 	void SaveGame();
 
-	bool LoadSave();
+	void LoadSave();
 
 	void OnLoadGameFinished(const FString& SlotName, const int32 UserIndex, class USaveGame* LoadedSave);
 
@@ -35,7 +37,7 @@ public:
 
 	void RequestSave();
 
-	void RequestLoad(UObject* Requester);
+	void RequestLoad();
 
 	void RegisterUObjectToSavingLoading(UObject* ObjectToRegister);
 

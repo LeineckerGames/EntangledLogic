@@ -17,6 +17,8 @@ protected:
 public:
 	void SaveAllData(UFactorySaveGame* SaveGame, TArray<UObject*> SavableObjects);
 
+	void LoadAllData(UFactorySaveGame* SaveGame, TArray<UObject*> SavableObjects);
+
 	void LoadRequested(UFactorySaveGame* SaveGame, UObject* Requester);
 
 	UPROPERTY()
