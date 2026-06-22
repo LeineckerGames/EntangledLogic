@@ -360,6 +360,7 @@ AActor* UGridPlacementSubsystem::CreateFactoryFromSaveData(FFactorySaveData Fact
 	// Might want to add nulls checks for each SaveData
 	AActor* NewFactory = SpawnActorToPlaceFromClass(FactorySaveData.FactoryClass, FactorySaveData.FactoryTransform);
 	UGridPlacementComponent* FactoryGPC = NewFactory->GetComponentByClass<UGridPlacementComponent>();
+	FactoryGPC->RemoveOverlayMaterial();
 	if (FactoryGPC)
 	{
 		TArray<FGridCoordinate> GridPositions = GridComponentToCoordinates(FactoryGPC);
