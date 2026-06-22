@@ -39,6 +39,8 @@ public:
 
 	void RequestLoad();
 
+	void DeleteSaveFile() const;
+
 	void RegisterUObjectToSavingLoading(UObject* ObjectToRegister);
 
 	FRequestToLoadAll RequestToLoadAll;

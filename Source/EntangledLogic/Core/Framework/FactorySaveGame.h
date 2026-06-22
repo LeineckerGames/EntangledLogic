@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
 #include "EntangledLogic/Core/Framework/PersistantStats.h"
+#include "EntangledLogic/Core/Framework/SaveDataStructs.h"
+#include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "FactorySaveGame.generated.h"
 
 struct FPersistantStats;
@@ -23,4 +25,7 @@ public:
 
 	UPROPERTY()
 	FPersistantStats PersistantStats;
+
+	UPROPERTY()
+	TArray<FFactorySaveData> SavedFactories;
 };

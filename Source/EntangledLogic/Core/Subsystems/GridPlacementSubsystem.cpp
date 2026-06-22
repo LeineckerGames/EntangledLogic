@@ -3,6 +3,8 @@
 #include "Engine/EngineTypes.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
+#include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
+#include "EntangledLogic/Core/Framework/FactorySaveGame.h"
 #include "EntangledLogic/Player/TopDownPlayerController.h"
 #include "EntangledLogic/Player/PlayerCameraController.h"
 #include "EntangledLogic/UI/PlayerHUD.h"
@@ -11,6 +13,23 @@
 void UGridPlacementSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
+}
+
+void UGridPlacementSubsystem::OnWorldBeginPlay(UWorld& InWorld)
+{
+	Super::OnWorldBeginPlay(InWorld);
+
+	// Register Subsystem for saving and loading
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		USavingLoadingSubsystem* SavingLoading = World->GetGameInstance()->GetSubsystem<USavingLoadingSubsystem>();
+		if (SavingLoading)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Registering GPSS to Saving and Loading"));
+			SavingLoading->RegisterUObjectToSavingLoading(this);
+		}
+	}
 }
 
 void UGridPlacementSubsystem::SetSelectedFactory(TSubclassOf<AActor> FactoryClass)
@@ -34,6 +53,15 @@ AActor* UGridPlacementSubsystem::SpawnActorToPlaceFromClass(TSubclassOf<AActor> 
 	FActorSpawnParameters SpawnParams;
 
 	AActor* SelectedActorToPlace = GetWorld()->SpawnActor<AActor>(SelectedActor->GetDefaultObject()->GetClass(), SpawnLocation, SpawnRotation, SpawnParams);
+	return SelectedActorToPlace;
+}
+
+AActor* UGridPlacementSubsystem::SpawnActorToPlaceFromClass(TSubclassOf<AActor> SelectedActor, FTransform SpawnTransform)
+{
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	AActor* SelectedActorToPlace = GetWorld()->SpawnActor<AActor>(SelectedActor->GetDefaultObject()->GetClass(), SpawnTransform, SpawnParams);
 	return SelectedActorToPlace;
 }
 
@@ -152,8 +180,8 @@ void UGridPlacementSubsystem::PlaceSelectedActor()
 	{
 		UE_LOG(LogTemp, Display, TEXT("Placing Actor"));
 		GridPlacementComponent->RemoveOverlayMaterial();
-		SelectedFactory = SpawnActorToPlaceFromClass(SelectedFactoryClass);
 		SetPlacedPositionMap(GridLocations, GridPlacementComponent->GetFactoryShape(), SelectedFactory);
+		SelectedFactory = SpawnActorToPlaceFromClass(SelectedFactoryClass);
 	}
 }
 
@@ -323,6 +351,56 @@ void UGridPlacementSubsystem::UpdateControlUI()
 				PlayerHUD->UpdatePlayerControlsUI(PlacementMode);
 			}
 		}
+	}
+}
+
+// Returns nullptr if no GPC is found (shouldn't happen)
+AActor* UGridPlacementSubsystem::CreateFactoryFromSaveData(FFactorySaveData FactorySaveData)
+{
+	// Might want to add nulls checks for each SaveData
+	AActor* NewFactory = SpawnActorToPlaceFromClass(FactorySaveData.FactoryClass, FactorySaveData.FactoryTransform);
+	UGridPlacementComponent* FactoryGPC = NewFactory->GetComponentByClass<UGridPlacementComponent>();
+	if (FactoryGPC)
+	{
+		TArray<FGridCoordinate> GridPositions = GridComponentToCoordinates(FactoryGPC);
+		SetPlacedPositionMap(GridPositions, FactoryGPC->GetFactoryShape(), NewFactory);
+		return NewFactory;
+	}
+	return nullptr;
+}
+
+void UGridPlacementSubsystem::SaveData(UFactorySaveGame* SaveGame)
+{
+	TArray<FFactorySaveData> FactorySaveData;
+
+	// Used to check for duplicates
+	TSet<AActor*> ProcessedFactories;
+
+	// Create New SaveData for each placed factory
+	for (auto& PlacedActorElement : PlacedPositionMap)
+	{
+		AActor* CurrentFactory = PlacedActorElement.Value;
+		if (CurrentFactory && !ProcessedFactories.Contains(CurrentFactory))
+		{
+			FFactorySaveData NewFactorySaveData;
+			NewFactorySaveData.GridLocation = PlacedActorElement.Key;
+			NewFactorySaveData.FactoryTransform = CurrentFactory->GetTransform();
+			NewFactorySaveData.FactoryRotation = CurrentFactory->GetActorRotation();
+			NewFactorySaveData.FactoryClass = CurrentFactory->GetClass();
+			ProcessedFactories.Add(CurrentFactory);
+			FactorySaveData.Add(NewFactorySaveData);
+		}
+
+	}
+	SaveGame->SavedFactories = FactorySaveData;
+}
+
+void UGridPlacementSubsystem::LoadData(UFactorySaveGame* SaveGame)
+{
+	TArray<FFactorySaveData> SavedFactories = SaveGame->SavedFactories;
+	for (FFactorySaveData CurrentFactoryData : SavedFactories)
+	{
+		CreateFactoryFromSaveData(CurrentFactoryData);
 	}
 }
 

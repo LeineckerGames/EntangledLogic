@@ -92,7 +92,18 @@ void UFactoryDevUI::LoadGame()
 
 void UFactoryDevUI::DeleteSave()
 {
-    UE_LOG(LogTemp, Display, TEXT("Delete Save Pressed"));
+    // Register Subsystem for saving and loading
+    UWorld* World = GetWorld();
+    if (World)
+    {
+        USavingLoadingSubsystem* SavingLoading = World->GetGameInstance()->GetSubsystem<USavingLoadingSubsystem>();
+        if (SavingLoading)
+        {
+            SavingLoading->DeleteSaveFile();
+            UE_LOG(LogTemp, Display, TEXT("Deleted Save File"));
+        }
+    }
+
 }
 
 void UFactoryDevUI::ClearFactories()

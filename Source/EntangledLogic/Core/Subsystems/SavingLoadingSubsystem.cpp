@@ -81,6 +81,11 @@ void USavingLoadingSubsystem::RegisterUObjectToSavingLoading(UObject* ObjectToRe
 		RegisteredUObjects.Add(ObjectToRegister);
 	}
 }
+
+void USavingLoadingSubsystem::DeleteSaveFile() const
+{
+	UGameplayStatics::DeleteGameInSlot(SaveGameSlotName, 0);
+}
 //LogTemp: Display: Save Game Pressed
 //LogTemp : Display: Save All Data Called
 //LogTemp : Display: Save Game Called

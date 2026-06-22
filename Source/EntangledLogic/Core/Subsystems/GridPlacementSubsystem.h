@@ -1,32 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "EnhancedInputLibrary.h"
+#include "EntangledLogic/Interfaces/SavableInterface.h"
+#include "EntangledLogic/Core/Framework/GridStructs.h"
+#include "EntangledLogic/Core/Framework/SaveDataStructs.h"
 #include "GridPlacementSubsystem.generated.h"
-
-USTRUCT()
-struct FGridCoordinate
-{
-	GENERATED_BODY()
-	int32 XCoordinate;
-	int32 YCoordinate;
-
-	// Needed to use Struct within Key Value of TMap
-	bool operator==(const FGridCoordinate& Other) const
-	{
-		return XCoordinate == Other.XCoordinate && YCoordinate == Other.YCoordinate;
-	}
-};
-
-// Needed to use Struct within Key Value of TMap
-inline uint32 GetTypeHash(const FGridCoordinate& Coordinate)
-{
-	// HashCombine merges the hashes of your individual variables
-	return HashCombine(::GetTypeHash(Coordinate.XCoordinate), ::GetTypeHash(Coordinate.YCoordinate));
-}
 
 UENUM()
 enum class EPlacementMode : uint8
@@ -41,11 +21,14 @@ enum class EPlacementMode : uint8
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlacementModeChanged, EPlacementMode);
 
 UCLASS()
-class ENTANGLEDLOGIC_API UGridPlacementSubsystem : public UWorldSubsystem
+class ENTANGLEDLOGIC_API UGridPlacementSubsystem : public UWorldSubsystem, public ISavableInterface
 {
 	GENERATED_BODY()
 
 protected:
+
+	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
+
 	TSubclassOf<AActor> SelectedFactoryClass;
 
 	AActor* SelectedFactory;
@@ -63,6 +46,8 @@ protected:
 
 	FRotator FactoryCreationRotator = FRotator(0.0f, 0.0f, 0.0f);
 
+	AActor* CreateFactoryFromSaveData(FFactorySaveData FactorySaveData);
+
 public:
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -79,6 +64,7 @@ public:
 	void SetSelectedFactory(TSubclassOf<AActor> FactoryClass);
 
 	AActor* SpawnActorToPlaceFromClass(TSubclassOf<AActor> SelectedActor);
+	AActor* SpawnActorToPlaceFromClass(TSubclassOf<AActor> SelectedActor, FTransform SpawnTransform);
 
 	void PlaceSelectedActor();
 
@@ -113,4 +99,8 @@ public:
 	void UpdateControlUI();
 
 	void SetFactoryCreationRotator(FRotator Rotator);
+
+	virtual void SaveData(class UFactorySaveGame* SaveGame) override;
+
+	virtual void LoadData(UFactorySaveGame* SaveGame) override;
 };
