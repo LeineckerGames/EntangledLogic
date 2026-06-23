@@ -14,6 +14,9 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "Background Music")
 	TSoftObjectPtr<class USoundBase> BackgroundMusic;
 
+	UPROPERTY(Config, EditAnywhere, Category = "Background Music")
+	bool MuteMusic;
+
 	UPROPERTY(Config, EditAnywhere, Category = "Timing")
 	int32 MinTimeBetweenSongs = 240;
 

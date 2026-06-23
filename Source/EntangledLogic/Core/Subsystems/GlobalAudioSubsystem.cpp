@@ -15,7 +15,7 @@ void UGlobalAudioSubsystem::StartBackgroundAmbience()
 	UWorld* World = GetWorld();
 
 	const UGlobalAudioSettings* AudioSettings = GetDefault<UGlobalAudioSettings>();
-	if (AudioSettings && AudioSettings->BackgroundMusic)
+	if (AudioSettings && AudioSettings->BackgroundMusic && AudioSettings->MuteMusic != true)
 	{
 		USoundBase* BackgroundMusic = AudioSettings->BackgroundMusic.LoadSynchronous();
 
