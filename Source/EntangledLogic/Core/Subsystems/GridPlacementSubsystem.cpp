@@ -374,8 +374,15 @@ AActor* UGridPlacementSubsystem::CreateFactoryFromSaveData(FFactorySaveData Fact
 {
 	// Might want to add nulls checks for each SaveData
 	AActor* NewFactory = SpawnActorToPlaceFromClass(FactorySaveData.FactoryClass, FactorySaveData.FactoryTransform);
+
+	// Remove Collision Overaly on spawn
 	UGridPlacementComponent* FactoryGPC = NewFactory->GetComponentByClass<UGridPlacementComponent>();
 	FactoryGPC->RemoveOverlayMaterial();
+	
+	// Disable the Input Output arrows at spawn
+	UFactoryInputOutputComponent* InputOutput = NewFactory->GetComponentByClass<UFactoryInputOutputComponent>();
+	InputOutput->SetMeshesVisible(false);
+
 	if (FactoryGPC)
 	{
 		TArray<FGridCoordinate> GridPositions = GridComponentToCoordinates(FactoryGPC);
