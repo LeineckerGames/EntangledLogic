@@ -5,15 +5,12 @@
 #include "MetasoundOutputSubsystem.h"
 #include "GlobalAudioSubsystem.generated.h"
 
-UCLASS(Abstract, Blueprintable)
+UCLASS()
 class ENTANGLEDLOGIC_API UGlobalAudioSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 	
 protected:
-
-	UPROPERTY(EditAnywhere)
-	class USoundBase* BackgroundMusic;
 
 	UPROPERTY(Transient)
 	UAudioComponent* BackgroundMusicAudioComponent;

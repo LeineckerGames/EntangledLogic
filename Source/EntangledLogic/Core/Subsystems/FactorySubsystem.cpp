@@ -27,14 +27,6 @@ void UFactorySubsystem::OnWorldBeginPlay(UWorld& InWorld)
 		FTimerHandle TimerHandle;
 		World->GetTimerManager().SetTimer(TimerHandle, this, &UFactorySubsystem::SetTickTrue, 2, true);
 	}
-
-	// Starts music
-	UGlobalAudioSubsystem* GlobalAudio = World->GetGameInstance()->GetSubsystem<UGlobalAudioSubsystem>();
-	if (GlobalAudio)
-	{
-		UE_LOG(LogTemp, Display, TEXT("Starting Background ambirence!"));
-		GlobalAudio->StartBackgroundAmbience();
-	}
 	
 }
 

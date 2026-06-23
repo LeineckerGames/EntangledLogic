@@ -10,6 +10,7 @@
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
+#include "EntangledLogic/Core/Subsystems/GlobalAudioSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -65,6 +66,17 @@ void APlayerCameraController::BeginPlay()
 
 	// Bind Delegates
 	GridPlacement->OnPlacementModeChanged.AddUObject(this, &APlayerCameraController::OnPlacementModeChanged);
+
+
+	UE_LOG(LogTemp, Display, TEXT("Before Background ambience"));
+	// Starts music
+
+	UGlobalAudioSubsystem* GlobalAudio = GetWorld()->GetGameInstance()->GetSubsystem<UGlobalAudioSubsystem>();
+	if (GlobalAudio)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Starting Background ambience"));
+		GlobalAudio->StartBackgroundAmbience();
+	}
 }
 
 // Called every frame

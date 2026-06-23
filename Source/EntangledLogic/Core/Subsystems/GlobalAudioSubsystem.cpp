@@ -1,33 +1,42 @@
 #include "GlobalAudioSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "AudioDevice.h"
+#include "EntangledLogic/Core/DevSettings/GlobalAudioSettings.h"
 #include "Components/AudioComponent.h"
 
 
 void UGlobalAudioSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
-
 }
 
 void UGlobalAudioSubsystem::StartBackgroundAmbience()
 {
 	UWorld* World = GetWorld();
 
-	if (BackgroundMusic && World)
+	const UGlobalAudioSettings* AudioSettings = GetDefault<UGlobalAudioSettings>();
+	if (AudioSettings && AudioSettings->BackgroundMusic)
 	{
-		UE_LOG(LogTemp, Display, TEXT("Playing Music"));
-		BackgroundMusicAudioComponent = UGameplayStatics::SpawnSound2D(World, BackgroundMusic);
+		USoundBase* BackgroundMusic = AudioSettings->BackgroundMusic.LoadSynchronous();
 
-		UMetaSoundOutputSubsystem* OutputSubsystem = GetWorld()->GetSubsystem<UMetaSoundOutputSubsystem>();
-		if (OutputSubsystem)
+		if (BackgroundMusic && World)
 		{
-			FOnMetasoundOutputValueChangedNative OnOutputChangedDelegate;
-			OnOutputChangedDelegate.BindUObject(this, &UGlobalAudioSubsystem::OnMetaSoundOutputChanged);
-			OutputSubsystem->WatchOutput(BackgroundMusicAudioComponent, FName("MusicFinished"), OnOutputChangedDelegate);
-			StartMusicTimer(45);
+			UE_LOG(LogTemp, Display, TEXT("Playing Music"));
+			BackgroundMusicAudioComponent = UGameplayStatics::SpawnSound2D(World, BackgroundMusic);
+
+			UMetaSoundOutputSubsystem* OutputSubsystem = GetWorld()->GetSubsystem<UMetaSoundOutputSubsystem>();
+			if (OutputSubsystem)
+			{
+				FOnMetasoundOutputValueChangedNative OnOutputChangedDelegate;
+				OnOutputChangedDelegate.BindUObject(this, &UGlobalAudioSubsystem::OnMetaSoundOutputChanged);
+				OutputSubsystem->WatchOutput(BackgroundMusicAudioComponent, FName("MusicFinished"), OnOutputChangedDelegate);
+				StartMusicTimer(45);
+			}
 		}
 	}
+
+
+
 }
 
 void UGlobalAudioSubsystem::TriggerMusic()
@@ -37,14 +46,18 @@ void UGlobalAudioSubsystem::TriggerMusic()
 
 void UGlobalAudioSubsystem::StartMusicTimer()
 {
-	int32 TimeBetweenNextSong = FMath::RandRange(240, 420);
-	UE_LOG(LogTemp, Display, TEXT("TimeBetweenNextSong = %d"), TimeBetweenNextSong);
-
-	UWorld* World = GetWorld();
-	if (World)
+	const UGlobalAudioSettings* AudioSettings = GetDefault<UGlobalAudioSettings>();
+	if (AudioSettings)
 	{
-		FTimerHandle TimerHandle;
-		World->GetTimerManager().SetTimer(TimerHandle, this, &UGlobalAudioSubsystem::TriggerMusic, TimeBetweenNextSong, false);
+		int32 TimeBetweenNextSong = FMath::RandRange(AudioSettings->MinTimeBetweenSongs, AudioSettings->MaxTimeBetweenSongs);
+		UE_LOG(LogTemp, Display, TEXT("TimeBetweenNextSong = %d"), TimeBetweenNextSong);
+
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			FTimerHandle TimerHandle;
+			World->GetTimerManager().SetTimer(TimerHandle, this, &UGlobalAudioSubsystem::TriggerMusic, TimeBetweenNextSong, false);
+		}
 	}
 }
 
