@@ -4,6 +4,7 @@
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
 #include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
+#include "EntangledLogic/Objects/Factories/Components/FactoryInputOutputComponent.h"
 #include "EntangledLogic/Core/Framework/FactorySaveGame.h"
 #include "EntangledLogic/Player/TopDownPlayerController.h"
 #include "EntangledLogic/Player/PlayerCameraController.h"
@@ -38,6 +39,9 @@ void UGridPlacementSubsystem::SetSelectedFactory(TSubclassOf<AActor> FactoryClas
 
 	SelectedFactoryClass = FactoryClass;
 	SelectedFactory = SpawnActorToPlaceFromClass(SelectedFactoryClass);
+
+	SetSelectedActorInputOutputMeshesVisible(true);
+
 	SetPlacementMode(EPlacementMode::Placing);
 
 	AddGridPlacementIMC();
@@ -180,6 +184,7 @@ void UGridPlacementSubsystem::PlaceSelectedActor()
 	{
 		UE_LOG(LogTemp, Display, TEXT("Placing Actor"));
 		GridPlacementComponent->RemoveOverlayMaterial();
+		SetSelectedActorInputOutputMeshesVisible(false);
 		SetPlacedPositionMap(GridLocations, GridPlacementComponent->GetFactoryShape(), SelectedFactory);
 		SelectedFactory = SpawnActorToPlaceFromClass(SelectedFactoryClass);
 	}
@@ -188,6 +193,7 @@ void UGridPlacementSubsystem::PlaceSelectedActor()
 void UGridPlacementSubsystem::PickupFactory(AActor* FactoryToPickup)
 {
 	SelectedFactory = FactoryToPickup;
+	SetSelectedActorInputOutputMeshesVisible(true);
 	SelectedFactoryClass = FactoryToPickup->GetClass();
 	FactoryCreationRotator = FactoryToPickup->GetActorRotation();
 	SetPlacementMode(EPlacementMode::Placing);
@@ -208,6 +214,15 @@ void UGridPlacementSubsystem::DeselectSelectedActor()
 			TopDownPlayerController->RemoveMappingContext(TopDownPlayerController->GridControls);
 			UpdateControlUI();
 		}
+	}
+}
+
+void UGridPlacementSubsystem::SetSelectedActorInputOutputMeshesVisible(bool isVisible)
+{
+	UFactoryInputOutputComponent* InputOutput = SelectedFactory->GetComponentByClass<UFactoryInputOutputComponent>();
+	if (InputOutput)
+	{
+		InputOutput->SetMeshesVisible(isVisible);
 	}
 }
 

@@ -28,6 +28,9 @@ protected:
 	class UStaticMeshComponent* FactoryMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UFactoryInputOutputComponent* InputOutputComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UWidgetComponent* FactoryDisplayWindow;
 
 	class UUserWidget* FactoryWidget;

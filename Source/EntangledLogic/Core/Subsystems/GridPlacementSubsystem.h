@@ -48,6 +48,8 @@ protected:
 
 	AActor* CreateFactoryFromSaveData(FFactorySaveData FactorySaveData);
 
+	void SetSelectedActorInputOutputMeshesVisible(bool isVisible);
+
 public:
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;

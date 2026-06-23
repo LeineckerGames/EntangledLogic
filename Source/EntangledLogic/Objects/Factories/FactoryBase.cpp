@@ -4,6 +4,7 @@
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "EntangledLogic/UI/Factory/FactoryInfoUI.h"
 #include "EntangledLogic/UI/Factory/FactoryDevUI.h"
+#include "EntangledLogic/Objects/Factories/Components/FactoryInputOutputComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Camera/PlayerCameraManager.h"
@@ -22,6 +23,10 @@ AFactoryBase::AFactoryBase()
 	// Create Mesh and attach to root
 	FactoryMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FactoryMesh"));
 	FactoryMesh->SetupAttachment(RootComponent);
+
+	// Create the Input and Output Meshes
+	InputOutputComponent = CreateDefaultSubobject<UFactoryInputOutputComponent>(TEXT("InputOutputComponent"));
+	InputOutputComponent->SetupAttachment(RootComponent);
 
 
 	// Creates the UI above the factory
