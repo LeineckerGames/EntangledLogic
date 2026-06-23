@@ -2,6 +2,7 @@
 #include "EntangledLogic/Core/Framework/UnlockablesEnum.h"
 #include "EntangledLogic/Core/Framework/FactorySaveGame.h"
 #include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
+#include "EntangledLogic/Core/Subsystems/GlobalAudioSubsystem.h"
 #include "EntangledLogic/UI/PlayerHUD.h"
 #include "TimerManager.h"
 
@@ -25,6 +26,13 @@ void UFactorySubsystem::OnWorldBeginPlay(UWorld& InWorld)
 	{
 		FTimerHandle TimerHandle;
 		World->GetTimerManager().SetTimer(TimerHandle, this, &UFactorySubsystem::SetTickTrue, 2, true);
+	}
+
+	// Starts music
+	UGlobalAudioSubsystem* GlobalAudio = World->GetGameInstance()->GetSubsystem<UGlobalAudioSubsystem>();
+	if (GlobalAudio)
+	{
+		GlobalAudio->StartBackgroundMusic();
 	}
 	
 }
