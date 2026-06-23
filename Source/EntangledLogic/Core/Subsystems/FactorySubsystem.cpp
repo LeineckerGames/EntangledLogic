@@ -32,7 +32,8 @@ void UFactorySubsystem::OnWorldBeginPlay(UWorld& InWorld)
 	UGlobalAudioSubsystem* GlobalAudio = World->GetGameInstance()->GetSubsystem<UGlobalAudioSubsystem>();
 	if (GlobalAudio)
 	{
-		GlobalAudio->StartBackgroundMusic();
+		UE_LOG(LogTemp, Display, TEXT("Starting Background ambirence!"));
+		GlobalAudio->StartBackgroundAmbience();
 	}
 	
 }
@@ -89,6 +90,23 @@ void UFactorySubsystem::RepopulateFactorySelectionWidget()
 void UFactorySubsystem::SetTickPaused(bool TickPausedValue)
 {
 	isTickPaused = TickPausedValue;
+
+	// Sets the BG music to be filtered or not
+	if (UWorld* World = GetWorld())
+	{
+		UGlobalAudioSubsystem* GlobalAudio = World->GetGameInstance()->GetSubsystem<UGlobalAudioSubsystem>();
+		if (GlobalAudio)
+		{
+			if (isTickPaused)
+			{
+				GlobalAudio->SetPauseWet();
+			}
+			else
+			{
+				GlobalAudio->SetPauseDry();
+			}
+		}
+	}
 }
 
 void UFactorySubsystem::SetTickTrue()
