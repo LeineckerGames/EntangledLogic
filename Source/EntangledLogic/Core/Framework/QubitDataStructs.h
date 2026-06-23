@@ -10,7 +10,6 @@ struct FQubitData
 {
 	GENERATED_USTRUCT_BODY()
 
-	bool bIsDensityMat;
-	qpp::ket StateVector;
+	int8 size;
 	qpp::cmat DensityMatrix;
 };

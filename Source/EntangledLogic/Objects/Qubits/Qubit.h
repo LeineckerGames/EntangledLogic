@@ -6,14 +6,21 @@
 #include "GameFramework/Actor.h"
 #include "Qubit.generated.h"
 
+struct FQubitData;
+
 UCLASS()
 class ENTANGLEDLOGIC_API AQubit : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
+public:
+	class TSharedPtr<FQubitData> State;
+	int32 EntanglementPosition;
+
 	// Sets default values for this actor's properties
 	AQubit();
+
+	// todo: constructor from existing FQubitData (for save/load)
 
 protected:
 	// Called when the game starts or when spawned

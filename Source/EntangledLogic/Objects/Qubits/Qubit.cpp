@@ -2,6 +2,8 @@
 
 
 #include "EntangledLogic/Objects/Qubits/Qubit.h"
+#include "EntangledLogic/Core/Framework/QubitDataStructs.h"
+#include "Templates/SharedPointer.h"
 
 // Sets default values
 AQubit::AQubit()
@@ -15,6 +17,7 @@ AQubit::AQubit()
 void AQubit::BeginPlay()
 {
 	Super::BeginPlay();
+	State = MakeShared<FQubitData>();
 	
 }
 
