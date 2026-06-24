@@ -4,7 +4,6 @@
 #include "QppPlugin.h"
 #include "QubitDataStructs.generated.h"
 
-
 USTRUCT()
 struct FEntangledGroup
 {
@@ -17,5 +16,5 @@ struct FQubitData
 {
 	GENERATED_USTRUCT_BODY()
 	qpp::cmat DensityMatrix;
-	FEntangledGroup group;
+	FEntangledGroup* group;
 };

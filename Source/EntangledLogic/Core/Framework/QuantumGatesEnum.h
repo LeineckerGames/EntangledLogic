@@ -17,3 +17,12 @@ enum class ETwoQubitGate : uint8
 	Identity,
 	CNOT_Gate
 };
+
+UENUM()
+enum class ENamedState : uint8
+{
+	Zero,
+	One,
+	Plus,
+	Minus
+};
