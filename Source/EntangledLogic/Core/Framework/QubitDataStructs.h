@@ -6,10 +6,16 @@
 
 
 USTRUCT()
+struct FEntangledGroup
+{
+	GENERATED_USTRUCT_BODY()
+	TArray<AQubit*> qubits;
+};
+
+USTRUCT()
 struct FQubitData
 {
 	GENERATED_USTRUCT_BODY()
-
-	int8 size;
 	qpp::cmat DensityMatrix;
+	FEntangledGroup group;
 };

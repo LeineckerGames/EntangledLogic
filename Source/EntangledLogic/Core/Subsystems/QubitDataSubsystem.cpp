@@ -13,14 +13,14 @@ void UQubitDataSubsystem::Apply(EOneQubitGate gate, AQubit& qubit)
 		UE_LOG(LogTemp, Display, TEXT("Stateless qubit - cannot apply gate"));
 		return;
 	}
+
 	unsigned long LongEntPos = static_cast<unsigned long>(qubit.EntanglementPosition);
 	qpp::cmat gateMatrix = GetGateMatrix(gate);
 	FQubitData* state = qubit.State.Get();
+
 	state->DensityMatrix = qpp::apply(state->DensityMatrix, gateMatrix, { LongEntPos });
 	// if aliasing becomes an issue, try this instead:
 	// state->DensityMatrix = qpp::apply(state->DensityMatrix.eval(), gateMatrix, { LongEntPos });
-
-	// todo: check disentanglement - requires finding all entangled AQubits
 }
 
 void UQubitDataSubsystem::Apply(ETwoQubitGate gate, AQubit& qubitA, AQubit& qubitB)
@@ -31,11 +31,17 @@ void UQubitDataSubsystem::Apply(ETwoQubitGate gate, AQubit& qubitA, AQubit& qubi
 		return;
 	}
 
+	qpp::cmat gateMatrix = GetGateMatrix(gate);
+	unsigned long LongEntPosA = static_cast<unsigned long>(qubitA.EntanglementPosition);
+	unsigned long LongEntPosB = static_cast<unsigned long>(qubitB.EntanglementPosition);
+
+
+	// todo: check disentanglement - requires finding all entangled AQubits
+
 
 }
 
 // convert gate enum to qpp matrix
-// this lets us avoid including qpp in unnecessary places
 qpp::cmat UQubitDataSubsystem::GetGateMatrix(EOneQubitGate gate)
 {
 	switch (gate) {
