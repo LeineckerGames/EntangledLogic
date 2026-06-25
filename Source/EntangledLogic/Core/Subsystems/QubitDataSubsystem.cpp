@@ -6,6 +6,22 @@
 #include "EntangledLogic/Core/Framework/QubitDataStructs.h"
 #include "EntangledLogic/Objects/Qubits/Qubit.h"
 
+using namespace qpp;
+
+AQubit* UQubitDataSubsystem::NewQubit()
+{
+	return NewQubit(ENamedState::Zero);
+}
+
+AQubit* UQubitDataSubsystem::NewQubit(ENamedState namedState)
+{
+	AQubit* q = NewObject<AQubit>();
+	q->State->DensityMatrix = GetNamedState(namedState);
+	q->State->qubits.Add(q);
+
+	return q;
+}
+
 void UQubitDataSubsystem::Apply(EOneQubitGate gate, AQubit& qubit)
 {
 	if (!qubit.State.IsValid())
@@ -15,10 +31,10 @@ void UQubitDataSubsystem::Apply(EOneQubitGate gate, AQubit& qubit)
 	}
 
 	unsigned long LongEntPos = static_cast<unsigned long>(qubit.EntanglementPosition);
-	qpp::cmat gateMatrix = GetGateMatrix(gate);
+	cmat gateMatrix = GetGateMatrix(gate);
 	FQubitData* state = qubit.State.Get();
 
-	state->DensityMatrix = qpp::apply(state->DensityMatrix, gateMatrix, { LongEntPos });
+	state->DensityMatrix = apply(state->DensityMatrix, gateMatrix, { LongEntPos });
 	// if aliasing becomes an issue, try this instead:
 	// state->DensityMatrix = qpp::apply(state->DensityMatrix.eval(), gateMatrix, { LongEntPos });
 }
@@ -31,7 +47,7 @@ void UQubitDataSubsystem::Apply(ETwoQubitGate gate, AQubit& qubitA, AQubit& qubi
 		return;
 	}
 
-	qpp::cmat gateMatrix = GetGateMatrix(gate);
+	cmat gateMatrix = GetGateMatrix(gate);
 	unsigned long LongEntPosA = static_cast<unsigned long>(qubitA.EntanglementPosition);
 	unsigned long LongEntPosB = static_cast<unsigned long>(qubitB.EntanglementPosition);
 
@@ -41,26 +57,41 @@ void UQubitDataSubsystem::Apply(ETwoQubitGate gate, AQubit& qubitA, AQubit& qubi
 
 }
 
-// convert gate enum to qpp matrix
-qpp::cmat UQubitDataSubsystem::GetGateMatrix(EOneQubitGate gate)
+
+
+qpp::cmat UQubitDataSubsystem::GetNamedState(ENamedState state)
 {
-	switch (gate) {
-	case EOneQubitGate::Identity : return qpp::gt.Id();
-	case EOneQubitGate::X_Gate : return qpp::gt.X;
-	case EOneQubitGate::Y_Gate : return qpp::gt.Y;
-	case EOneQubitGate::Z_Gate : return qpp::gt.Z;
-	case EOneQubitGate::H_Gate : return qpp::gt.H;
+	switch (state)
+	{
+	case ENamedState::Zero:  return st.pz0;
+	case ENamedState::One:   return st.pz1;
+	case ENamedState::Plus:  return st.px0;
+	case ENamedState::Minus: return st.px1;
 	}
 
-	return qpp::cmat();
+	return st.pz0;
 }
 
-qpp::cmat UQubitDataSubsystem::GetGateMatrix(ETwoQubitGate gate)
+// convert gate enum to qpp matrix
+cmat UQubitDataSubsystem::GetGateMatrix(EOneQubitGate gate)
 {
 	switch (gate) {
-	case ETwoQubitGate::Identity: return qpp::gt.Id2;
-	case ETwoQubitGate::CNOT_Gate: return qpp::gt.CNOT;
+	case EOneQubitGate::Identity : return gt.Id();
+	case EOneQubitGate::X_Gate : return gt.X;
+	case EOneQubitGate::Y_Gate : return gt.Y;
+	case EOneQubitGate::Z_Gate : return gt.Z;
+	case EOneQubitGate::H_Gate : return gt.H;
 	}
 
-	return qpp::cmat();
+	return gt.Id();
+}
+
+cmat UQubitDataSubsystem::GetGateMatrix(ETwoQubitGate gate)
+{
+	switch (gate) {
+	case ETwoQubitGate::Identity: return gt.Id2;
+	case ETwoQubitGate::CNOT_Gate: return gt.CNOT;
+	}
+
+	return gt.Id2;
 }
