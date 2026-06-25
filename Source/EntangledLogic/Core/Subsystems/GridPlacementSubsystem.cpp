@@ -149,6 +149,7 @@ void UGridPlacementSubsystem::PlaceSelectedActor()
 		GridPlacementComponent->RemoveOverlayMaterial();
 		SelectedFactory = SpawnActorToPlaceFromClass(SelectedFactoryClass);
 		SetPlacedPositionMap(GridLocations, GridPlacementComponent->GetFactoryShape(), SelectedFactory);
+		OnBuildingPlacedDelegate.Broadcast(SelectedFactory);
 	}
 }
 
