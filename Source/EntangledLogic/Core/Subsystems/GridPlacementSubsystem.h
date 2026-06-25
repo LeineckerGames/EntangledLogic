@@ -39,7 +39,7 @@ enum class EPlacementMode : uint8
 
 // Delegates
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlacementModeChanged, EPlacementMode);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildingPlaced, AActor*, PlacedActor);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingPlaced, AActor*);
 
 UCLASS()
 class ENTANGLEDLOGIC_API UGridPlacementSubsystem : public UWorldSubsystem
