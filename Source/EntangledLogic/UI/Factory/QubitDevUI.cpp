@@ -1,4 +1,3 @@
-
 #include "EntangledLogic/UI/Factory/QubitDevUI.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
@@ -44,7 +43,11 @@ void UQubitDevUI::SetState(ENamedState state)
 
 void UQubitDevUI::ApplyGate(EOneQubitGate gate)
 {
-	return;
+	if (Q && QubitSubsystem)
+	{
+		QubitSubsystem->Apply(*Q, gate);
+	}
+	SetStateText();
 }
 
 void UQubitDevUI::SetStateText()

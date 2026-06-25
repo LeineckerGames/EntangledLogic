@@ -1,5 +1,3 @@
-
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -25,9 +23,9 @@ public:
 
 	void SetState(AQubit& qubit, ENamedState namedState);
 
-	void Apply(EOneQubitGate gate, AQubit& qubit);
+	void Apply(AQubit& qubit, EOneQubitGate gate);
 
-	void Apply(ETwoQubitGate gate, AQubit& qubitA, AQubit& qubitB);
+	void Apply(AQubit& qubitA, AQubit& qubitB, ETwoQubitGate gate);
 
 private:
 	qpp::cmat GetNamedState(ENamedState state);

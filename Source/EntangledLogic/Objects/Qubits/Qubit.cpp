@@ -1,6 +1,3 @@
-
-
-
 #include "EntangledLogic/Objects/Qubits/Qubit.h"
 #include "EntangledLogic/Core/Framework/QubitDataStructs.h"
 #include "Templates/SharedPointer.h"
@@ -30,8 +27,6 @@ void AQubit::Tick(float DeltaTime)
 
 FString AQubit::GetString()
 {
-	if (false) return FString("No Qubit");
-
 	// open string stream
 	std::ostringstream oss1;
 

@@ -1,6 +1,3 @@
-
-
-
 #include "EntangledLogic/Core/Subsystems/QubitDataSubsystem.h"
 #include "EntangledLogic/Core/Framework/QuantumGatesEnum.h"
 #include "EntangledLogic/Core/Framework/QubitDataStructs.h"
@@ -31,14 +28,8 @@ void UQubitDataSubsystem::SetState(AQubit& qubit, ENamedState namedState)
 	qubit.State->DensityMatrix = GetNamedState(namedState);
 }
 
-void UQubitDataSubsystem::Apply(EOneQubitGate gate, AQubit& qubit)
+void UQubitDataSubsystem::Apply(AQubit& qubit, EOneQubitGate gate)
 {
-	if (false)
-	{
-		UE_LOG(LogTemp, Display, TEXT("Stateless qubit - cannot apply gate"));
-		return;
-	}
-
 	unsigned long LongEntPos = static_cast<unsigned long>(qubit.EntanglementPosition);
 	cmat gateMatrix = GetGateMatrix(gate);
 	FQubitData* state = &qubit.State.Get();
@@ -48,14 +39,8 @@ void UQubitDataSubsystem::Apply(EOneQubitGate gate, AQubit& qubit)
 	// state->DensityMatrix = qpp::apply(state->DensityMatrix.eval(), gateMatrix, { LongEntPos });
 }
 
-void UQubitDataSubsystem::Apply(ETwoQubitGate gate, AQubit& qubitA, AQubit& qubitB)
+void UQubitDataSubsystem::Apply(AQubit& qubitA, AQubit& qubitB, ETwoQubitGate gate)
 {
-	if (false)
-	{
-		UE_LOG(LogTemp, Display, TEXT("Stateless qubit - cannot apply gate"));
-		return;
-	}
-
 	cmat gateMatrix = GetGateMatrix(gate);
 	unsigned long LongEntPosA = static_cast<unsigned long>(qubitA.EntanglementPosition);
 	unsigned long LongEntPosB = static_cast<unsigned long>(qubitB.EntanglementPosition);
