@@ -11,9 +11,8 @@ void UWireSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	UGridPlacementSubsystem* GridPlacementSubsystem = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
 	if (GridPlacementSubsystem) 
 	{
-		GridPlacementSubsystem->OnBuildingPlacedDelegate.AddRaw(this, &UWireSubsystem::OnBuildingPlaced);
+		GridPlacementSubsystem->OnBuildingPlacedDelegate.AddDynamic(this, &UWireSubsystem::OnBuildingPlaced);
 	}
-
 }
 
 void UWireSubsystem::OnBuildingPlaced(AActor* PlacedActor) 
