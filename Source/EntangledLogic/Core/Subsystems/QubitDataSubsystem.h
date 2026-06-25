@@ -11,6 +11,8 @@ enum class EOneQubitGate : uint8;
 enum class ETwoQubitGate : uint8;
 enum class ENamedState : uint8;
 
+class AQubit;
+
 UCLASS()
 class ENTANGLEDLOGIC_API UQubitDataSubsystem : public UWorldSubsystem
 {
@@ -21,9 +23,11 @@ public:
 
 	AQubit* NewQubit(ENamedState namedState);
 
-	void Apply(EOneQubitGate gate, class AQubit& qubit);
+	void SetState(AQubit& qubit, ENamedState namedState);
 
-	void Apply(ETwoQubitGate gate, class AQubit& qubitA, class AQubit& qubitB);
+	void Apply(EOneQubitGate gate, AQubit& qubit);
+
+	void Apply(ETwoQubitGate gate, AQubit& qubitA, AQubit& qubitB);
 
 private:
 	qpp::cmat GetNamedState(ENamedState state);

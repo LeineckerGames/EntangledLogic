@@ -8,23 +8,32 @@
 
 using namespace qpp;
 
+AQubit* UQubitDataSubsystem::NewQubit(ENamedState namedState)
+{
+	AQubit* q = NewObject<AQubit>();
+	if (q)
+	{
+		q->State->DensityMatrix = GetNamedState(namedState);
+		q->State->qubits.Add(q);
+	}
+
+	return q;
+}
+
 AQubit* UQubitDataSubsystem::NewQubit()
 {
 	return NewQubit(ENamedState::Zero);
 }
 
-AQubit* UQubitDataSubsystem::NewQubit(ENamedState namedState)
+// can desync entanglement groups, use with caution
+void UQubitDataSubsystem::SetState(AQubit& qubit, ENamedState namedState)
 {
-	AQubit* q = NewObject<AQubit>();
-	q->State->DensityMatrix = GetNamedState(namedState);
-	q->State->qubits.Add(q);
-
-	return q;
+	qubit.State->DensityMatrix = GetNamedState(namedState);
 }
 
 void UQubitDataSubsystem::Apply(EOneQubitGate gate, AQubit& qubit)
 {
-	if (!qubit.State.IsValid())
+	if (false)
 	{
 		UE_LOG(LogTemp, Display, TEXT("Stateless qubit - cannot apply gate"));
 		return;
@@ -32,7 +41,7 @@ void UQubitDataSubsystem::Apply(EOneQubitGate gate, AQubit& qubit)
 
 	unsigned long LongEntPos = static_cast<unsigned long>(qubit.EntanglementPosition);
 	cmat gateMatrix = GetGateMatrix(gate);
-	FQubitData* state = qubit.State.Get();
+	FQubitData* state = &qubit.State.Get();
 
 	state->DensityMatrix = apply(state->DensityMatrix, gateMatrix, { LongEntPos });
 	// if aliasing becomes an issue, try this instead:
@@ -41,7 +50,7 @@ void UQubitDataSubsystem::Apply(EOneQubitGate gate, AQubit& qubit)
 
 void UQubitDataSubsystem::Apply(ETwoQubitGate gate, AQubit& qubitA, AQubit& qubitB)
 {
-	if (!qubitA.State.IsValid() || !qubitB.State.IsValid())
+	if (false)
 	{
 		UE_LOG(LogTemp, Display, TEXT("Stateless qubit - cannot apply gate"));
 		return;
@@ -53,10 +62,7 @@ void UQubitDataSubsystem::Apply(ETwoQubitGate gate, AQubit& qubitA, AQubit& qubi
 
 
 	// todo: check disentanglement - requires finding all entangled AQubits
-
-
 }
-
 
 
 qpp::cmat UQubitDataSubsystem::GetNamedState(ENamedState state)

@@ -12,8 +12,17 @@ class ENTANGLEDLOGIC_API UQubitDevUI : public UUserWidget
 	GENERATED_BODY()
 
 protected:
+	UPROPERTY()
+	class AQubit* Q;
+
+	UPROPERTY()
+	class UQubitDataSubsystem* QubitSubsystem;
+
 	UPROPERTY(meta = (BindWidget))
 	class UFactoryUIBase* UIBase;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* StateText;
 
 	UPROPERTY(meta = (BindWidget))
 	class UButton* ZeroStateButton;
@@ -50,6 +59,9 @@ protected:
 
 	UFUNCTION()
 	void ApplyGate(EOneQubitGate gate);
+
+	UFUNCTION()
+	void SetStateText();
 
 	UFUNCTION()
 	void SetStateZero();

@@ -4,6 +4,7 @@
 #include "EntangledLogic/Objects/Qubits/Qubit.h"
 #include "EntangledLogic/Core/Framework/QubitDataStructs.h"
 #include "Templates/SharedPointer.h"
+#include "QppPlugin.h"
 
 // Sets default values
 AQubit::AQubit()
@@ -27,3 +28,16 @@ void AQubit::Tick(float DeltaTime)
 
 }
 
+FString AQubit::GetString()
+{
+	if (false) return FString("No Qubit");
+
+	// open string stream
+	std::ostringstream oss1;
+
+	// push qpp's display to the stream
+	oss1 << qpp::disp(State->DensityMatrix) << '\n';
+
+	// string from stream
+	return FString(oss1.str().c_str());
+}

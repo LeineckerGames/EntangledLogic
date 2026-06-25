@@ -14,7 +14,7 @@ class ENTANGLEDLOGIC_API AQubit : public AActor
 	GENERATED_BODY()
 	
 public:
-	class TSharedPtr<FQubitData> State;
+	class TSharedRef<FQubitData> State = MakeShared<FQubitData>();
 	int32 EntanglementPosition;
 
 	// Sets default values for this actor's properties
@@ -29,5 +29,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	class FString GetString();
 
 };

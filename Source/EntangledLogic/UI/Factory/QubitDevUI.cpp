@@ -1,7 +1,10 @@
 
 #include "EntangledLogic/UI/Factory/QubitDevUI.h"
 #include "Components/Button.h"
+#include "Components/TextBlock.h"
 #include "EntangledLogic/Core/Framework/QuantumGatesEnum.h"
+#include "EntangledLogic/Core/Subsystems/QubitDataSubsystem.h"
+#include "EntangledLogic/Objects/Qubits/Qubit.h"
 
 void UQubitDevUI::NativeConstruct()
 {
@@ -17,16 +20,39 @@ void UQubitDevUI::NativeConstruct()
 	if (YGateButton) YGateButton->OnClicked.AddDynamic(this, &UQubitDevUI::ApplyGateY);
 	if (ZGateButton) ZGateButton->OnClicked.AddDynamic(this, &UQubitDevUI::ApplyGateZ);
 	if (HGateButton) HGateButton->OnClicked.AddDynamic(this, &UQubitDevUI::ApplyGateH);
+
+	UWorld* world = GetWorld();
+	if (world)
+	{
+		QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
+		if (QubitSubsystem)
+		{
+			Q = QubitSubsystem->NewQubit();
+			SetStateText();
+		}
+	}
 }
 
 void UQubitDevUI::SetState(ENamedState state)
 {
-	return;
+	if (Q && QubitSubsystem)
+	{
+		QubitSubsystem->SetState(*Q, state);
+	}
+	SetStateText();
 }
 
 void UQubitDevUI::ApplyGate(EOneQubitGate gate)
 {
 	return;
+}
+
+void UQubitDevUI::SetStateText()
+{
+	if (Q)
+	{
+		StateText->SetText(FText::FromString(Q->GetString()));
+	}
 }
 
 void UQubitDevUI::SetStateZero()  { SetState(ENamedState::Zero); }
