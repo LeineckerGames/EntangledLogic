@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
-#include "GridPlacementSubsystem.h"
 #include "WireSubsystem.generated.h"
 
 /**
@@ -18,8 +17,6 @@ class ENTANGLEDLOGIC_API UWireSubsystem : public UWorldSubsystem
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-
-	void OnBuildingPlaced(AActor*);
 
 };
 
