@@ -3,6 +3,7 @@
 #include "Sound/SoundWave.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
+#include "EntangledLogic/Core/Framework/UnlockablesEnum.h"
 #include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 
@@ -55,6 +56,11 @@ void AQuantumGnomeFactory::Interact(EPlacementMode PlacementMode)
 			SetLifeSpan(5.0f);
 			UFactorySubsystem* FactorySubsystem = GetWorld()->GetSubsystem<UFactorySubsystem>();
 			FactorySubsystem->PersistantStats.GnomesMurdered++;
+			// If you murdered enough gnomes, unlock real quantum gnome
+			if (FactorySubsystem->PersistantStats.GnomesMurdered >= 10)
+			{
+				FactorySubsystem->UnlockProgression(EUnlockables::Factory_QuantumGnome);
+			}
 			UE_LOG(LogTemp, Display, TEXT("Gnomes Murdered: %d"), FactorySubsystem->PersistantStats.GnomesMurdered);
 		}
 		else

@@ -8,7 +8,8 @@ public class EntangledLogic : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GeometryCollectionEngine", "UMG" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
+			"GeometryCollectionEngine", "UMG", "MetasoundEngine" });
 
 		//PrivateDependencyModuleNames.AddRange(new string[] {  });
 

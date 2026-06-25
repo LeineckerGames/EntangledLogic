@@ -2,6 +2,7 @@
 #include "EntangledLogic/Core/Framework/UnlockablesEnum.h"
 #include "EntangledLogic/Core/Framework/FactorySaveGame.h"
 #include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
+#include "EntangledLogic/Core/Subsystems/GlobalAudioSubsystem.h"
 #include "EntangledLogic/UI/PlayerHUD.h"
 #include "TimerManager.h"
 
@@ -81,6 +82,23 @@ void UFactorySubsystem::RepopulateFactorySelectionWidget()
 void UFactorySubsystem::SetTickPaused(bool TickPausedValue)
 {
 	isTickPaused = TickPausedValue;
+
+	// Sets the BG music to be filtered or not
+	if (UWorld* World = GetWorld())
+	{
+		UGlobalAudioSubsystem* GlobalAudio = World->GetGameInstance()->GetSubsystem<UGlobalAudioSubsystem>();
+		if (GlobalAudio)
+		{
+			if (isTickPaused)
+			{
+				GlobalAudio->SetPauseWet();
+			}
+			else
+			{
+				GlobalAudio->SetPauseDry();
+			}
+		}
+	}
 }
 
 void UFactorySubsystem::SetTickTrue()

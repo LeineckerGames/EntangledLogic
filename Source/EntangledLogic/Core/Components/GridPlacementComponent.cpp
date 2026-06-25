@@ -1,5 +1,6 @@
 #include "GridPlacementComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
+#include "EntangledLogic/Objects/Factories/Components/FactoryInputOutputComponent.h"
 
 UGridPlacementComponent::UGridPlacementComponent()
 {
@@ -55,6 +56,15 @@ void UGridPlacementComponent::OnPlacementModeChanged(EPlacementMode CurrentPlace
 	}
 }
 
+void UGridPlacementComponent::SetInputOutputVisibility(bool isValid)
+{
+	UFactoryInputOutputComponent* InputOutputComponent = GetAttachParentActor()->GetComponentByClass<UFactoryInputOutputComponent>();
+	if (InputOutputComponent)
+	{
+		InputOutputComponent->SetMeshesVisible(isValid);
+	}
+}
+
 // Called every frame
 void UGridPlacementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -67,7 +77,11 @@ void UGridPlacementComponent::UpdateOverlayMaterial(TArray<UMeshComponent*> Mesh
 	{
 		for (UMeshComponent* Mesh : MeshesToUpdate)
 		{
-			Mesh->SetOverlayMaterial(OverlayMaterial);
+			// Skips any meshes marked not to show overlay
+			if (!Mesh->ComponentHasTag(FName("DontShowCollision")))
+			{
+				Mesh->SetOverlayMaterial(OverlayMaterial);
+			}
 		}
 	}
 }
