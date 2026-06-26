@@ -11,7 +11,10 @@ public class EntangledLogic : ModuleRules
 		// for qpp, idk what it does. some ai shit might break and kill someone.
 		bUseRTTI = true;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GeometryCollectionEngine", "UMG", "RHI", "AudioModulation", "QppPlugin", "MetasoundEngine" });
+		// more ai slop
+        bEnableExceptions = true;
+
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GeometryCollectionEngine", "UMG", "RHI", "AudioModulation", "QppPlugin", "MetasoundEngine" });
 
 		//PrivateDependencyModuleNames.AddRange(new string[] {  });
 

@@ -98,5 +98,5 @@ protected:
     // TODO: Update this later to load into the loaded save file's level instead of a hardcoded one
     // The literal asset name of the level map you want to load when clicking Start
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Setup")
-    FName GameplayLevelName = FName("NewMap");
+    FName GameplayLevelName = FName("NickDevLevel");
 };

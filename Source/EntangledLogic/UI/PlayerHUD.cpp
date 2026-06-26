@@ -129,9 +129,9 @@ void APlayerHUD::OpenPauseMenu()
 	if (PC)
 	{
 		PC->SetPause(true);
-		FInputModeGameAndUI InputMode;
-		InputMode.SetWidgetToFocus(PauseMenuWidget->TakeWidget());
-		PC->SetInputMode(InputMode);
+		//FInputModeGameAndUI InputMode;
+		//InputMode.SetWidgetToFocus(PauseMenuWidget->TakeWidget());
+		//PC->SetInputMode(InputMode);
 	}
 }
 
@@ -147,7 +147,7 @@ void APlayerHUD::ClosePauseMenu()
 	if (PC)
 	{
 		PC->SetPause(false);
-		PC->SetInputMode(FInputModeGameOnly());
+		//PC->SetInputMode(FInputModeGameOnly());
 	}
 }
 
@@ -161,12 +161,12 @@ void APlayerHUD::OpenSettingsMenu()
 
 	// Shift UI focus to the settings menu
 	APlayerController* PC = GetOwningPlayerController();
-	if (PC)
-	{
-		FInputModeGameAndUI InputMode;
-		InputMode.SetWidgetToFocus(SettingsMenuWidget->TakeWidget());
-		PC->SetInputMode(InputMode);
-	}
+	//if (PC)
+	//{
+	//	FInputModeGameAndUI InputMode;
+	//	InputMode.SetWidgetToFocus(SettingsMenuWidget->TakeWidget());
+	//	PC->SetInputMode(InputMode);
+	//}
 }
 
 // Close the settings menu
@@ -176,13 +176,13 @@ void APlayerHUD::CloseSettingsMenu()
 	if (PauseMenuWidget) PauseMenuWidget->SetVisibility(ESlateVisibility::Visible);
 
 	// Shift UI focus to the pause menu
-	APlayerController* PC = GetOwningPlayerController();
-	if (PC)
-	{
-		FInputModeGameAndUI InputMode;
-		InputMode.SetWidgetToFocus(PauseMenuWidget->TakeWidget());
-		PC->SetInputMode(InputMode);
-	}
+	//APlayerController* PC = GetOwningPlayerController();
+	//if (PC)
+	//{
+	//	FInputModeGameAndUI InputMode;
+	//	InputMode.SetWidgetToFocus(PauseMenuWidget->TakeWidget());
+	//	PC->SetInputMode(InputMode);
+	//}
 }
 
 // Quit to main menu
@@ -196,8 +196,8 @@ void APlayerHUD::QuitToMainMenu()
 	if (PC)
 	{
 		PC->SetPause(false);
-		FInputModeUIOnly InputMode;
-		PC->SetInputMode(InputMode);
+		//FInputModeUIOnly InputMode;
+		//PC->SetInputMode(InputMode);
 	}
 
 	UGameplayStatics::OpenLevel(GetWorld(), FName("L_MainMenu"));
