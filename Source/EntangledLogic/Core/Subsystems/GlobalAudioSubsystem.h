@@ -19,11 +19,16 @@ protected:
 
 	void OnMetaSoundOutputChanged(FName OutputName, const FMetaSoundOutput& Output);
 
+	UPROPERTY(EditAnywhere, Category = "Background Music")
+	class USoundBase* BackgroundMusic;
+
 public:
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	void StartBackgroundAmbience();
+
+	void SetBackgroundMusic(class USoundBase* BackgroundMusicToSet);
 
 	void TriggerMusic();
 
