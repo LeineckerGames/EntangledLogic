@@ -58,6 +58,9 @@ protected:
 
 	class IFactoryInteractionInterface* PreviousInteraction;
 
+	UPROPERTY(EditAnywhere, Category = "Background Music")
+	class USoundBase* BackgroundMusic;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

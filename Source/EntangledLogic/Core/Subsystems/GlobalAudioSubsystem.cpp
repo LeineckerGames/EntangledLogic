@@ -17,7 +17,7 @@ void UGlobalAudioSubsystem::StartBackgroundAmbience()
 	const UGlobalAudioSettings* AudioSettings = GetDefault<UGlobalAudioSettings>();
 	if (AudioSettings && AudioSettings->BackgroundMusic && AudioSettings->MuteMusic != true)
 	{
-		USoundBase* BackgroundMusic = AudioSettings->BackgroundMusic.LoadSynchronous();
+		//USoundBase* BackgroundMusic = AudioSettings->BackgroundMusic.LoadSynchronous();
 
 		if (BackgroundMusic && World)
 		{
@@ -87,4 +87,9 @@ void UGlobalAudioSubsystem::SetPauseWet()
 void UGlobalAudioSubsystem::SetPauseDry()
 {
 	BackgroundMusicAudioComponent->SetFloatParameter(FName("PausedDryWet"), 0.0f);
+}
+
+void UGlobalAudioSubsystem::SetBackgroundMusic(USoundBase* BackgroundMusicToSet)
+{
+	BackgroundMusic = BackgroundMusicToSet;
 }

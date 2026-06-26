@@ -74,6 +74,7 @@ void APlayerCameraController::BeginPlay()
 	UGlobalAudioSubsystem* GlobalAudio = GetWorld()->GetGameInstance()->GetSubsystem<UGlobalAudioSubsystem>();
 	if (GlobalAudio)
 	{
+		GlobalAudio->SetBackgroundMusic(BackgroundMusic);
 		UE_LOG(LogTemp, Display, TEXT("Starting Background ambience"));
 		GlobalAudio->StartBackgroundAmbience();
 	}
