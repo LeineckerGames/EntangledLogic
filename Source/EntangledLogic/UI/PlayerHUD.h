@@ -6,6 +6,8 @@
 
 class UFactorySelectionWidget;
 class UPlayerControlsUI;
+class UPauseMenuWidget;
+class USettingsMenuWidget;
 
 enum class EPlacementMode : uint8;
 UCLASS()
@@ -20,6 +22,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<UPlayerControlsUI> PlayerControlsUIClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UPauseMenuWidget> PauseMenuWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<USettingsMenuWidget> SettingsMenuWidgetClass;
+
 	APlayerHUD();
 
 	void RepopulateFactorySelectionWidget();
@@ -27,6 +35,18 @@ public:
 	void UpdatePlayerControlsUI();
 
 	void UpdatePlayerControlsUI(EPlacementMode PlacementMode);
+
+	void TogglePauseMenu();
+
+	void OpenPauseMenu();
+
+	void ClosePauseMenu();
+
+	void OpenSettingsMenu();
+
+	void CloseSettingsMenu();
+
+	void QuitToMainMenu();
 
 protected:
 	virtual void BeginPlay() override;
@@ -36,5 +56,11 @@ protected:
 
 	UPROPERTY()
 	UPlayerControlsUI* PlayerControlsUIWidget;
+
+	UPROPERTY()
+	UPauseMenuWidget* PauseMenuWidget;
+
+	UPROPERTY()
+	USettingsMenuWidget* SettingsMenuWidget;
 	
 };
