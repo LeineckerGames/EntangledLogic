@@ -29,15 +29,14 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Factory Shape")
 	FVector PlacementOffset;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UFactoryInputOutputComponent* InputOutputComponent;
+
 	float GridSize;
 
 	// Materials
 	UPROPERTY(EditAnywhere, Category = "Grid Materials")
 	class UMaterialInterface* FactoryCollisionOverlayMaterial;
-
-	//// Might combine this into above material
-	//UPROPERTY(EditAnywhere, Category = "Grid Materials")
-	//class UMaterialInterface* FactoryOutlineOverlayMaterial;
 
 	class UMaterialInstanceDynamic* OverlayMaterial;
 
@@ -58,6 +57,10 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	FVector GetPlacementOffset() const;
+	
+	void SetInputOutputComponent(class UFactoryInputOutputComponent* InputOutputComponentToSet);
+	
+	class UFactoryInputOutputComponent* GetInputOutputComponent();
 	
 	int32 GetFactorySize() const;
 	

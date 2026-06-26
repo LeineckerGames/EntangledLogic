@@ -1,5 +1,3 @@
-
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -19,9 +17,9 @@ class ENTANGLEDLOGIC_API IInputOutputInterface
 
 public:
 
-	void ConnectAllInputsAndOutputs();
+	virtual void ConnectAllInputsAndOutputs() = 0;
 
-	void ConnectAllInputs();
+	virtual void ConnectAllInputs() = 0;
 
-	void ConnectAllOutputs();
+	virtual void ConnectAllOutputs() = 0;
 };

@@ -3,10 +3,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
+#include "EntangledLogic/Interfaces/InputOutputInterface.h"
 #include "FactoryBase.generated.h"
 
 UCLASS()
-class ENTANGLEDLOGIC_API AFactoryBase : public AActor, public IFactoryInteractionInterface
+class ENTANGLEDLOGIC_API AFactoryBase : public AActor, public IFactoryInteractionInterface, public IInputOutputInterface
 {
 	GENERATED_BODY()
 	

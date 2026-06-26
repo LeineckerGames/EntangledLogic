@@ -9,6 +9,10 @@ void UFactoryInputOutputComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Attches Meshes to I/O Comonenet so they move with the factory
+	TArray<UStaticMeshComponent*> InputOutputMeshes;
+	InputOutputMeshes.Append(InputMeshes);
+	InputOutputMeshes.Append(OutputMeshes);
 	for (UStaticMeshComponent* CurrentMesh : InputOutputMeshes)
 	{
 		if (CurrentMesh)
@@ -20,6 +24,9 @@ void UFactoryInputOutputComponent::BeginPlay()
 
 void UFactoryInputOutputComponent::SetMeshesVisible(bool isVisible)
 {
+	TArray<UStaticMeshComponent*> InputOutputMeshes;
+	InputOutputMeshes.Append(InputMeshes);
+	InputOutputMeshes.Append(OutputMeshes);
 	for (UStaticMeshComponent* CurrentMesh : InputOutputMeshes)
 	{
 		if (CurrentMesh)

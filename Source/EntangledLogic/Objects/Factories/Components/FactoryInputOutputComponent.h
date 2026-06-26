@@ -19,7 +19,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere)
-	TArray<UStaticMeshComponent*> InputOutputMeshes;
+	TArray<UStaticMeshComponent*> InputMeshes;
+
+	UPROPERTY(EditAnywhere)
+	TArray<UStaticMeshComponent*> OutputMeshes;
 
 public:	
 

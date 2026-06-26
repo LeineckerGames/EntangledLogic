@@ -58,7 +58,6 @@ void UGridPlacementComponent::OnPlacementModeChanged(EPlacementMode CurrentPlace
 
 void UGridPlacementComponent::SetInputOutputVisibility(bool isValid)
 {
-	UFactoryInputOutputComponent* InputOutputComponent = GetAttachParentActor()->GetComponentByClass<UFactoryInputOutputComponent>();
 	if (InputOutputComponent)
 	{
 		InputOutputComponent->SetMeshesVisible(isValid);
@@ -162,4 +161,15 @@ TArray<bool> UGridPlacementComponent::GetFactoryShape() const
 TArray<UMeshComponent*> UGridPlacementComponent::GetActorsAttachedMeshes() const
 {
 	return ActorsAttachedMeshes;
+}
+
+class UFactoryInputOutputComponent* UGridPlacementComponent::GetInputOutputComponent()
+{
+	return InputOutputComponent;
+}
+
+// Setters
+void UGridPlacementComponent::SetInputOutputComponent(UFactoryInputOutputComponent* InputOutputComponentToSet)
+{
+	InputOutputComponent = InputOutputComponentToSet;
 }

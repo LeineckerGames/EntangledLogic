@@ -24,11 +24,6 @@ AFactoryBase::AFactoryBase()
 	FactoryMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FactoryMesh"));
 	FactoryMesh->SetupAttachment(RootComponent);
 
-	// Create the Input and Output Meshes
-	InputOutputComponent = CreateDefaultSubobject<UFactoryInputOutputComponent>(TEXT("InputOutputComponent"));
-	InputOutputComponent->SetupAttachment(RootComponent);
-
-
 	// Creates the UI above the factory
 	FactoryDisplayWindow = CreateDefaultSubobject<UWidgetComponent>(TEXT("FactoryDisplayWindow"));
 	FactoryDisplayWindow->SetupAttachment(RootComponent);
@@ -39,6 +34,11 @@ AFactoryBase::AFactoryBase()
 	// Create Grid Placement and attach to mesh
 	GridPlacementComponent = CreateDefaultSubobject<UGridPlacementComponent>(TEXT("GridPlacementComponent"));
 	GridPlacementComponent->SetupAttachment(FactoryMesh);
+
+	// Create the Input and Output Meshes and link to GPC
+	InputOutputComponent = CreateDefaultSubobject<UFactoryInputOutputComponent>(TEXT("InputOutputComponent"));
+	InputOutputComponent->SetupAttachment(RootComponent);
+	GridPlacementComponent->SetInputOutputComponent(InputOutputComponent);
 
 }
 
