@@ -50,6 +50,8 @@ protected:
 
 	void OnRightClickCompleted(const FInputActionValue& Value);
 
+	void OnPauseAction(const FInputActionValue& Value);
+
 	FVector GetWorldMousePosition();
 
 	void OnPlacementModeChanged(EPlacementMode CurrentPlacementMode);
@@ -111,6 +113,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UInputAction* Rotate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UInputAction* PauseAction;
 
 	// Grid Input Actions
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

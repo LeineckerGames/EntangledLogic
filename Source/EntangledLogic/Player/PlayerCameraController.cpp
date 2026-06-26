@@ -10,6 +10,7 @@
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
+#include "EntangledLogic/UI/PlayerHUD.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -101,6 +102,7 @@ void APlayerCameraController::SetupPlayerInputComponent(UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(PlayerRightClick, ETriggerEvent::Completed, this, &APlayerCameraController::OnRightClickCompleted);
 		EnhancedInputComponent->BindAction(Zoom, ETriggerEvent::Triggered, this, &APlayerCameraController::ZoomCamera);
 		EnhancedInputComponent->BindAction(Rotate, ETriggerEvent::Triggered, this, &APlayerCameraController::RotateCamera);
+		EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Started, this, &APlayerCameraController::OnPauseAction);
 	}
 
 }
@@ -184,6 +186,12 @@ void APlayerCameraController::OnRightClick(const FInputActionValue& Value)
 void APlayerCameraController::OnRightClickCompleted(const FInputActionValue& Value)
 {
 	isRotating = false;
+}
+
+void APlayerCameraController::OnPauseAction(const FInputActionValue& Value)
+{
+	APlayerHUD* PlayerHUD = Cast<APlayerHUD>(TopDownPlayerController->GetHUD());
+	PlayerHUD->TogglePauseMenu();
 }
 
 FVector APlayerCameraController::GetWorldMousePosition()
