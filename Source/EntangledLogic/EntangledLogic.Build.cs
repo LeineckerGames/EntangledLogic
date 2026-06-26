@@ -7,9 +7,11 @@ public class EntangledLogic : ModuleRules
 	public EntangledLogic(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
-			"GeometryCollectionEngine", "UMG", "MetasoundEngine" });
+
+		// for qpp, idk what it does. some ai shit might break and kill someone.
+		bUseRTTI = true;
+
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GeometryCollectionEngine", "UMG", "QppPlugin", "MetasoundEngine" });
 
 		//PrivateDependencyModuleNames.AddRange(new string[] {  });
 
