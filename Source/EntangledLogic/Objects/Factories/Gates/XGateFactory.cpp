@@ -9,6 +9,49 @@ AXGateFactory::AXGateFactory()
 
 }
 
+void AXGateFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (EndPlayReason == EEndPlayReason::Destroyed)
+	{
+		// Get the current actor pointers
+		AActor* InputSlot0Actor = InputSlot;
+		AActor* OutputSlot0Actor = OutputSlot;
+
+
+		// Update the prev and next factory pointers
+		if (InputSlot0Actor)
+		{
+			IInputOutputInterface* InputSlotActorInputOutputInterface = Cast<IInputOutputInterface>(InputSlot0Actor);
+			if (InputSlotActorInputOutputInterface)
+			{
+				UE_LOG(LogTemp, Display, TEXT("Connect All Outputs Running in destroyed"));
+				// Updates the previous factory to connect to the current
+				InputSlotActorInputOutputInterface->ConnectAllOutputs();
+			}
+		}
+
+		if (OutputSlot0Actor)
+		{
+			IInputOutputInterface* OutputSlotActorInputOutputInterface = Cast<IInputOutputInterface>(OutputSlot0Actor);
+			if (OutputSlotActorInputOutputInterface)
+			{
+				UE_LOG(LogTemp, Display, TEXT("Connect All Inputs Running in destroyed"));
+				// Updates the next factory to connect to the current
+				OutputSlotActorInputOutputInterface->ConnectAllInputs();
+			}
+		}
+	}
+
+	Super::EndPlay(EndPlayReason);
+}
+
+void AXGateFactory::Destroyed()
+{
+
+
+	Super::Destroyed();
+}
+
 // Input Output Interface
 void AXGateFactory::ConnectAllInputsAndOutputs()
 {
@@ -42,6 +85,12 @@ void AXGateFactory::ConnectAllInputsAndOutputs()
 			InputSlotActorInputOutputInterface->ConnectAllOutputs();
 		}
 	}
+	else
+	{
+		// Set slot to null if nothing found
+		UE_LOG(LogTemp, Display, TEXT("Setting Input Slot to null"));
+		InputSlot = nullptr;
+	}
 
 	if (OutputSlot0Actor)
 	{
@@ -53,6 +102,12 @@ void AXGateFactory::ConnectAllInputsAndOutputs()
 			// Updates the next factory to connect to the current
 			OutputSlotActorInputOutputInterface->ConnectAllInputs();
 		}
+	}
+	else
+	{
+		// Set slot to null if nothing found
+		UE_LOG(LogTemp, Display, TEXT("Setting Output Slot to null"));
+		OutputSlot = nullptr;
 	}
 
 }
@@ -75,6 +130,12 @@ void AXGateFactory::ConnectAllInputs()
 	{
 		InputSlot = InputSlot0Actor;
 	}
+	else
+	{
+		// Set slot to null if nothing found
+		UE_LOG(LogTemp, Display, TEXT("Setting Input Slot to null"));
+		InputSlot = nullptr;
+	}
 }
 
 void AXGateFactory::ConnectAllOutputs()
@@ -94,5 +155,10 @@ void AXGateFactory::ConnectAllOutputs()
 	{
 		OutputSlot = OutputSlot0Actor;
 	}
-
+	else
+	{
+		// Set slot to null if nothing found
+		UE_LOG(LogTemp, Display, TEXT("Setting Output Slot to null"));
+		OutputSlot = nullptr;
+	}
 }

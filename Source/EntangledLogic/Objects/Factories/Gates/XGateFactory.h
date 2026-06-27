@@ -21,7 +21,12 @@ protected:
 	UPROPERTY(EditAnywhere)
 	AActor* OutputSlot;
 
+	virtual void Destroyed() override;
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 public:
+
 	// Input Output Interface
 	virtual void ConnectAllInputsAndOutputs() override;
 
