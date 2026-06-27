@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
+#include "EntangledLogic/Core/Framework/GridStructs.h"
 #include "GridPlacementComponent.generated.h"
 
 enum class EPlacementMode : uint8;
@@ -28,9 +29,6 @@ protected:
 	TArray<bool> FactoryShape;
 	UPROPERTY(EditAnywhere, Category = "Factory Shape")
 	FVector PlacementOffset;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	class UFactoryInputOutputComponent* InputOutputComponent;
 
 	float GridSize;
 
@@ -57,10 +55,6 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	FVector GetPlacementOffset() const;
-	
-	void SetInputOutputComponent(class UFactoryInputOutputComponent* InputOutputComponentToSet);
-	
-	class UFactoryInputOutputComponent* GetInputOutputComponent();
 	
 	int32 GetFactorySize() const;
 	

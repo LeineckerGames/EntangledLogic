@@ -47,4 +47,11 @@ public:
 	virtual void EndHover(EPlacementMode PlacementMode) override;
 
 	virtual void Interact(EPlacementMode PlacementMode) override;
+
+	// Input Output Interface
+	virtual void ConnectAllInputsAndOutputs() override;
+
+	virtual void ConnectAllInputs() override;
+
+	virtual void ConnectAllOutputs() override;
 };

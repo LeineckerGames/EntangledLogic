@@ -8,17 +8,13 @@ UFactoryInputOutputComponent::UFactoryInputOutputComponent()
 void UFactoryInputOutputComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// Attches Meshes to I/O Comonenet so they move with the factory
 	TArray<UStaticMeshComponent*> InputOutputMeshes;
 	InputOutputMeshes.Append(InputMeshes);
 	InputOutputMeshes.Append(OutputMeshes);
+	// Attches Meshes to I/O Comonenet so they move with the factory
 	for (UStaticMeshComponent* CurrentMesh : InputOutputMeshes)
 	{
-		if (CurrentMesh)
-		{
-			CurrentMesh->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-		}
+		CurrentMesh->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	}
 }
 
@@ -29,9 +25,16 @@ void UFactoryInputOutputComponent::SetMeshesVisible(bool isVisible)
 	InputOutputMeshes.Append(OutputMeshes);
 	for (UStaticMeshComponent* CurrentMesh : InputOutputMeshes)
 	{
-		if (CurrentMesh)
-		{
-			CurrentMesh->SetVisibility(isVisible);
-		}
+		CurrentMesh->SetVisibility(isVisible);
 	}
+}
+
+TArray<UStaticMeshComponent*> UFactoryInputOutputComponent::GetInputMeshes()
+{
+	return InputMeshes;
+}
+
+TArray<UStaticMeshComponent*> UFactoryInputOutputComponent::GetOutputMeshes()
+{
+	return OutputMeshes;
 }

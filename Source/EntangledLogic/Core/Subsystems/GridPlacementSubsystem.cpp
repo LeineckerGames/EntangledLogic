@@ -146,6 +146,15 @@ FVector UGridPlacementSubsystem::GetWorldGridLocation(FVector Location, FVector 
 	return WorldGridPosition;
 }
 
+FGridCoordinate UGridPlacementSubsystem::GridPositionToCoordinates(FVector GridLocation)
+{
+	int32 RoundedX = FMath::FloorToInt(GridLocation.X - 0.5f);
+	int32 RoundedY = FMath::FloorToInt(GridLocation.Y - 0.5f);
+
+	FGridCoordinate GridCoordinate = FGridCoordinate(RoundedX, RoundedY);
+	return GridCoordinate;
+}
+
 void UGridPlacementSubsystem::MoveSelectedFactoryOnGrid(FVector Location)
 {
 	UGridPlacementComponent* GridPlacementComponent = SelectedFactory->GetComponentByClass<UGridPlacementComponent>();
@@ -259,10 +268,7 @@ TArray<FGridCoordinate> UGridPlacementSubsystem::GridComponentToCoordinates(UGri
 	//	, GridPlacementComponentLocation.X, GridPlacementComponentLocation.Y, GridPlacementComponentLocation.Z);
 
 	FVector GridLocation = GetGridLocation(GridPlacementComponentLocation, FVector(0,0,0));
-	int32 RoundedX = FMath::FloorToInt(GridLocation.X - 0.5f);
-	int32 RoundedY = FMath::FloorToInt(GridLocation.Y - 0.5f);
-	//UE_LOG(LogTemp, Display, TEXT("RoundedGridLocation: X = %d, Y = %d"), RoundedX, RoundedY);
-	FGridCoordinate GridCoordinate = FGridCoordinate(RoundedX, RoundedY);
+	FGridCoordinate GridCoordinate = GridPositionToCoordinates(GridLocation);
 
 	FTransform ComponentTransform = GridPlacementComponent->GetComponentTransform();
 
@@ -367,6 +373,20 @@ void UGridPlacementSubsystem::UpdateControlUI()
 			}
 		}
 	}
+}
+
+TArray<FGridCoordinate> UGridPlacementSubsystem::GetGridPositionsFromInputOutputPlanes(TArray<UStaticMeshComponent*> MeshesToConvert)
+{
+	TArray<FGridCoordinate> PlaneLocations;
+	for (UStaticMeshComponent* CurrentMesh : MeshesToConvert)
+	{
+		FTransform MeshTransform = CurrentMesh->GetComponentTransform();
+		FVector WorldLocation = MeshTransform.GetLocation();
+		FVector GridLocation = GetWorldGridLocation(WorldLocation, FVector::ZeroVector);
+		FGridCoordinate GridPos = GridPositionToCoordinates(GridLocation);
+		PlaneLocations.Add(GridPos);
+	}
+	return PlaneLocations;
 }
 
 // Returns nullptr if no GPC is found (shouldn't happen)

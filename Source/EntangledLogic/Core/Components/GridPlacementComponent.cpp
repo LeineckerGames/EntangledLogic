@@ -56,14 +56,6 @@ void UGridPlacementComponent::OnPlacementModeChanged(EPlacementMode CurrentPlace
 	}
 }
 
-void UGridPlacementComponent::SetInputOutputVisibility(bool isValid)
-{
-	if (InputOutputComponent)
-	{
-		InputOutputComponent->SetMeshesVisible(isValid);
-	}
-}
-
 // Called every frame
 void UGridPlacementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -161,15 +153,4 @@ TArray<bool> UGridPlacementComponent::GetFactoryShape() const
 TArray<UMeshComponent*> UGridPlacementComponent::GetActorsAttachedMeshes() const
 {
 	return ActorsAttachedMeshes;
-}
-
-class UFactoryInputOutputComponent* UGridPlacementComponent::GetInputOutputComponent()
-{
-	return InputOutputComponent;
-}
-
-// Setters
-void UGridPlacementComponent::SetInputOutputComponent(UFactoryInputOutputComponent* InputOutputComponentToSet)
-{
-	InputOutputComponent = InputOutputComponentToSet;
 }

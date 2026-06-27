@@ -4,7 +4,6 @@
 #include "Components/SceneComponent.h"
 #include "FactoryInputOutputComponent.generated.h"
 
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ENTANGLEDLOGIC_API UFactoryInputOutputComponent : public USceneComponent
 {
@@ -18,14 +17,17 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UStaticMeshComponent*> InputMeshes;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UStaticMeshComponent*> OutputMeshes;
 
 public:	
 
 	void SetMeshesVisible(bool isVisible);
-		
+
+	TArray<UStaticMeshComponent*> GetInputMeshes();
+
+	TArray<UStaticMeshComponent*> GetOutputMeshes();
 };

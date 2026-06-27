@@ -1,10 +1,10 @@
 #include "FactoryBase.h"
 #include "Components/WidgetComponent.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
+#include "EntangledLogic/Objects/Factories/Components/FactoryInputOutputComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "EntangledLogic/UI/Factory/FactoryInfoUI.h"
 #include "EntangledLogic/UI/Factory/FactoryDevUI.h"
-#include "EntangledLogic/Objects/Factories/Components/FactoryInputOutputComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Camera/PlayerCameraManager.h"
@@ -38,7 +38,6 @@ AFactoryBase::AFactoryBase()
 	// Create the Input and Output Meshes and link to GPC
 	InputOutputComponent = CreateDefaultSubobject<UFactoryInputOutputComponent>(TEXT("InputOutputComponent"));
 	InputOutputComponent->SetupAttachment(RootComponent);
-	GridPlacementComponent->SetInputOutputComponent(InputOutputComponent);
 
 }
 
@@ -169,4 +168,21 @@ void AFactoryBase::Interact(EPlacementMode PlacementMode)
 			Destroy();
 		} break;
 	}
+}
+
+// Input Output Interface
+
+void AFactoryBase::ConnectAllInputsAndOutputs()
+{
+	UE_LOG(LogTemp, Display, TEXT("ConnectAllInputsAndOutputs Running in %s"), *GetActorNameOrLabel());
+}
+
+void AFactoryBase::ConnectAllInputs()
+{
+	UE_LOG(LogTemp, Display, TEXT("ConnectAllInputs Running in %s"), *GetActorNameOrLabel());
+}
+
+void AFactoryBase::ConnectAllOutputs()
+{
+	UE_LOG(LogTemp, Display, TEXT("ConnectAllOutputs Running in %s"), *GetActorNameOrLabel());
 }

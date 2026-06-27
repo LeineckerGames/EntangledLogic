@@ -82,6 +82,10 @@ public:
 
 	FVector GetGridLocation(FVector Location, FVector GridOffset) const;
 
+	TArray<FGridCoordinate> GetGridPositionsFromInputOutputPlanes(TArray<UStaticMeshComponent*> MeshesToConvert);
+
+	FGridCoordinate GridPositionToCoordinates(FVector GridLocation);
+
 	void MoveSelectedFactoryOnGrid(FVector Location);
 
 	void RotateSelectedActor();

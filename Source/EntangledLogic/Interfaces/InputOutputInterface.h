@@ -17,6 +17,8 @@ class ENTANGLEDLOGIC_API IInputOutputInterface
 
 public:
 
+	// Prob going to delete this interface
+
 	virtual void ConnectAllInputsAndOutputs() = 0;
 
 	virtual void ConnectAllInputs() = 0;
