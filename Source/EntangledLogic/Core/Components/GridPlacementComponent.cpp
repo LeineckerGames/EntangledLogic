@@ -34,7 +34,7 @@ void UGridPlacementComponent::BeginPlay()
 
 void UGridPlacementComponent::OnPlacementModeChanged(EPlacementMode CurrentPlacementMode)
 {
-	UE_LOG(LogTemp, Display, TEXT("Placement changed in grid comp"));
+	//UE_LOG(LogTemp, Display, TEXT("Placement changed in grid comp"));
 	switch (CurrentPlacementMode)
 	{
 	case EPlacementMode::Disabled:

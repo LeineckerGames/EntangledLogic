@@ -15,8 +15,10 @@ public:
 
 protected:
 
+	UPROPERTY(EditAnywhere)
 	AActor* InputSlot;
 
+	UPROPERTY(EditAnywhere)
 	AActor* OutputSlot;
 
 public:

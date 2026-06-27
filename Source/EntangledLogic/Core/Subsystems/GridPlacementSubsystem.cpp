@@ -5,6 +5,7 @@
 #include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
 #include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryInputOutputComponent.h"
+#include "EntangledLogic/Interfaces/InputOutputInterface.h"
 #include "EntangledLogic/Core/Framework/FactorySaveGame.h"
 #include "EntangledLogic/Player/TopDownPlayerController.h"
 #include "EntangledLogic/Player/PlayerCameraController.h"
@@ -27,7 +28,7 @@ void UGridPlacementSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 		USavingLoadingSubsystem* SavingLoading = World->GetGameInstance()->GetSubsystem<USavingLoadingSubsystem>();
 		if (SavingLoading)
 		{
-			UE_LOG(LogTemp, Display, TEXT("Registering GPSS to Saving and Loading"));
+			//UE_LOG(LogTemp, Display, TEXT("Registering GPSS to Saving and Loading"));
 			SavingLoading->RegisterUObjectToSavingLoading(this);
 		}
 	}
@@ -191,10 +192,17 @@ void UGridPlacementSubsystem::PlaceSelectedActor()
 	bool DidCollide = CollisionCheck(GridLocations, GridPlacementComponent->GetFactoryShape());
 	if (DidCollide == false)
 	{
-		UE_LOG(LogTemp, Display, TEXT("Placing Actor"));
+		//UE_LOG(LogTemp, Display, TEXT("Placing Actor"));
 		GridPlacementComponent->RemoveOverlayMaterial();
 		SetSelectedActorInputOutputMeshesVisible(false);
 		SetPlacedPositionMap(GridLocations, GridPlacementComponent->GetFactoryShape(), SelectedFactory);
+
+		// Update Input Outputs
+		IInputOutputInterface* SelectedFactoryInputOutputInterface = Cast<IInputOutputInterface>(SelectedFactory);
+		if (SelectedFactoryInputOutputInterface)
+		{
+			SelectedFactoryInputOutputInterface->ConnectAllInputsAndOutputs();
+		}
 		SelectedFactory = SpawnActorToPlaceFromClass(SelectedFactoryClass);
 	}
 }
@@ -210,7 +218,7 @@ void UGridPlacementSubsystem::PickupFactory(AActor* FactoryToPickup)
 
 void UGridPlacementSubsystem::DeselectSelectedActor()
 {
-	UE_LOG(LogTemp, Display, TEXT("Deselecting Actor"));
+	//UE_LOG(LogTemp, Display, TEXT("Deselecting Actor"));
 	DeleteSelectedFactory();
 	SelectedFactoryClass = nullptr;
 	SetPlacementMode(EPlacementMode::Disabled);
@@ -315,7 +323,7 @@ void UGridPlacementSubsystem::SetPlacementMode(EPlacementMode PlacementModeToSet
 
 void UGridPlacementSubsystem::SetPlacementModeToDeletion()
 {
-	UE_LOG(LogTemp, Display, TEXT("Placement Mode set to Deletion"));
+	//UE_LOG(LogTemp, Display, TEXT("Placement Mode set to Deletion"));
 	DeleteSelectedFactory();
 	SetPlacementMode(EPlacementMode::Deletion);
 	AddGridPlacementIMC();
@@ -323,7 +331,7 @@ void UGridPlacementSubsystem::SetPlacementModeToDeletion()
 
 void UGridPlacementSubsystem::SetPlacementModeToEditing()
 {
-	UE_LOG(LogTemp, Display, TEXT("Placement Mode set to Editing"));
+	//UE_LOG(LogTemp, Display, TEXT("Placement Mode set to Editing"));
 	DeleteSelectedFactory();
 	SetPlacementMode(EPlacementMode::Editing);
 	AddGridPlacementIMC();
@@ -355,7 +363,7 @@ void UGridPlacementSubsystem::AddGridPlacementIMC()
 	ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
 	TopDownPlayerController->AddMappingContext(TopDownPlayerController->GridControls, 1);
 	UpdateControlUI();
-	UE_LOG(LogTemp, Display, TEXT("Added Grid Mapping Context"));
+	//UE_LOG(LogTemp, Display, TEXT("Added Grid Mapping Context"));
 }
 
 void UGridPlacementSubsystem::UpdateControlUI()
@@ -382,7 +390,9 @@ TArray<FGridCoordinate> UGridPlacementSubsystem::GetGridPositionsFromInputOutput
 	{
 		FTransform MeshTransform = CurrentMesh->GetComponentTransform();
 		FVector WorldLocation = MeshTransform.GetLocation();
-		FVector GridLocation = GetWorldGridLocation(WorldLocation, FVector::ZeroVector);
+		//UE_LOG(LogTemp, Display, TEXT("CurrentMesh World Location, X: %f Y: %f Z: %f "), WorldLocation.X, WorldLocation.Y, WorldLocation.Z);
+		FVector GridLocation = GetGridLocation(WorldLocation, FVector::ZeroVector);
+		//UE_LOG(LogTemp, Display, TEXT("CurrentMesh Grid Location, X: %f Y: %f Z: %f "), GridLocation.X, GridLocation.Y, GridLocation.Z);
 		FGridCoordinate GridPos = GridPositionToCoordinates(GridLocation);
 		PlaneLocations.Add(GridPos);
 	}

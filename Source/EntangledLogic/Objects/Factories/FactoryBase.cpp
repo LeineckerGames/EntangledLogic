@@ -137,12 +137,12 @@ void AFactoryBase::EndHover(EPlacementMode PlacementMode)
 
 void AFactoryBase::Interact(EPlacementMode PlacementMode)
 {
-	UE_LOG(LogTemp, Display, TEXT("Clicked on %s"), *GetActorNameOrLabel());
+	//UE_LOG(LogTemp, Display, TEXT("Clicked on %s"), *GetActorNameOrLabel());
 	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
 	switch (PlacementMode)
 	{
 		case EPlacementMode::Disabled:
-			UE_LOG(LogTemp, Display, TEXT("Selecting Actor %s"), *GetActorNameOrLabel());
+			//UE_LOG(LogTemp, Display, TEXT("Selecting Actor %s"), *GetActorNameOrLabel());
 			FactoryDisplayWindow->ToggleVisibility();
 
 			// Open selected pop up UI
