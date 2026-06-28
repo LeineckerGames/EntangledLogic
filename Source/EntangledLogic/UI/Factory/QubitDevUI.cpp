@@ -3,6 +3,7 @@
 #include "Components/TextBlock.h"
 #include "EntangledLogic/Core/Framework/QuantumGatesEnum.h"
 #include "EntangledLogic/Core/Subsystems/QubitDataSubsystem.h"
+#include "EntangledLogic/Core/Framework/QubitDataStructs.h"
 #include "EntangledLogic/Objects/Qubits/Qubit.h"
 
 void UQubitDevUI::NativeConstruct()
@@ -49,7 +50,11 @@ void UQubitDevUI::SetState(ENamedState state, bool Qslot)
 {
 	if (QubitSubsystem)
 	{
-		QubitSubsystem->SetState((Qslot ? *QB : *QA), state);
+		AQubit* q = (Qslot ? QB : QA);
+		// don't try to partially edit an entangled state
+		if (q->State->qubits.Num() == 1) {
+			QubitSubsystem->SetState(*q, state);
+		}
 	}
 	SetStateText();
 }
@@ -77,21 +82,20 @@ void UQubitDevUI::SetStateText()
 	FText TextA = FText::FromString(QA->GetString());
 	FText TextB = FText::FromString(QB->GetString());
 
-	// naive check
-	if (TextA.EqualTo(TextB))
-	{
-		StateText->SetText(TextA);
-		StateAText->SetVisibility(ESlateVisibility::Collapsed);
-		StateBText->SetVisibility(ESlateVisibility::Collapsed);
-		StateText->SetVisibility(ESlateVisibility::Visible);
-	}
-	else
+	if (QA->State->qubits.Num() == 1)
 	{
 		StateAText->SetText(TextA);
 		StateBText->SetText(TextB);
 		StateText->SetVisibility(ESlateVisibility::Collapsed);
 		StateAText->SetVisibility(ESlateVisibility::Visible);
 		StateBText->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		StateText->SetText(TextA);
+		StateAText->SetVisibility(ESlateVisibility::Collapsed);
+		StateBText->SetVisibility(ESlateVisibility::Collapsed);
+		StateText->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 

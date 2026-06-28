@@ -26,35 +26,48 @@ AQubit* UQubitDataSubsystem::NewQubit()
 void UQubitDataSubsystem::SetState(AQubit& qubit, ENamedState namedState)
 {
 	qubit.State->StateVector = GetStateAsVector(namedState);
-	qubit.State->bIsDensityMatrix = false;
 }
 
 void UQubitDataSubsystem::Apply(AQubit& qubit, EQuantumGate gate)
 {
 	unsigned long LongEntPos = static_cast<unsigned long>(qubit.EntanglementPosition);
 	cmat gateMatrix = GetGateMatrix(gate);
-	FQubitData* state = &qubit.State.Get();
-
-	if (qubit.State->bIsDensityMatrix) {
-		state->DensityMatrix = apply(state->DensityMatrix, gateMatrix, { LongEntPos });
-	}
-	else
-	{
-		state->StateVector = apply(state->StateVector, gateMatrix, { LongEntPos });
-	}
 	
+	qubit.State->StateVector = apply(qubit.State->StateVector, gateMatrix, { LongEntPos });
 	// if aliasing becomes an issue, try this instead:
 	// state->X = qpp::apply(state->X.eval(), gateMatrix, { LongEntPos });
 }
 
 void UQubitDataSubsystem::ApplyControlled(AQubit& target, AQubit& control, EQuantumGate gate)
 {
+	// if target and control are not already entangled, create a shared state
+	CombineState(target, control);
+
+	unsigned long LongEntPosT = static_cast<unsigned long>(target.EntanglementPosition);
+	unsigned long LongEntPosC = static_cast<unsigned long>(control.EntanglementPosition);
 	cmat gateMatrix = GetGateMatrix(gate);
-	unsigned long LongEntPosA = static_cast<unsigned long>(target.EntanglementPosition);
-	unsigned long LongEntPosB = static_cast<unsigned long>(control.EntanglementPosition);
 
+	target.State->StateVector = applyCTRL(target.State->StateVector, gateMatrix, { LongEntPosC }, { LongEntPosT });
 
-	// todo: check disentanglement - requires finding all entangled AQubits
+	// todo: check disentanglement
+}
+
+void UQubitDataSubsystem::CombineState(AQubit& qubitA, AQubit& qubitB)
+{
+	if (qubitA.State == qubitB.State) return;
+
+	int aLen = qubitA.State->qubits.Num();
+
+	// create the new state vector via tensor product
+	qubitA.State->StateVector = kron(qubitA.State->StateVector, qubitB.State->StateVector);
+
+	// update state and entanglement position of B's siblings
+	for (AQubit* q : qubitB.State->qubits)
+	{
+		q->EntanglementPosition += aLen;
+		q->State = qubitA.State;
+		qubitA.State->qubits.Add(q);
+	}
 }
 
 qpp::ket UQubitDataSubsystem::GetStateAsVector(ENamedState state)
