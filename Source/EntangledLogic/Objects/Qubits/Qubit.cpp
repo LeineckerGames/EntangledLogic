@@ -31,7 +31,13 @@ FString AQubit::GetString()
 	std::ostringstream oss1;
 
 	// push qpp's display to the stream
-	oss1 << qpp::disp(State->DensityMatrix) << '\n';
+	if (State->bIsDensityMatrix) {
+		oss1 << qpp::disp(State->DensityMatrix) << '\n';
+	}
+	else
+	{
+		oss1 << qpp::disp(State->StateVector) << '\n';
+	}
 
 	// string from stream
 	return FString(oss1.str().c_str());

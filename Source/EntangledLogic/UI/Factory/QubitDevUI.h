@@ -37,10 +37,10 @@ protected:
 	void SetState(ENamedState state, bool Qslot);
 
 	UFUNCTION()
-	void ApplyGate(EOneQubitGate gate, bool Qslot);
+	void ApplyGate(EQuantumGate gate, bool Qslot);
 
 	UFUNCTION()
-	void ApplyGate2(ETwoQubitGate gate, bool Qslot);
+	void ApplyControlledGate(EQuantumGate gate, bool Qslot);
 
 	UFUNCTION()
 	void SetStateText();

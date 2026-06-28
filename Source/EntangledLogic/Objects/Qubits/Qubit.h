@@ -18,8 +18,6 @@ public:
 	// Sets default values for this actor's properties
 	AQubit();
 
-	// todo: constructor from existing FQubitData (for save/load)
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

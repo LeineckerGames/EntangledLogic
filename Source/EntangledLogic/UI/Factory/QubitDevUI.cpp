@@ -54,7 +54,7 @@ void UQubitDevUI::SetState(ENamedState state, bool Qslot)
 	SetStateText();
 }
 
-void UQubitDevUI::ApplyGate(EOneQubitGate gate, bool Qslot)
+void UQubitDevUI::ApplyGate(EQuantumGate gate, bool Qslot)
 {
 	if (QubitSubsystem)
 	{
@@ -63,9 +63,13 @@ void UQubitDevUI::ApplyGate(EOneQubitGate gate, bool Qslot)
 	SetStateText();
 }
 
-void UQubitDevUI::ApplyGate2(ETwoQubitGate gate, bool Qslot)
+void UQubitDevUI::ApplyControlledGate(EQuantumGate gate, bool Qslot)
 {
-	return;
+	if (QubitSubsystem)
+	{
+		QubitSubsystem->ApplyControlled((Qslot ? *QB : *QA), (Qslot ? *QA : *QB), gate);
+	}
+	SetStateText();
 }
 
 void UQubitDevUI::SetStateText()
@@ -94,7 +98,9 @@ void UQubitDevUI::SetStateText()
 
 void UQubitDevUI::SetStateBell()
 {
-	return;
+	SetStateAPlus();
+	SetStateBZero();
+	ApplyGateCNOTA();
 }
 
 void UQubitDevUI::SetStateAZero() { SetState(ENamedState::Zero, false); }
@@ -107,15 +113,15 @@ void UQubitDevUI::SetStateAMinus() { SetState(ENamedState::Minus, false); }
 void UQubitDevUI::SetStateBMinus() { SetState(ENamedState::Minus, true); }
 
 
-void UQubitDevUI::ApplyGateIA() { ApplyGate(EOneQubitGate::Identity, false); }
-void UQubitDevUI::ApplyGateIB() { ApplyGate(EOneQubitGate::Identity, true); }
-void UQubitDevUI::ApplyGateXA() { ApplyGate(EOneQubitGate::X_Gate, false); }
-void UQubitDevUI::ApplyGateXB() { ApplyGate(EOneQubitGate::X_Gate, true); }
-void UQubitDevUI::ApplyGateYA() { ApplyGate(EOneQubitGate::Y_Gate, false); }
-void UQubitDevUI::ApplyGateYB() { ApplyGate(EOneQubitGate::Y_Gate, true); }
-void UQubitDevUI::ApplyGateZA() { ApplyGate(EOneQubitGate::Z_Gate, false); }
-void UQubitDevUI::ApplyGateZB() { ApplyGate(EOneQubitGate::Z_Gate, true); }
-void UQubitDevUI::ApplyGateHA() { ApplyGate(EOneQubitGate::H_Gate, false); }
-void UQubitDevUI::ApplyGateHB() { ApplyGate(EOneQubitGate::H_Gate, true); }
-void UQubitDevUI::ApplyGateCNOTA() { ApplyGate2(ETwoQubitGate::CNOT_Gate, false); }
-void UQubitDevUI::ApplyGateCNOTB() { ApplyGate2(ETwoQubitGate::CNOT_Gate, true); }
+void UQubitDevUI::ApplyGateIA() { ApplyGate(EQuantumGate::Identity, false); }
+void UQubitDevUI::ApplyGateIB() { ApplyGate(EQuantumGate::Identity, true); }
+void UQubitDevUI::ApplyGateXA() { ApplyGate(EQuantumGate::X_Gate, false); }
+void UQubitDevUI::ApplyGateXB() { ApplyGate(EQuantumGate::X_Gate, true); }
+void UQubitDevUI::ApplyGateYA() { ApplyGate(EQuantumGate::Y_Gate, false); }
+void UQubitDevUI::ApplyGateYB() { ApplyGate(EQuantumGate::Y_Gate, true); }
+void UQubitDevUI::ApplyGateZA() { ApplyGate(EQuantumGate::Z_Gate, false); }
+void UQubitDevUI::ApplyGateZB() { ApplyGate(EQuantumGate::Z_Gate, true); }
+void UQubitDevUI::ApplyGateHA() { ApplyGate(EQuantumGate::H_Gate, false); }
+void UQubitDevUI::ApplyGateHB() { ApplyGate(EQuantumGate::H_Gate, true); }
+void UQubitDevUI::ApplyGateCNOTA() { ApplyControlledGate(EQuantumGate::X_Gate, false); }
+void UQubitDevUI::ApplyGateCNOTB() { ApplyControlledGate(EQuantumGate::X_Gate, true); }
