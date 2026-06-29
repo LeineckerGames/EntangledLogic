@@ -4,7 +4,8 @@
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
 #include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
-#include "EntangledLogic/Objects/Factories/Components/FactoryInputOutputComponent.h"
+#include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
+#include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "EntangledLogic/Interfaces/InputOutputInterface.h"
 #include "EntangledLogic/Core/Framework/FactorySaveGame.h"
 #include "EntangledLogic/Player/TopDownPlayerController.h"
@@ -236,10 +237,10 @@ void UGridPlacementSubsystem::DeselectSelectedActor()
 
 void UGridPlacementSubsystem::SetSelectedActorInputOutputMeshesVisible(bool isVisible)
 {
-	UFactoryInputOutputComponent* InputOutput = SelectedFactory->GetComponentByClass<UFactoryInputOutputComponent>();
-	if (InputOutput)
+	IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(SelectedFactory);
+	if (IOInterface)
 	{
-		InputOutput->SetMeshesVisible(isVisible);
+		IOInterface->SetAllInputOutputsVisibility(isVisible);
 	}
 }
 
@@ -410,8 +411,8 @@ AActor* UGridPlacementSubsystem::CreateFactoryFromSaveData(FFactorySaveData Fact
 	FactoryGPC->RemoveOverlayMaterial();
 	
 	// Disable the Input Output arrows at spawn
-	UFactoryInputOutputComponent* InputOutput = NewFactory->GetComponentByClass<UFactoryInputOutputComponent>();
-	InputOutput->SetMeshesVisible(false);
+	//UFactoryInputOutputComponent* InputOutput = NewFactory->GetComponentByClass<UFactoryInputOutputComponent>();
+	//InputOutput->SetMeshesVisible(false);
 
 	if (FactoryGPC)
 	{

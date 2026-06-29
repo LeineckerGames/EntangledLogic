@@ -15,12 +15,6 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere)
-	AActor* InputSlot;
-
-	UPROPERTY(EditAnywhere)
-	AActor* OutputSlot;
-
 	virtual void Destroyed() override;
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

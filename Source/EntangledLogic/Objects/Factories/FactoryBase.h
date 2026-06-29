@@ -28,8 +28,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UStaticMeshComponent* FactoryMesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	class UFactoryInputOutputComponent* InputOutputComponent;
+	UPROPERTY(VisibleAnywhere, Category = "InputOutputs")
+	TArray<class UFactoryInputComponent*> InputComponents;
+
+	UPROPERTY(VisibleAnywhere, Category = "InputOutputs")
+	TArray<class UFactoryOutputComponent*> OutputComponents;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UWidgetComponent* FactoryDisplayWindow;
@@ -49,6 +52,8 @@ public:
 	virtual void Interact(EPlacementMode PlacementMode) override;
 
 	// Input Output Interface
+	virtual void SetAllInputOutputsVisibility(bool isVisible) override;
+
 	virtual void ConnectAllInputsAndOutputs() override;
 
 	virtual void ConnectAllInputs() override;

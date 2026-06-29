@@ -1,6 +1,5 @@
 #include "GridPlacementComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
-#include "EntangledLogic/Objects/Factories/Components/FactoryInputOutputComponent.h"
 
 UGridPlacementComponent::UGridPlacementComponent()
 {

@@ -1,5 +1,6 @@
 #include "XGateFactory.h"
-#include "EntangledLogic/Objects/Factories/Components/FactoryInputOutputComponent.h"
+#include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
+#include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "EntangledLogic/Interfaces/InputOutputInterface.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "Components/SceneCaptureComponent2D.h"
@@ -14,8 +15,8 @@ void AXGateFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (EndPlayReason == EEndPlayReason::Destroyed)
 	{
 		// Get the current actor pointers
-		AActor* InputSlot0Actor = InputSlot;
-		AActor* OutputSlot0Actor = OutputSlot;
+		AActor* InputSlot0Actor = InputComponents[0]->InputSlot;
+		AActor* OutputSlot0Actor = OutputComponents[0]->OutputSlot;
 
 
 		// Update the prev and next factory pointers
@@ -41,7 +42,6 @@ void AXGateFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)
 			}
 		}
 	}
-
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -57,8 +57,19 @@ void AXGateFactory::ConnectAllInputsAndOutputs()
 {
 	Super::ConnectAllInputsAndOutputs();
 
-	TArray<UStaticMeshComponent*> InputMeshes = InputOutputComponent->GetInputMeshes();
-	TArray<UStaticMeshComponent*> OutputMeshes = InputOutputComponent->GetOutputMeshes();
+	TArray<UStaticMeshComponent*> InputMeshes;
+	TArray<UStaticMeshComponent*> OutputMeshes;
+
+	// Get the meshes from IO components
+	for (UFactoryInputComponent* InputComp : InputComponents)
+	{
+		InputMeshes.Add(InputComp->GetMesh());
+	}
+
+	for (UFactoryOutputComponent* OutputComp : OutputComponents)
+	{
+		OutputMeshes.Add(OutputComp->GetMesh());
+	}
 
 	// Convert the meshes to grid positions and check adjacent factories
 	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
@@ -76,8 +87,8 @@ void AXGateFactory::ConnectAllInputsAndOutputs()
 	// Set Pointers if actors are found
 	if (InputSlot0Actor)
 	{
-		InputSlot = InputSlot0Actor;
-		IInputOutputInterface* InputSlotActorInputOutputInterface = Cast<IInputOutputInterface>(InputSlot);
+		InputComponents[0]->InputSlot = InputSlot0Actor;
+		IInputOutputInterface* InputSlotActorInputOutputInterface = Cast<IInputOutputInterface>(InputComponents[0]->InputSlot);
 		if (InputSlotActorInputOutputInterface)
 		{
 			UE_LOG(LogTemp, Display, TEXT("Connect All Outputs Running"));
@@ -89,13 +100,13 @@ void AXGateFactory::ConnectAllInputsAndOutputs()
 	{
 		// Set slot to null if nothing found
 		UE_LOG(LogTemp, Display, TEXT("Setting Input Slot to null"));
-		InputSlot = nullptr;
+		InputComponents[0]->InputSlot = nullptr;
 	}
 
 	if (OutputSlot0Actor)
 	{
-		OutputSlot = OutputSlot0Actor;
-		IInputOutputInterface* OutputSlotActorInputOutputInterface = Cast<IInputOutputInterface>(OutputSlot);
+		OutputComponents[0]->OutputSlot = OutputSlot0Actor;
+		IInputOutputInterface* OutputSlotActorInputOutputInterface = Cast<IInputOutputInterface>(OutputComponents[0]->OutputSlot);
 		if (OutputSlotActorInputOutputInterface)
 		{
 			UE_LOG(LogTemp, Display, TEXT("Connect All Inputs Running"));
@@ -107,7 +118,7 @@ void AXGateFactory::ConnectAllInputsAndOutputs()
 	{
 		// Set slot to null if nothing found
 		UE_LOG(LogTemp, Display, TEXT("Setting Output Slot to null"));
-		OutputSlot = nullptr;
+		OutputComponents[0]->OutputSlot = nullptr;
 	}
 
 }
@@ -116,7 +127,13 @@ void AXGateFactory::ConnectAllInputs()
 {
 	Super::ConnectAllInputs();
 
-	TArray<UStaticMeshComponent*> InputMeshes = InputOutputComponent->GetInputMeshes();
+	TArray<UStaticMeshComponent*> InputMeshes;
+
+	// Get the meshes from IO components
+	for (UFactoryInputComponent* InputComp : InputComponents)
+	{
+		InputMeshes.Add(InputComp->GetMesh());
+	}
 
 	// Convert the meshes to grid positions and check adjacent factories
 	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
@@ -128,13 +145,13 @@ void AXGateFactory::ConnectAllInputs()
 	// Set Pointers if actors are found
 	if (InputSlot0Actor)
 	{
-		InputSlot = InputSlot0Actor;
+		InputComponents[0]->InputSlot = InputSlot0Actor;
 	}
 	else
 	{
 		// Set slot to null if nothing found
 		UE_LOG(LogTemp, Display, TEXT("Setting Input Slot to null"));
-		InputSlot = nullptr;
+		InputComponents[0]->InputSlot = nullptr;
 	}
 }
 
@@ -142,7 +159,12 @@ void AXGateFactory::ConnectAllOutputs()
 {
 	Super::ConnectAllOutputs();
 
-	TArray<UStaticMeshComponent*> OutputMeshes = InputOutputComponent->GetOutputMeshes();
+	TArray<UStaticMeshComponent*> OutputMeshes;
+
+	for (UFactoryOutputComponent* OutputComp : OutputComponents)
+	{
+		OutputMeshes.Add(OutputComp->GetMesh());
+	}
 
 	// Convert the meshes to grid positions and check adjacent factories
 	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
@@ -153,12 +175,12 @@ void AXGateFactory::ConnectAllOutputs()
 
 	if (OutputSlot0Actor)
 	{
-		OutputSlot = OutputSlot0Actor;
+		OutputComponents[0]->OutputSlot = OutputSlot0Actor;
 	}
 	else
 	{
 		// Set slot to null if nothing found
 		UE_LOG(LogTemp, Display, TEXT("Setting Output Slot to null"));
-		OutputSlot = nullptr;
+		OutputComponents[0]->OutputSlot = nullptr;
 	}
 }

@@ -1,13 +1,22 @@
 #include "FactoryBase.h"
 #include "Components/WidgetComponent.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
-#include "EntangledLogic/Objects/Factories/Components/FactoryInputOutputComponent.h"
+#include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
+#include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "EntangledLogic/UI/Factory/FactoryInfoUI.h"
 #include "EntangledLogic/UI/Factory/FactoryDevUI.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Camera/PlayerCameraManager.h"
+
+// Used for sorting arrays by slot index
+template <typename T>
+static bool SortBySlotIndex(const T& A, const T& B)
+{
+	return A.SlotIndex < B.SlotIndex;
+}
+
 
 // Sets default values
 AFactoryBase::AFactoryBase()
@@ -35,16 +44,20 @@ AFactoryBase::AFactoryBase()
 	GridPlacementComponent = CreateDefaultSubobject<UGridPlacementComponent>(TEXT("GridPlacementComponent"));
 	GridPlacementComponent->SetupAttachment(FactoryMesh);
 
-	// Create the Input and Output Meshes and link to GPC
-	InputOutputComponent = CreateDefaultSubobject<UFactoryInputOutputComponent>(TEXT("InputOutputComponent"));
-	InputOutputComponent->SetupAttachment(RootComponent);
-
 }
 
 // Called when the game starts or when spawned
 void AFactoryBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Get Attached Inputs and Outputs and add them to the array
+	GetComponents<UFactoryInputComponent>(InputComponents);
+	GetComponents<UFactoryOutputComponent>(OutputComponents);
+
+	// Sort arrays by input / output slot
+	InputComponents.Sort(SortBySlotIndex<UFactoryInputComponent>);
+	OutputComponents.Sort(SortBySlotIndex<UFactoryOutputComponent>);
 
 	// Setup Floating UI
 	FactoryDisplayWindow->SetVisibility(false);
@@ -171,6 +184,19 @@ void AFactoryBase::Interact(EPlacementMode PlacementMode)
 }
 
 // Input Output Interface
+
+void AFactoryBase::SetAllInputOutputsVisibility(bool isVisible)
+{
+	for (UFactoryInputComponent* InputComp : InputComponents)
+	{
+		InputComp->SetMeshVisibility(isVisible);
+	}
+
+	for (UFactoryOutputComponent* OutputComp : OutputComponents)
+	{
+		OutputComp->SetMeshVisibility(isVisible);
+	}
+}
 
 void AFactoryBase::ConnectAllInputsAndOutputs()
 {
