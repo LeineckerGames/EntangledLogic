@@ -18,6 +18,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* InputMesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FVector InputMeshLocationOffset = FVector(-100.0f, 0.0f, 0.0f);
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FRotator InputMeshRotationOffset = FRotator(0.0f, 90.0f, 0.0f);
+
 public:	
 	void SetMeshVisibility(bool isVisible);
 

@@ -82,7 +82,14 @@ public:
 
 	FVector GetGridLocation(FVector Location, FVector GridOffset) const;
 
+	// Can get rid of this once done
 	TArray<FGridCoordinate> GetGridPositionsFromInputOutputPlanes(TArray<UStaticMeshComponent*> MeshesToConvert);
+
+	TArray<FGridCoordinate> GetGridPositionsFromInputComponents(TArray<class UFactoryInputComponent*> ComponentsToConvert);
+	FGridCoordinate GetGridPositionsFromInputComponents(UFactoryInputComponent* ComponentsToConvert);
+
+	TArray<FGridCoordinate> GetGridPositionsFromOutputComponents(TArray<class UFactoryOutputComponent*> ComponentsToConvert);
+	FGridCoordinate GetGridPositionsFromOutputComponents(UFactoryOutputComponent* ComponentsToConvert);
 
 	FGridCoordinate GridPositionToCoordinates(FVector GridLocation);
 

@@ -54,6 +54,10 @@ public:
 	// Input Output Interface
 	virtual void SetAllInputOutputsVisibility(bool isVisible) override;
 
+	virtual TArray<class UFactoryInputComponent*> GetInputComponents() override;
+
+	virtual TArray<class UFactoryOutputComponent*> GetOutputComponents() override;
+
 	virtual void ConnectAllInputsAndOutputs() override;
 
 	virtual void ConnectAllInputs() override;

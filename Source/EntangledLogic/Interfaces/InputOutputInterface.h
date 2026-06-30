@@ -19,6 +19,10 @@ public:
 
 	virtual void SetAllInputOutputsVisibility(bool isVisible) = 0;
 
+	virtual TArray<class UFactoryInputComponent*> GetInputComponents() = 0;
+
+	virtual TArray<class UFactoryOutputComponent*> GetOutputComponents() = 0;
+
 	virtual void ConnectAllInputsAndOutputs() = 0;
 
 	virtual void ConnectAllInputs() = 0;

@@ -400,6 +400,56 @@ TArray<FGridCoordinate> UGridPlacementSubsystem::GetGridPositionsFromInputOutput
 	return PlaneLocations;
 }
 
+// Array of Input Component
+TArray<FGridCoordinate> UGridPlacementSubsystem::GetGridPositionsFromInputComponents(TArray<UFactoryInputComponent*> ComponentsToConvert)
+{
+	TArray<FGridCoordinate> IOLocations;
+	for (UFactoryInputComponent* CurrentComponenet : ComponentsToConvert)
+	{
+		FTransform MeshTransform = CurrentComponenet->GetComponentTransform();
+		FVector WorldLocation = MeshTransform.GetLocation();
+		FVector GridLocation = GetGridLocation(WorldLocation, FVector::ZeroVector);
+		FGridCoordinate GridPos = GridPositionToCoordinates(GridLocation);
+		IOLocations.Add(GridPos);
+	}
+	return IOLocations;
+}
+
+// Array of Output Component
+TArray<FGridCoordinate> UGridPlacementSubsystem::GetGridPositionsFromOutputComponents(TArray<UFactoryOutputComponent*> ComponentsToConvert)
+{
+	TArray<FGridCoordinate> IOLocations;
+	for (UFactoryOutputComponent* CurrentComponenet : ComponentsToConvert)
+	{
+		FTransform MeshTransform = CurrentComponenet->GetComponentTransform();
+		FVector WorldLocation = MeshTransform.GetLocation();
+		FVector GridLocation = GetGridLocation(WorldLocation, FVector::ZeroVector);
+		FGridCoordinate GridPos = GridPositionToCoordinates(GridLocation);
+		IOLocations.Add(GridPos);
+	}
+	return IOLocations;
+}
+
+// Single Input Component
+FGridCoordinate UGridPlacementSubsystem::GetGridPositionsFromInputComponents(UFactoryInputComponent* ComponentsToConvert)
+{
+	FTransform MeshTransform = ComponentsToConvert->GetComponentTransform();
+	FVector WorldLocation = MeshTransform.GetLocation();
+	FVector GridLocation = GetGridLocation(WorldLocation, FVector::ZeroVector);
+	FGridCoordinate GridPos = GridPositionToCoordinates(GridLocation);
+	return GridPos;
+}
+
+// Single Output Component
+FGridCoordinate UGridPlacementSubsystem::GetGridPositionsFromOutputComponents(UFactoryOutputComponent* ComponentsToConvert)
+{
+	FTransform MeshTransform = ComponentsToConvert->GetComponentTransform();
+	FVector WorldLocation = MeshTransform.GetLocation();
+	FVector GridLocation = GetGridLocation(WorldLocation, FVector::ZeroVector);
+	FGridCoordinate GridPos = GridPositionToCoordinates(GridLocation);
+	return GridPos;
+}
+
 // Returns nullptr if no GPC is found (shouldn't happen)
 AActor* UGridPlacementSubsystem::CreateFactoryFromSaveData(FFactorySaveData FactorySaveData)
 {

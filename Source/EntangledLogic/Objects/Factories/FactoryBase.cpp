@@ -187,6 +187,8 @@ void AFactoryBase::Interact(EPlacementMode PlacementMode)
 
 void AFactoryBase::SetAllInputOutputsVisibility(bool isVisible)
 {
+	FVector ForwardVector = GetActorForwardVector();
+	UE_LOG(LogTemp, Display, TEXT("Factory Forward Vector X: %f Y: %f Z: %f"), ForwardVector.X, ForwardVector.Y, ForwardVector.Z)
 	for (UFactoryInputComponent* InputComp : InputComponents)
 	{
 		InputComp->SetMeshVisibility(isVisible);
@@ -196,6 +198,16 @@ void AFactoryBase::SetAllInputOutputsVisibility(bool isVisible)
 	{
 		OutputComp->SetMeshVisibility(isVisible);
 	}
+}
+
+TArray<class UFactoryInputComponent*> AFactoryBase::GetInputComponents()
+{
+	return InputComponents;
+}
+
+TArray<class UFactoryOutputComponent*> AFactoryBase::GetOutputComponents()
+{
+	return OutputComponents;
 }
 
 void AFactoryBase::ConnectAllInputsAndOutputs()
