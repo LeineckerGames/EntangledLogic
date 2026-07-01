@@ -24,9 +24,9 @@ public:
 
 	void Apply(AQubit& qubit, EQuantumGate gate);
 
-	void ApplyControlled(AQubit& target, AQubit& control, EQuantumGate gate);
+	void ApplyControlled(AQubit& control, AQubit& target, EQuantumGate gate);
 
-	void CombineState(AQubit& qubitA, AQubit& qubitB);
+	bool CombineState(AQubit& qubitA, AQubit& qubitB);
 
 private:
 	qpp::ket GetStateAsVector(ENamedState state);

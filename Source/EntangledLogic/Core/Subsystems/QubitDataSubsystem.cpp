@@ -5,6 +5,8 @@
 
 using namespace qpp;
 
+const int32 MAX_ENTANGLEMENT = 2;
+
 AQubit* UQubitDataSubsystem::NewQubit(ENamedState namedState)
 {
 	AQubit* q = NewObject<AQubit>();
@@ -38,7 +40,7 @@ void UQubitDataSubsystem::Apply(AQubit& qubit, EQuantumGate gate)
 	// state->X = qpp::apply(state->X.eval(), gateMatrix, { LongEntPos });
 }
 
-void UQubitDataSubsystem::ApplyControlled(AQubit& target, AQubit& control, EQuantumGate gate)
+void UQubitDataSubsystem::ApplyControlled(AQubit& control, AQubit& target, EQuantumGate gate)
 {
 	// if target and control are not already entangled, create a shared state
 	CombineState(target, control);
@@ -49,12 +51,33 @@ void UQubitDataSubsystem::ApplyControlled(AQubit& target, AQubit& control, EQuan
 
 	target.State->StateVector = applyCTRL(target.State->StateVector, gateMatrix, { LongEntPosC }, { LongEntPosT });
 
-	// todo: check disentanglement
+	// check disentanglement - currently assumes at most 2-qubit entanglement
+	if (entanglement(target.State->StateVector) == 0)
+	{
+		cmat rho1 = ptrace1(target.State->StateVector);
+		cmat rho2 = ptrace2(target.State->StateVector);
+		
+		control.State = MakeShared<FQubitData>();
+		control.State->StateVector = rho2pure(rho1);
+		control.State->qubits.Add(&control);
+		control.EntanglementPosition = 0;
+
+		target.State->StateVector = rho2pure(rho2);
+		target.State->qubits.RemoveSingle(&control);
+		target.EntanglementPosition = 0;
+	}
 }
 
-void UQubitDataSubsystem::CombineState(AQubit& qubitA, AQubit& qubitB)
+// take two qubits and combine their states into one common state
+// returns false iff entranglement exceeds the set entanglement limit
+bool UQubitDataSubsystem::CombineState(AQubit& qubitA, AQubit& qubitB)
 {
-	if (qubitA.State == qubitB.State) return;
+	if (qubitA.State == qubitB.State) return true;
+
+	if (qubitA.State->qubits.Num() + qubitB.State->qubits.Num() > MAX_ENTANGLEMENT)
+	{
+		return false;
+	}
 
 	int aLen = qubitA.State->qubits.Num();
 
@@ -68,6 +91,8 @@ void UQubitDataSubsystem::CombineState(AQubit& qubitA, AQubit& qubitB)
 		q->State = qubitA.State;
 		qubitA.State->qubits.Add(q);
 	}
+
+	return true;
 }
 
 qpp::ket UQubitDataSubsystem::GetStateAsVector(ENamedState state)
