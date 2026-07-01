@@ -1,5 +1,5 @@
 #include "WireSegment.h"
-#include "TestingWire.h" // Needed to follow the next pointers
+#include "TestingWire.h"
 
 AWireSegment::AWireSegment()
 {
@@ -20,7 +20,10 @@ void AWireSegment::BeginPlay()
 	// Bind the U key to the ToggleOutput function
 	if (InputComponent)
 	{
-		InputComponent->BindKey(EKeys::Y, IE_Pressed, this, &AWireSegment::AddTestingItemToWire);
+		FInputKeyBinding& Binding = InputComponent->BindKey(EKeys::Y, IE_Pressed, this, &AWireSegment::AddTestingItemToWire);
+		
+		// Tell Unreal NOT to consume the input so other actors can hear it tooWhaWhat d
+		Binding.bConsumeInput = false;
 	}
 }
 
