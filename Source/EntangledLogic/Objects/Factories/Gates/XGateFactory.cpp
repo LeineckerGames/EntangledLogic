@@ -93,10 +93,10 @@ void AXGateFactory::ConnectAllInputsAndOutputs()
 			{
 				UE_LOG(LogTemp, Display, TEXT("Checking input component"));
 				FGridCoordinate InputGridCoord = GridPlacement->GetGridPositionsFromInputComponents(CurrentInputComponent);
-				FVector IntputSlotForwardVector = CurrentInputComponent->GetForwardVector();
+				FVector InputSlotForwardVector = CurrentInputComponent->GetForwardVector();
 				UE_LOG(LogTemp, Display, TEXT("InputGridCoord, X: %d Y: %d"), InputGridCoord.XCoordinate, InputGridCoord.YCoordinate);
-				UE_LOG(LogTemp, Display, TEXT("IntputSlotForwardVector, X: %f Y: %f"), IntputSlotForwardVector.X, IntputSlotForwardVector.Y);
-				if (IntputSlotForwardVector == OutputSlotForwardVector && InputGridCoord == OutputSlot0Coord)
+				UE_LOG(LogTemp, Display, TEXT("InputSlotForwardVector, X: %f Y: %f"), InputSlotForwardVector.X, InputSlotForwardVector.Y);
+				if (InputSlotForwardVector.Equals(OutputSlotForwardVector, 0.01f) && InputGridCoord == OutputSlot0Coord)
 				{
 					// Set the pointers if a valid spot
 					UE_LOG(LogTemp, Display, TEXT("Found a valid connection"));
@@ -139,7 +139,8 @@ void AXGateFactory::ConnectAllInputsAndOutputs()
 				FVector OutputSlotForwardVector = CurrentOutputComponent->GetForwardVector();
 				UE_LOG(LogTemp, Display, TEXT("OutputGridCoord, X: %d Y: %d"), OutputGridCoord.XCoordinate, OutputGridCoord.YCoordinate);
 				UE_LOG(LogTemp, Display, TEXT("OutputSlotForwardVector, X: %f Y: %f"), OutputSlotForwardVector.X, OutputSlotForwardVector.Y);
-				if (InputSlotForwardVector == OutputSlotForwardVector && OutputGridCoord == InputSlot0Coord)
+
+				if (InputSlotForwardVector.Equals(OutputSlotForwardVector, 0.01f) && OutputGridCoord == InputSlot0Coord)
 				{
 					// Set the pointers if a valid spot
 					UE_LOG(LogTemp, Display, TEXT("Found a valid connection"));
@@ -208,7 +209,7 @@ void AXGateFactory::ConnectAllInputs()
 				FVector OutputSlotForwardVector = CurrentOutputComponent->GetForwardVector();
 				UE_LOG(LogTemp, Display, TEXT("OutputGridCoord, X: %d Y: %d"), OutputGridCoord.XCoordinate, OutputGridCoord.YCoordinate);
 				UE_LOG(LogTemp, Display, TEXT("OutputSlotForwardVector, X: %f Y: %f"), OutputSlotForwardVector.X, OutputSlotForwardVector.Y);
-				if (InputSlotForwardVector == OutputSlotForwardVector && OutputGridCoord == InputSlot0Coord)
+				if (InputSlotForwardVector.Equals(OutputSlotForwardVector, 0.01f) && OutputGridCoord == InputSlot0Coord)
 				{
 					// Set the pointers if a valid spot
 					UE_LOG(LogTemp, Display, TEXT("Found a valid connection"));
@@ -256,10 +257,10 @@ void AXGateFactory::ConnectAllOutputs()
 			{
 				UE_LOG(LogTemp, Display, TEXT("Checking input component"));
 				FGridCoordinate InputGridCoord = GridPlacement->GetGridPositionsFromInputComponents(CurrentInputComponent);
-				FVector IntputSlotForwardVector = CurrentInputComponent->GetForwardVector();
+				FVector InputSlotForwardVector = CurrentInputComponent->GetForwardVector();
 				UE_LOG(LogTemp, Display, TEXT("InputGridCoord, X: %d Y: %d"), InputGridCoord.XCoordinate, InputGridCoord.YCoordinate);
-				UE_LOG(LogTemp, Display, TEXT("IntputSlotForwardVector, X: %f Y: %f"), IntputSlotForwardVector.X, IntputSlotForwardVector.Y);
-				if (IntputSlotForwardVector == OutputSlotForwardVector && InputGridCoord == OutputSlot0Coord)
+				UE_LOG(LogTemp, Display, TEXT("InputSlotForwardVector, X: %f Y: %f"), InputSlotForwardVector.X, InputSlotForwardVector.Y);
+				if (InputSlotForwardVector.Equals(OutputSlotForwardVector, 0.01f) && InputGridCoord == OutputSlot0Coord)
 				{
 					// Set the pointers if a valid spot
 					UE_LOG(LogTemp, Display, TEXT("Found a valid connection"));
