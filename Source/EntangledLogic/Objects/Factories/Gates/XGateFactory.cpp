@@ -45,13 +45,6 @@ void AXGateFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void AXGateFactory::Destroyed()
-{
-
-
-	Super::Destroyed();
-}
-
 // Input Output Interface
 void AXGateFactory::ConnectAllInputsAndOutputs()
 {
@@ -65,11 +58,6 @@ void AXGateFactory::ConnectAllInputsAndOutputs()
 	{
 		InputMeshes.Add(InputComp->GetMesh());
 	}
-
-	//for (UFactoryOutputComponent* OutputComp : OutputComponents)
-	//{
-	//	OutputMeshes.Add(OutputComp->GetMesh());
-	//}
 
 	// Convert the meshes to grid positions and check adjacent factories
 	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();

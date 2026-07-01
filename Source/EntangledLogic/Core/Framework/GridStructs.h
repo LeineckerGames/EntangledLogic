@@ -27,12 +27,3 @@ inline uint32 GetTypeHash(const FGridCoordinate& Coordinate)
 	// HashCombine merges the hashes of your individual variables
 	return HashCombine(::GetTypeHash(Coordinate.XCoordinate), ::GetTypeHash(Coordinate.YCoordinate));
 }
-
-UENUM()
-enum class EGridDirections : uint8
-{
-	North,
-	East,
-	South,
-	West
-};
