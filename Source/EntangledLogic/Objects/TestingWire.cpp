@@ -19,8 +19,13 @@ void ATestingWire::BeginPlay()
 	// Bind the U key to the ToggleOutput function
 	if (InputComponent)
 	{
-		InputComponent->BindKey(EKeys::Y, IE_Pressed, this, &ATestingWire::AddTestingItemToWire);
-		InputComponent->BindKey(EKeys::U, IE_Pressed, this, &ATestingWire::ToggleOutput);
+		if (CanManuallyAddItems) {
+			InputComponent->BindKey(EKeys::Y, IE_Pressed, this, &ATestingWire::AddTestingItemToWire);
+			InputComponent->BindKey(EKeys::U, IE_Pressed, this, &ATestingWire::ToggleOutput);
+		}
+		if (CanInitiateItemMovement) {
+			InputComponent->BindKey(EKeys::I, IE_Pressed, this, &ATestingWire::TryMoveItemForward);
+		}
 	}
 }
 
@@ -33,7 +38,7 @@ void ATestingWire::Tick(float DeltaTime)
 
 	float MoveAmount = MovementSpeed * DeltaTime;
 
-	// --- 1. FACTORIO DATA LOGIC ---
+	// DATA LOGIC
 	if (!bIsFrontBlocked)
 	{
 		// Traffic is moving smoothly. We ONLY update the front-most item's distance to the end.
@@ -44,18 +49,11 @@ void ATestingWire::Tick(float DeltaTime)
 		// We use a while loop here just in case multiple items exit in a single frame
 		while (HeadGap <= 0.0f && !ItemsOnWire.IsEmpty())
 		{
-			if (bCanOutput)
-			{
-				// belt is open! Let the item fall off
-				RemoveFrontItem();
-			}
-			else
-			{
-				// Belt is closed. Stop moving and block the line.
-				HeadGap = 0.0f; 
-				bIsFrontBlocked = true; 
-				break;
-			}
+
+			// Belt is closed. Stop moving and block the line.
+			HeadGap = 0.0f; 
+			bIsFrontBlocked = true;
+			break;
 		}
 	}
 	else
@@ -76,7 +74,7 @@ void ATestingWire::Tick(float DeltaTime)
 		}
 	}
 
-	// --- 2. UNREAL VISUAL LOGIC ---
+	// VISUAL LOGIC
 	// Calculate the exact distances on the fly to place our meshes
 	float CurrentDistanceAlongSpline = SplineComponent->GetSplineLength() - HeadGap;
 
@@ -96,8 +94,14 @@ void ATestingWire::Tick(float DeltaTime)
 	}
 }
 
-void ATestingWire::AddItemToWire(UStaticMesh* MeshToUse)
+bool ATestingWire::AddItemToWire(UStaticMesh* MeshToUse)
 {
+	// Check if adding an item would exceed capacity
+	if (Capacity > 0 && ItemsOnWire.Num() >= Capacity)
+	{
+		return false;
+	}
+
 	FWireItemData NewItem;
 	
 	// Create and attach a new visual component for the item
@@ -127,6 +131,7 @@ void ATestingWire::AddItemToWire(UStaticMesh* MeshToUse)
 	}
 
 	ItemsOnWire.Add(NewItem);
+	return true;
 }
 
 void ATestingWire::AddTestingItemToWire() 
@@ -169,16 +174,6 @@ void ATestingWire::RemoveFrontItem()
 	bIsFrontBlocked = false;
 }
 
-// Can items freely fall off the end of this belt?
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
-	bool bCanOutput = false;
-
-	// Toggles the output state when pressing U
-	UFUNCTION(BlueprintCallable)
-	void ToggleOutput();
-
-
-
 void ATestingWire::ToggleOutput()
 {
 	bCanOutput = !bCanOutput; // Flip the switch!
@@ -187,6 +182,38 @@ void ATestingWire::ToggleOutput()
 	if (bCanOutput && bIsFrontBlocked)
 	{
 		bIsFrontBlocked = false;
+	}
+}
+
+bool ATestingWire::IsEmpty()
+{
+	return ItemsOnWire.IsEmpty();
+}
+
+bool ATestingWire::IsFull()
+{
+	return Capacity > 0 && ItemsOnWire.Num() >= Capacity;
+}
+
+void ATestingWire::TryMoveItemForward()
+{
+	UE_LOG(LogTemp, Display, TEXT("TryMoveItemForward()"));
+	if (NextWire != nullptr) 
+	{
+		if (!this->IsEmpty())
+		{
+			UE_LOG(LogTemp, Display, TEXT("this is not empty"));
+			if (NextWire->AddItemToWire(TestingItemMesh)) // Try to add item to the next wire.
+			{
+				this->RemoveFrontItem(); // Remove an item from me. The item transferred from me to the next wire.
+			}
+			// Else will fail, the item could not be added to the next wire because the next wire is full and has no more room.
+		}
+	}
+	// Ask the previous wire to an item into me
+	if (PreviousWire != nullptr)
+	{
+		PreviousWire->TryMoveItemForward();
 	}
 }
 

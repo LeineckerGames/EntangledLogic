@@ -18,5 +18,8 @@ class ENTANGLEDLOGIC_API UWireSubsystem : public UWorldSubsystem
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
+	void MoveOneSpace();
+
 };
+
 

@@ -5,7 +5,6 @@
 #include "Components/SplineComponent.h"
 #include "TestingWire.generated.h"
 
-// 1. A simple struct to hold our Factory-style data
 USTRUCT(BlueprintType)
 struct FWireItemData
 {
@@ -16,7 +15,6 @@ struct FWireItemData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float GapToNextItem = 20.0f; 
 
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* ItemMesh = nullptr;
 };
@@ -38,9 +36,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USplineComponent* SplineComponent;
 
-	// Array of items currently traveling on this wire segment
+	// Array of items currently traveling on this wire tile
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	TArray<FWireItemData> ItemsOnWire;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing", meta = (AllowPrivateAccess = "true"))
+	ATestingWire* PreviousWire;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing", meta = (AllowPrivateAccess = "true"))
+	ATestingWire* NextWire;
 
 	// The distance from the front-most item (Index 0) to the very end of the spline
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
@@ -66,9 +70,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	bool bCanOutput = false;
 
-	// Call this function via Blueprints (or C++) to feed an item onto the start of the belt
+	// Call this function to feed an item onto the start of the belt
 	UFUNCTION(BlueprintCallable)
-	void AddItemToWire(UStaticMesh* MeshToUse);
+	bool AddItemToWire(UStaticMesh* MeshToUse);
 
 	// Removes the front-most item from the wire
 	UFUNCTION(BlueprintCallable)
@@ -82,4 +86,23 @@ public:
 	// Toggles the output state when pressing U
 	UFUNCTION(BlueprintCallable)
 	void ToggleOutput();
+
+	UFUNCTION()
+	void TryMoveItemForward();
+
+	UFUNCTION()
+	bool IsEmpty();
+
+	UFUNCTION()
+	bool IsFull();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing", meta = (AllowPrivateAccess = "true"))
+	int Capacity = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing", meta = (AllowPrivateAccess = "true"))
+	bool CanManuallyAddItems = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing", meta = (AllowPrivateAccess = "true"))
+	bool CanInitiateItemMovement = false;
+
 };

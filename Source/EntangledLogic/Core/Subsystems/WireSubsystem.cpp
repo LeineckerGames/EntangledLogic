@@ -7,3 +7,7 @@ void UWireSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 }
+
+void MoveOneSpace() {
+	return;
+}
