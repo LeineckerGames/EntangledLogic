@@ -5,10 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
+#include "EntangledLogic/Interfaces/InputOutputInterface.h"
+#include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
+#include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "Wire.generated.h"
 
 UCLASS()
-class ENTANGLEDLOGIC_API AWire : public AActor, public IFactoryInteractionInterface
+class ENTANGLEDLOGIC_API AWire : public AActor, public IFactoryInteractionInterface, public IInputOutputInterface
 {
 	GENERATED_BODY()
 	
@@ -32,6 +35,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UStaticMeshComponent* WireMesh;
 
+	UPROPERTY(VisibleAnywhere, Category = "InputOutputs")
+	TArray<class UFactoryInputComponent*> InputComponents;
+
+	UPROPERTY(VisibleAnywhere, Category = "InputOutputs")
+	TArray<class UFactoryOutputComponent*> OutputComponents;
+
 	/*
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UWidgetComponent* FactoryDisplayWindow;
@@ -47,4 +56,17 @@ public:
 	virtual void EndHover(EPlacementMode PlacementMode) override;
 
 	virtual void Interact(EPlacementMode PlacementMode) override;
+
+	// Input Output Interface
+	virtual void SetAllInputOutputsVisibility(bool isVisible) override;
+
+	virtual TArray<class UFactoryInputComponent*> GetInputComponents() override;
+
+	virtual TArray<class UFactoryOutputComponent*> GetOutputComponents() override;
+
+	virtual void ConnectAllInputsAndOutputs() override;
+
+	virtual void ConnectAllInputs() override;
+
+	virtual void ConnectAllOutputs() override;
 };

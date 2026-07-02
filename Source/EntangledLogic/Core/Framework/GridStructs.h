@@ -3,7 +3,6 @@
 #include "CoreMinimal.h"
 #include "GridStructs.generated.h"
 
-
 USTRUCT()
 struct FGridCoordinate
 {

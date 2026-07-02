@@ -4,7 +4,9 @@
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
 #include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
-#include "EntangledLogic/Objects/Factories/Components/FactoryInputOutputComponent.h"
+#include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
+#include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
+#include "EntangledLogic/Interfaces/InputOutputInterface.h"
 #include "EntangledLogic/Core/Framework/FactorySaveGame.h"
 #include "EntangledLogic/Player/TopDownPlayerController.h"
 #include "EntangledLogic/Player/PlayerCameraController.h"
@@ -27,7 +29,7 @@ void UGridPlacementSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 		USavingLoadingSubsystem* SavingLoading = World->GetGameInstance()->GetSubsystem<USavingLoadingSubsystem>();
 		if (SavingLoading)
 		{
-			UE_LOG(LogTemp, Display, TEXT("Registering GPSS to Saving and Loading"));
+			//UE_LOG(LogTemp, Display, TEXT("Registering GPSS to Saving and Loading"));
 			SavingLoading->RegisterUObjectToSavingLoading(this);
 		}
 	}
@@ -146,6 +148,15 @@ FVector UGridPlacementSubsystem::GetWorldGridLocation(FVector Location, FVector 
 	return WorldGridPosition;
 }
 
+FGridCoordinate UGridPlacementSubsystem::GridPositionToCoordinates(FVector GridLocation)
+{
+	int32 RoundedX = FMath::FloorToInt(GridLocation.X - 0.5f);
+	int32 RoundedY = FMath::FloorToInt(GridLocation.Y - 0.5f);
+
+	FGridCoordinate GridCoordinate = FGridCoordinate(RoundedX, RoundedY);
+	return GridCoordinate;
+}
+
 void UGridPlacementSubsystem::MoveSelectedFactoryOnGrid(FVector Location)
 {
 	UGridPlacementComponent* GridPlacementComponent = SelectedFactory->GetComponentByClass<UGridPlacementComponent>();
@@ -182,10 +193,17 @@ void UGridPlacementSubsystem::PlaceSelectedActor()
 	bool DidCollide = CollisionCheck(GridLocations, GridPlacementComponent->GetFactoryShape());
 	if (DidCollide == false)
 	{
-		UE_LOG(LogTemp, Display, TEXT("Placing Actor"));
+		//UE_LOG(LogTemp, Display, TEXT("Placing Actor"));
 		GridPlacementComponent->RemoveOverlayMaterial();
 		SetSelectedActorInputOutputMeshesVisible(false);
 		SetPlacedPositionMap(GridLocations, GridPlacementComponent->GetFactoryShape(), SelectedFactory);
+
+		// Update Input Outputs
+		IInputOutputInterface* SelectedFactoryInputOutputInterface = Cast<IInputOutputInterface>(SelectedFactory);
+		if (SelectedFactoryInputOutputInterface)
+		{
+			SelectedFactoryInputOutputInterface->ConnectAllInputsAndOutputs();
+		}
 		SelectedFactory = SpawnActorToPlaceFromClass(SelectedFactoryClass);
 	}
 }
@@ -201,7 +219,7 @@ void UGridPlacementSubsystem::PickupFactory(AActor* FactoryToPickup)
 
 void UGridPlacementSubsystem::DeselectSelectedActor()
 {
-	UE_LOG(LogTemp, Display, TEXT("Deselecting Actor"));
+	//UE_LOG(LogTemp, Display, TEXT("Deselecting Actor"));
 	DeleteSelectedFactory();
 	SelectedFactoryClass = nullptr;
 	SetPlacementMode(EPlacementMode::Disabled);
@@ -219,10 +237,10 @@ void UGridPlacementSubsystem::DeselectSelectedActor()
 
 void UGridPlacementSubsystem::SetSelectedActorInputOutputMeshesVisible(bool isVisible)
 {
-	UFactoryInputOutputComponent* InputOutput = SelectedFactory->GetComponentByClass<UFactoryInputOutputComponent>();
-	if (InputOutput)
+	IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(SelectedFactory);
+	if (IOInterface)
 	{
-		InputOutput->SetMeshesVisible(isVisible);
+		IOInterface->SetAllInputOutputsVisibility(isVisible);
 	}
 }
 
@@ -259,10 +277,7 @@ TArray<FGridCoordinate> UGridPlacementSubsystem::GridComponentToCoordinates(UGri
 	//	, GridPlacementComponentLocation.X, GridPlacementComponentLocation.Y, GridPlacementComponentLocation.Z);
 
 	FVector GridLocation = GetGridLocation(GridPlacementComponentLocation, FVector(0,0,0));
-	int32 RoundedX = FMath::FloorToInt(GridLocation.X - 0.5f);
-	int32 RoundedY = FMath::FloorToInt(GridLocation.Y - 0.5f);
-	//UE_LOG(LogTemp, Display, TEXT("RoundedGridLocation: X = %d, Y = %d"), RoundedX, RoundedY);
-	FGridCoordinate GridCoordinate = FGridCoordinate(RoundedX, RoundedY);
+	FGridCoordinate GridCoordinate = GridPositionToCoordinates(GridLocation);
 
 	FTransform ComponentTransform = GridPlacementComponent->GetComponentTransform();
 
@@ -309,7 +324,7 @@ void UGridPlacementSubsystem::SetPlacementMode(EPlacementMode PlacementModeToSet
 
 void UGridPlacementSubsystem::SetPlacementModeToDeletion()
 {
-	UE_LOG(LogTemp, Display, TEXT("Placement Mode set to Deletion"));
+	//UE_LOG(LogTemp, Display, TEXT("Placement Mode set to Deletion"));
 	DeleteSelectedFactory();
 	SetPlacementMode(EPlacementMode::Deletion);
 	AddGridPlacementIMC();
@@ -317,7 +332,7 @@ void UGridPlacementSubsystem::SetPlacementModeToDeletion()
 
 void UGridPlacementSubsystem::SetPlacementModeToEditing()
 {
-	UE_LOG(LogTemp, Display, TEXT("Placement Mode set to Editing"));
+	//UE_LOG(LogTemp, Display, TEXT("Placement Mode set to Editing"));
 	DeleteSelectedFactory();
 	SetPlacementMode(EPlacementMode::Editing);
 	AddGridPlacementIMC();
@@ -349,7 +364,7 @@ void UGridPlacementSubsystem::AddGridPlacementIMC()
 	ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
 	TopDownPlayerController->AddMappingContext(TopDownPlayerController->GridControls, 1);
 	UpdateControlUI();
-	UE_LOG(LogTemp, Display, TEXT("Added Grid Mapping Context"));
+	//UE_LOG(LogTemp, Display, TEXT("Added Grid Mapping Context"));
 }
 
 void UGridPlacementSubsystem::UpdateControlUI()
@@ -369,6 +384,72 @@ void UGridPlacementSubsystem::UpdateControlUI()
 	}
 }
 
+TArray<FGridCoordinate> UGridPlacementSubsystem::GetGridPositionsFromInputOutputPlanes(TArray<UStaticMeshComponent*> MeshesToConvert)
+{
+	TArray<FGridCoordinate> PlaneLocations;
+	for (UStaticMeshComponent* CurrentMesh : MeshesToConvert)
+	{
+		FTransform MeshTransform = CurrentMesh->GetComponentTransform();
+		FVector WorldLocation = MeshTransform.GetLocation();
+		//UE_LOG(LogTemp, Display, TEXT("CurrentMesh World Location, X: %f Y: %f Z: %f "), WorldLocation.X, WorldLocation.Y, WorldLocation.Z);
+		FVector GridLocation = GetGridLocation(WorldLocation, FVector::ZeroVector);
+		//UE_LOG(LogTemp, Display, TEXT("CurrentMesh Grid Location, X: %f Y: %f Z: %f "), GridLocation.X, GridLocation.Y, GridLocation.Z);
+		FGridCoordinate GridPos = GridPositionToCoordinates(GridLocation);
+		PlaneLocations.Add(GridPos);
+	}
+	return PlaneLocations;
+}
+
+// Array of Input Component
+TArray<FGridCoordinate> UGridPlacementSubsystem::GetGridPositionsFromInputComponents(TArray<UFactoryInputComponent*> ComponentsToConvert)
+{
+	TArray<FGridCoordinate> IOLocations;
+	for (UFactoryInputComponent* CurrentComponenet : ComponentsToConvert)
+	{
+		FTransform MeshTransform = CurrentComponenet->GetComponentTransform();
+		FVector WorldLocation = MeshTransform.GetLocation();
+		FVector GridLocation = GetGridLocation(WorldLocation, FVector::ZeroVector);
+		FGridCoordinate GridPos = GridPositionToCoordinates(GridLocation);
+		IOLocations.Add(GridPos);
+	}
+	return IOLocations;
+}
+
+// Array of Output Component
+TArray<FGridCoordinate> UGridPlacementSubsystem::GetGridPositionsFromOutputComponents(TArray<UFactoryOutputComponent*> ComponentsToConvert)
+{
+	TArray<FGridCoordinate> IOLocations;
+	for (UFactoryOutputComponent* CurrentComponenet : ComponentsToConvert)
+	{
+		FTransform MeshTransform = CurrentComponenet->GetComponentTransform();
+		FVector WorldLocation = MeshTransform.GetLocation();
+		FVector GridLocation = GetGridLocation(WorldLocation, FVector::ZeroVector);
+		FGridCoordinate GridPos = GridPositionToCoordinates(GridLocation);
+		IOLocations.Add(GridPos);
+	}
+	return IOLocations;
+}
+
+// Single Input Component
+FGridCoordinate UGridPlacementSubsystem::GetGridPositionsFromInputComponents(UFactoryInputComponent* ComponentsToConvert)
+{
+	FTransform MeshTransform = ComponentsToConvert->GetComponentTransform();
+	FVector WorldLocation = MeshTransform.GetLocation();
+	FVector GridLocation = GetGridLocation(WorldLocation, FVector::ZeroVector);
+	FGridCoordinate GridPos = GridPositionToCoordinates(GridLocation);
+	return GridPos;
+}
+
+// Single Output Component
+FGridCoordinate UGridPlacementSubsystem::GetGridPositionsFromOutputComponents(UFactoryOutputComponent* ComponentsToConvert)
+{
+	FTransform MeshTransform = ComponentsToConvert->GetComponentTransform();
+	FVector WorldLocation = MeshTransform.GetLocation();
+	FVector GridLocation = GetGridLocation(WorldLocation, FVector::ZeroVector);
+	FGridCoordinate GridPos = GridPositionToCoordinates(GridLocation);
+	return GridPos;
+}
+
 // Returns nullptr if no GPC is found (shouldn't happen)
 AActor* UGridPlacementSubsystem::CreateFactoryFromSaveData(FFactorySaveData FactorySaveData)
 {
@@ -380,8 +461,8 @@ AActor* UGridPlacementSubsystem::CreateFactoryFromSaveData(FFactorySaveData Fact
 	FactoryGPC->RemoveOverlayMaterial();
 	
 	// Disable the Input Output arrows at spawn
-	UFactoryInputOutputComponent* InputOutput = NewFactory->GetComponentByClass<UFactoryInputOutputComponent>();
-	InputOutput->SetMeshesVisible(false);
+	//UFactoryInputOutputComponent* InputOutput = NewFactory->GetComponentByClass<UFactoryInputOutputComponent>();
+	//InputOutput->SetMeshesVisible(false);
 
 	if (FactoryGPC)
 	{

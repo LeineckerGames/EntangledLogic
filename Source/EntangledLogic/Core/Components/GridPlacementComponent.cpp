@@ -1,6 +1,5 @@
 #include "GridPlacementComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
-#include "EntangledLogic/Objects/Factories/Components/FactoryInputOutputComponent.h"
 
 UGridPlacementComponent::UGridPlacementComponent()
 {
@@ -34,7 +33,7 @@ void UGridPlacementComponent::BeginPlay()
 
 void UGridPlacementComponent::OnPlacementModeChanged(EPlacementMode CurrentPlacementMode)
 {
-	UE_LOG(LogTemp, Display, TEXT("Placement changed in grid comp"));
+	//UE_LOG(LogTemp, Display, TEXT("Placement changed in grid comp"));
 	switch (CurrentPlacementMode)
 	{
 	case EPlacementMode::Disabled:
@@ -53,15 +52,6 @@ void UGridPlacementComponent::OnPlacementModeChanged(EPlacementMode CurrentPlace
 		RemoveOverlayMaterial();
 		UpdateRenderCustomDepth(ActorsAttachedMeshes, false);
 		break;
-	}
-}
-
-void UGridPlacementComponent::SetInputOutputVisibility(bool isValid)
-{
-	UFactoryInputOutputComponent* InputOutputComponent = GetAttachParentActor()->GetComponentByClass<UFactoryInputOutputComponent>();
-	if (InputOutputComponent)
-	{
-		InputOutputComponent->SetMeshesVisible(isValid);
 	}
 }
 

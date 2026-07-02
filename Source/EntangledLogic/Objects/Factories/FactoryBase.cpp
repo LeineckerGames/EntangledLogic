@@ -1,13 +1,22 @@
 #include "FactoryBase.h"
 #include "Components/WidgetComponent.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
+#include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
+#include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "EntangledLogic/UI/Factory/FactoryInfoUI.h"
 #include "EntangledLogic/UI/Factory/FactoryDevUI.h"
-#include "EntangledLogic/Objects/Factories/Components/FactoryInputOutputComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Camera/PlayerCameraManager.h"
+
+// Used for sorting arrays by slot index
+template <typename T>
+static bool SortBySlotIndex(const T& A, const T& B)
+{
+	return A.SlotIndex < B.SlotIndex;
+}
+
 
 // Sets default values
 AFactoryBase::AFactoryBase()
@@ -23,11 +32,6 @@ AFactoryBase::AFactoryBase()
 	// Create Mesh and attach to root
 	FactoryMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FactoryMesh"));
 	FactoryMesh->SetupAttachment(RootComponent);
-
-	// Create the Input and Output Meshes
-	InputOutputComponent = CreateDefaultSubobject<UFactoryInputOutputComponent>(TEXT("InputOutputComponent"));
-	InputOutputComponent->SetupAttachment(RootComponent);
-
 
 	// Creates the UI above the factory
 	FactoryDisplayWindow = CreateDefaultSubobject<UWidgetComponent>(TEXT("FactoryDisplayWindow"));
@@ -47,6 +51,13 @@ void AFactoryBase::BeginPlay()
 	Super::BeginPlay();
 
 	Qubits.SetNum(NUM_QUBIT_SLOTS);
+	// Get Attached Inputs and Outputs and add them to the array
+	GetComponents<UFactoryInputComponent>(InputComponents);
+	GetComponents<UFactoryOutputComponent>(OutputComponents);
+
+	// Sort arrays by input / output slot
+	InputComponents.Sort(SortBySlotIndex<UFactoryInputComponent>);
+	OutputComponents.Sort(SortBySlotIndex<UFactoryOutputComponent>);
 
 	// Setup Floating UI
 	FactoryDisplayWindow->SetVisibility(false);
@@ -157,12 +168,12 @@ void AFactoryBase::EndHover(EPlacementMode PlacementMode)
 
 void AFactoryBase::Interact(EPlacementMode PlacementMode)
 {
-	UE_LOG(LogTemp, Display, TEXT("Clicked on %s"), *GetActorNameOrLabel());
+	//UE_LOG(LogTemp, Display, TEXT("Clicked on %s"), *GetActorNameOrLabel());
 	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
 	switch (PlacementMode)
 	{
 		case EPlacementMode::Disabled:
-			UE_LOG(LogTemp, Display, TEXT("Selecting Actor %s"), *GetActorNameOrLabel());
+			//UE_LOG(LogTemp, Display, TEXT("Selecting Actor %s"), *GetActorNameOrLabel());
 			FactoryDisplayWindow->ToggleVisibility();
 
 			// Open selected pop up UI
@@ -188,4 +199,44 @@ void AFactoryBase::Interact(EPlacementMode PlacementMode)
 			Destroy();
 		} break;
 	}
+}
+
+// Input Output Interface
+
+void AFactoryBase::SetAllInputOutputsVisibility(bool isVisible)
+{
+	for (UFactoryInputComponent* InputComp : InputComponents)
+	{
+		InputComp->SetMeshVisibility(isVisible);
+	}
+
+	for (UFactoryOutputComponent* OutputComp : OutputComponents)
+	{
+		OutputComp->SetMeshVisibility(isVisible);
+	}
+}
+
+TArray<UFactoryInputComponent*> AFactoryBase::GetInputComponents()
+{
+	return InputComponents;
+}
+
+TArray<UFactoryOutputComponent*> AFactoryBase::GetOutputComponents()
+{
+	return OutputComponents;
+}
+
+void AFactoryBase::ConnectAllInputsAndOutputs()
+{
+	UE_LOG(LogTemp, Display, TEXT("ConnectAllInputsAndOutputs Running in %s"), *GetActorNameOrLabel());
+}
+
+void AFactoryBase::ConnectAllInputs()
+{
+	UE_LOG(LogTemp, Display, TEXT("ConnectAllInputs Running in %s"), *GetActorNameOrLabel());
+}
+
+void AFactoryBase::ConnectAllOutputs()
+{
+	UE_LOG(LogTemp, Display, TEXT("ConnectAllOutputs Running in %s"), *GetActorNameOrLabel());
 }

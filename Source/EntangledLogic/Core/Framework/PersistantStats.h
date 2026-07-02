@@ -10,4 +10,7 @@ struct FPersistantStats
 	UPROPERTY()
 	int32 GnomesMurdered;
 
+	UPROPERTY()
+	float SpeedOfItemOnWire;
+
 };

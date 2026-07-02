@@ -2,47 +2,42 @@
 
 #include "CoreMinimal.h"
 #include "Wire.h"
-#include "Components/SplineComponent.h"
-#include "Components/TimelineComponent.h"
 #include "TestingWire.generated.h"
 
-/**
- * 
- */
+class AWireSegment; // Forward Declaration
+
 UCLASS()
 class ENTANGLEDLOGIC_API ATestingWire : public AWire
 {
 	GENERATED_BODY()
 	
-public:
+public:	
 	ATestingWire();
 
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 public:
+
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION()
-	void ProcessMovementTimeline(float Value);
+	// Input Output Interface
+	virtual void ConnectAllInputsAndOutputs() override;
 
-	UFUNCTION()
-	void OnEndMovementTimeline();
+	virtual void ConnectAllInputs() override;
 
-	// Function to start movement on key press
-	UFUNCTION()
-	void StartMovement();
+	virtual void ConnectAllOutputs() override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spline", meta = (AllowPrivateAccess = "true"))
-	USplineComponent* SplineComponent;
+	// Linked list pointers
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing")
+	ATestingWire* PreviousWire;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spline", meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* MeshComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing")
+	ATestingWire* NextWire;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spline")
-	UCurveFloat* MovementCurve;
-
-private:
-	UPROPERTY()
-	FTimeline MovementTimeline;
+	// Which segment/path does this wire currently belong to?
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Testing")
+	AWireSegment* AssignedSegment;
 };

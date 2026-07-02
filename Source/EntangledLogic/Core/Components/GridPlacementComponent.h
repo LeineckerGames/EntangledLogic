@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
+#include "EntangledLogic/Core/Framework/GridStructs.h"
 #include "GridPlacementComponent.generated.h"
 
 enum class EPlacementMode : uint8;
@@ -34,10 +35,6 @@ protected:
 	// Materials
 	UPROPERTY(EditAnywhere, Category = "Grid Materials")
 	class UMaterialInterface* FactoryCollisionOverlayMaterial;
-
-	//// Might combine this into above material
-	//UPROPERTY(EditAnywhere, Category = "Grid Materials")
-	//class UMaterialInterface* FactoryOutlineOverlayMaterial;
 
 	class UMaterialInstanceDynamic* OverlayMaterial;
 
