@@ -43,7 +43,6 @@ AFactoryBase::AFactoryBase()
 	// Create Grid Placement and attach to mesh
 	GridPlacementComponent = CreateDefaultSubobject<UGridPlacementComponent>(TEXT("GridPlacementComponent"));
 	GridPlacementComponent->SetupAttachment(FactoryMesh);
-
 }
 
 // Called when the game starts or when spawned
@@ -51,6 +50,7 @@ void AFactoryBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Qubits.SetNum(NUM_QUBIT_SLOTS);
 	// Get Attached Inputs and Outputs and add them to the array
 	GetComponents<UFactoryInputComponent>(InputComponents);
 	GetComponents<UFactoryOutputComponent>(OutputComponents);
@@ -76,6 +76,7 @@ void AFactoryBase::BeginPlay()
 		FactoryInfoWidget->SetHeaderText(GetActorNameOrLabel());
 		FactoryInfoWidget->SetFactoryDescriptionText("a gnome was here");
 		FactoryInfoWidget->SetFactoryInfoText("he was here too");
+		FactoryInfoWidget->PopulateQubits(GetNumQubitSlots());
 	}
 
 	// UI for Dev Menu Cube
@@ -102,7 +103,24 @@ void AFactoryBase::RotateUIToCamera()
 	FRotator RotationTowardCamera = UKismetMathLibrary::FindLookAtRotation(
 		FactoryDisplayWindow->GetComponentLocation() ,
 		CameraManager->GetTransformComponent()->GetComponentLocation());
+	//FRotator RotationTowardCamera = UKismetMathLibrary::NegateRotator(CameraManager->GetCameraRotation());
 	FactoryDisplayWindow->SetWorldRotation(RotationTowardCamera);
+}
+
+// set the linked qubits of each QubitDisplaySlot
+void AFactoryBase::UpdateQubitDisplay()
+{
+	if (FactoryWidget) {
+		UFactoryInfoUI* FactoryInfoWidget = Cast<UFactoryInfoUI>(FactoryWidget);
+		if (FactoryInfoWidget)
+		{
+			for (int i = 0; i < GetNumQubitSlots(); i++)
+			{
+				FactoryInfoWidget->UpdateQubit(i, *Qubits[i]);
+			}
+		}
+	}
+	
 }
 
 // Factory Interaction Interface

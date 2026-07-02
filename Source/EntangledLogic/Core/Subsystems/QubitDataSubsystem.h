@@ -5,8 +5,7 @@
 #include "QppPlugin.h"
 #include "QubitDataSubsystem.generated.h"
 
-enum class EOneQubitGate : uint8;
-enum class ETwoQubitGate : uint8;
+enum class EQuantumGate : uint8;
 enum class ENamedState : uint8;
 
 class AQubit;
@@ -23,15 +22,17 @@ public:
 
 	void SetState(AQubit& qubit, ENamedState namedState);
 
-	void Apply(AQubit& qubit, EOneQubitGate gate);
+	void Apply(AQubit& qubit, EQuantumGate gate);
 
-	void Apply(AQubit& qubitA, AQubit& qubitB, ETwoQubitGate gate);
+	void ApplyControlled(AQubit& control, AQubit& target, EQuantumGate gate);
+
+	bool CombineState(AQubit& qubitA, AQubit& qubitB);
 
 private:
-	qpp::cmat GetNamedState(ENamedState state);
+	qpp::ket GetStateAsVector(ENamedState state);
 
-	qpp::cmat GetGateMatrix(EOneQubitGate gate);
+	qpp::cmat GetStateAsMatrix(ENamedState state);
 
-	qpp::cmat GetGateMatrix(ETwoQubitGate gate);
+	qpp::cmat GetGateMatrix(EQuantumGate gate);
 
 };

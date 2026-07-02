@@ -8,6 +8,8 @@ USTRUCT()
 struct FQubitData
 {
 	GENERATED_USTRUCT_BODY()
-	qpp::cmat DensityMatrix;
+	//bool bIsDensityMatrix = false;
+	qpp::ket StateVector;
+	//qpp::cmat DensityMatrix;
 	TArray<AQubit*> qubits;
 };

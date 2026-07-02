@@ -5,12 +5,14 @@
 
 using namespace qpp;
 
+const int32 MAX_ENTANGLEMENT = 2;
+
 AQubit* UQubitDataSubsystem::NewQubit(ENamedState namedState)
 {
 	AQubit* q = NewObject<AQubit>();
 	if (q)
 	{
-		q->State->DensityMatrix = GetNamedState(namedState);
+		q->State->StateVector = GetStateAsVector(namedState);
 		q->State->qubits.Add(q);
 	}
 
@@ -22,35 +24,92 @@ AQubit* UQubitDataSubsystem::NewQubit()
 	return NewQubit(ENamedState::Zero);
 }
 
-// can desync entanglement groups, use with caution
+// can desync entanglement groups, use only for initialization
 void UQubitDataSubsystem::SetState(AQubit& qubit, ENamedState namedState)
 {
-	qubit.State->DensityMatrix = GetNamedState(namedState);
+	qubit.State->StateVector = GetStateAsVector(namedState);
 }
 
-void UQubitDataSubsystem::Apply(AQubit& qubit, EOneQubitGate gate)
+void UQubitDataSubsystem::Apply(AQubit& qubit, EQuantumGate gate)
 {
 	unsigned long LongEntPos = static_cast<unsigned long>(qubit.EntanglementPosition);
 	cmat gateMatrix = GetGateMatrix(gate);
-	FQubitData* state = &qubit.State.Get();
-
-	state->DensityMatrix = apply(state->DensityMatrix, gateMatrix, { LongEntPos });
+	
+	qubit.State->StateVector = apply(qubit.State->StateVector, gateMatrix, { LongEntPos });
 	// if aliasing becomes an issue, try this instead:
-	// state->DensityMatrix = qpp::apply(state->DensityMatrix.eval(), gateMatrix, { LongEntPos });
+	// state->X = qpp::apply(state->X.eval(), gateMatrix, { LongEntPos });
 }
 
-void UQubitDataSubsystem::Apply(AQubit& qubitA, AQubit& qubitB, ETwoQubitGate gate)
+void UQubitDataSubsystem::ApplyControlled(AQubit& control, AQubit& target, EQuantumGate gate)
 {
+	// if target and control are not already entangled, create a shared state
+	CombineState(target, control);
+
+	unsigned long LongEntPosT = static_cast<unsigned long>(target.EntanglementPosition);
+	unsigned long LongEntPosC = static_cast<unsigned long>(control.EntanglementPosition);
 	cmat gateMatrix = GetGateMatrix(gate);
-	unsigned long LongEntPosA = static_cast<unsigned long>(qubitA.EntanglementPosition);
-	unsigned long LongEntPosB = static_cast<unsigned long>(qubitB.EntanglementPosition);
 
+	target.State->StateVector = applyCTRL(target.State->StateVector, gateMatrix, { LongEntPosC }, { LongEntPosT });
 
-	// todo: check disentanglement - requires finding all entangled AQubits
+	// check disentanglement - currently assumes at most 2-qubit entanglement
+	if (entanglement(target.State->StateVector) == 0)
+	{
+		cmat rho1 = ptrace1(target.State->StateVector);
+		cmat rho2 = ptrace2(target.State->StateVector);
+		
+		control.State = MakeShared<FQubitData>();
+		control.State->StateVector = rho2pure(rho1);
+		control.State->qubits.Add(&control);
+		control.EntanglementPosition = 0;
+
+		target.State->StateVector = rho2pure(rho2);
+		target.State->qubits.RemoveSingle(&control);
+		target.EntanglementPosition = 0;
+	}
+}
+
+// take two qubits and combine their states into one common state
+// returns false iff entranglement exceeds the set entanglement limit
+bool UQubitDataSubsystem::CombineState(AQubit& qubitA, AQubit& qubitB)
+{
+	if (qubitA.State == qubitB.State) return true;
+
+	if (qubitA.State->qubits.Num() + qubitB.State->qubits.Num() > MAX_ENTANGLEMENT)
+	{
+		return false;
+	}
+
+	int aLen = qubitA.State->qubits.Num();
+
+	// create the new state vector via tensor product
+	qubitA.State->StateVector = kron(qubitA.State->StateVector, qubitB.State->StateVector);
+
+	// update state and entanglement position of B's siblings
+	for (AQubit* q : qubitB.State->qubits)
+	{
+		q->EntanglementPosition += aLen;
+		q->State = qubitA.State;
+		qubitA.State->qubits.Add(q);
+	}
+
+	return true;
+}
+
+qpp::ket UQubitDataSubsystem::GetStateAsVector(ENamedState state)
+{
+	switch (state)
+	{
+	case ENamedState::Zero:  return st.z0;
+	case ENamedState::One:   return st.z1;
+	case ENamedState::Plus:  return st.x0;
+	case ENamedState::Minus: return st.x1;
+	}
+
+	return st.z0;
 }
 
 
-qpp::cmat UQubitDataSubsystem::GetNamedState(ENamedState state)
+qpp::cmat UQubitDataSubsystem::GetStateAsMatrix(ENamedState state)
 {
 	switch (state)
 	{
@@ -64,25 +123,15 @@ qpp::cmat UQubitDataSubsystem::GetNamedState(ENamedState state)
 }
 
 // convert gate enum to qpp matrix
-cmat UQubitDataSubsystem::GetGateMatrix(EOneQubitGate gate)
+cmat UQubitDataSubsystem::GetGateMatrix(EQuantumGate gate)
 {
 	switch (gate) {
-	case EOneQubitGate::Identity : return gt.Id();
-	case EOneQubitGate::X_Gate : return gt.X;
-	case EOneQubitGate::Y_Gate : return gt.Y;
-	case EOneQubitGate::Z_Gate : return gt.Z;
-	case EOneQubitGate::H_Gate : return gt.H;
+	case EQuantumGate::Identity : return gt.Id();
+	case EQuantumGate::X_Gate : return gt.X;
+	case EQuantumGate::Y_Gate : return gt.Y;
+	case EQuantumGate::Z_Gate : return gt.Z;
+	case EQuantumGate::H_Gate : return gt.H;
 	}
 
 	return gt.Id();
-}
-
-cmat UQubitDataSubsystem::GetGateMatrix(ETwoQubitGate gate)
-{
-	switch (gate) {
-	case ETwoQubitGate::Identity: return gt.Id2;
-	case ETwoQubitGate::CNOT_Gate: return gt.CNOT;
-	}
-
-	return gt.Id2;
 }
