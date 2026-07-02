@@ -31,20 +31,21 @@ public:
 	UFUNCTION()
 	void SetSlotName(FString name);
 
+	//UFUNCTION()  // unreal doesn't like this for some reason
+	void SetQubit(AQubit& newQubit);
+
+	UFUNCTION()
+	void UpdateStateDisplay();
+
+protected:
 	UFUNCTION()
 	void CreateQubit();
-
-	//UFUNCTION()
-	void SetQubit(AQubit& newQubit);
 
 	UFUNCTION()
 	void SetState(ENamedState state);
 
 	UFUNCTION()
 	void ApplyGate(EQuantumGate gate);
-
-	UFUNCTION()
-	void UpdateStateDisplay();
 
 
 	UPROPERTY(meta = (BindWidget))

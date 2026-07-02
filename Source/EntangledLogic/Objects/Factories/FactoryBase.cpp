@@ -96,6 +96,7 @@ void AFactoryBase::RotateUIToCamera()
 	FactoryDisplayWindow->SetWorldRotation(RotationTowardCamera);
 }
 
+// set the linked qubits of each QubitDisplaySlot
 void AFactoryBase::UpdateQubitDisplay()
 {
 	if (FactoryWidget) {

@@ -39,18 +39,21 @@ void UQubitDisplaySlot::SetSlotName(FString name)
 	}
 }
 
+// creates a qubit in UI, for testing
 void UQubitDisplaySlot::CreateQubit()
 {
 	if (QubitSubsystem) Q = QubitSubsystem->NewQubit();
 	UpdateStateDisplay();
 }
 
+// set the qubit this slot is displaying the state of
 void UQubitDisplaySlot::SetQubit(AQubit& newQubit)
 {
 	Q = &newQubit;
 	UpdateStateDisplay();
 }
 
+// set the state of the linked qubit
 void UQubitDisplaySlot::SetState(ENamedState state)
 {
 	if (QubitSubsystem)
@@ -60,6 +63,7 @@ void UQubitDisplaySlot::SetState(ENamedState state)
 	UpdateStateDisplay();
 }
 
+// apply a gate to the linked qubit (for testing)
 void UQubitDisplaySlot::ApplyGate(EQuantumGate gate)
 {
 	if (QubitSubsystem)
@@ -82,7 +86,6 @@ void UQubitDisplaySlot::UpdateStateDisplay()
 		if (WidgetSwitcher) WidgetSwitcher->SetActiveWidgetIndex(0);
 	}
 }
-
 
 
 void UQubitDisplaySlot::SetStateZero() { SetState(ENamedState::Zero); }

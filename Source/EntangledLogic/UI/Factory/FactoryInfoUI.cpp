@@ -21,12 +21,14 @@ void UFactoryInfoUI::SetHeaderText(FString FactoryHeader)
 	UIBase->SetHeaderText(FactoryHeader);
 }
 
+// create and initialize Qubit display slots
 void UFactoryInfoUI::PopulateQubits(int32 NumQubits)
 {
 	if (QubitDisplayBox)
 	{
 		QubitDisplayBox->ClearChildren();
 
+		// create a QubitDisplaySlot for each qubit
 		for (int i = 0; i < NumQubits; i++)
 		{
 			UQubitDisplaySlot* QubitSlot = CreateWidget<UQubitDisplaySlot>(this, QubitDisplaySlotClass);
@@ -36,6 +38,7 @@ void UFactoryInfoUI::PopulateQubits(int32 NumQubits)
 				QubitSlot->SetSlotName(name);
 				QubitDisplayBox->AddChild(QubitSlot);
 
+				// set up slot formatting
 				UHorizontalBoxSlot* slot = Cast<UHorizontalBoxSlot>(QubitSlot->Slot);
 				if (slot)
 				{
@@ -48,6 +51,7 @@ void UFactoryInfoUI::PopulateQubits(int32 NumQubits)
 	}
 }
 
+// Set the qubit data of the QubitDisplay at specified index
 void UFactoryInfoUI::UpdateQubit(int32 index, AQubit &Q)
 {
 	if (QubitDisplayBox)
