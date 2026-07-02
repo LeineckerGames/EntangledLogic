@@ -1,17 +1,8 @@
-
-
-
 #include "Wire.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
+#include "EntangledLogic/Core/Framework/SortBySlotIndex.h"
 
-
-// Used for sorting arrays by slot index
-template <typename T>
-static bool SortBySlotIndex(const T& A, const T& B)
-{
-	return A.SlotIndex < B.SlotIndex;
-}
 
 // Sets default values
 AWire::AWire()
