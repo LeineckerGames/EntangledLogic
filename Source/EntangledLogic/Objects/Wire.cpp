@@ -5,6 +5,14 @@
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 
+
+// Used for sorting arrays by slot index
+template <typename T>
+static bool SortBySlotIndex(const T& A, const T& B)
+{
+	return A.SlotIndex < B.SlotIndex;
+}
+
 // Sets default values
 AWire::AWire()
 {
@@ -31,7 +39,14 @@ AWire::AWire()
 void AWire::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	// Get Attached Inputs and Outputs and add them to the array
+	GetComponents<UFactoryInputComponent>(InputComponents);
+	GetComponents<UFactoryOutputComponent>(OutputComponents);
+
+	// Sort arrays by input / output slot
+	InputComponents.Sort(SortBySlotIndex<UFactoryInputComponent>);
+	OutputComponents.Sort(SortBySlotIndex<UFactoryOutputComponent>);
 }
 
 // Called every frame
@@ -117,5 +132,45 @@ void AWire::Interact(EPlacementMode PlacementMode)
 		Destroy();
 	} break;
 	}
+}
+
+// Input Output Interface
+
+void AWire::SetAllInputOutputsVisibility(bool isVisible)
+{
+	for (UFactoryInputComponent* InputComp : InputComponents)
+	{
+		InputComp->SetMeshVisibility(isVisible);
+	}
+
+	for (UFactoryOutputComponent* OutputComp : OutputComponents)
+	{
+		OutputComp->SetMeshVisibility(isVisible);
+	}
+}
+
+TArray<UFactoryInputComponent*> AWire::GetInputComponents()
+{
+	return InputComponents;
+}
+
+TArray<UFactoryOutputComponent*> AWire::GetOutputComponents()
+{
+	return OutputComponents;
+}
+
+void AWire::ConnectAllInputsAndOutputs()
+{
+	UE_LOG(LogTemp, Display, TEXT("ConnectAllInputsAndOutputs Running in %s"), *GetActorNameOrLabel());
+}
+
+void AWire::ConnectAllInputs()
+{
+	UE_LOG(LogTemp, Display, TEXT("ConnectAllInputs Running in %s"), *GetActorNameOrLabel());
+}
+
+void AWire::ConnectAllOutputs()
+{
+	UE_LOG(LogTemp, Display, TEXT("ConnectAllOutputs Running in %s"), *GetActorNameOrLabel());
 }
 

@@ -17,8 +17,18 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public:	
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+public:
+
 	virtual void Tick(float DeltaTime) override;
+
+	// Input Output Interface
+	virtual void ConnectAllInputsAndOutputs() override;
+
+	virtual void ConnectAllInputs() override;
+
+	virtual void ConnectAllOutputs() override;
 
 	// Linked list pointers
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing")
