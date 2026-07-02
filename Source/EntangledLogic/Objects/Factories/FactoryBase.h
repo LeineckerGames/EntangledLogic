@@ -5,6 +5,8 @@
 #include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
 #include "FactoryBase.generated.h"
 
+class AQubit;
+
 UCLASS()
 class ENTANGLEDLOGIC_API AFactoryBase : public AActor, public IFactoryInteractionInterface
 {
@@ -13,6 +15,10 @@ class ENTANGLEDLOGIC_API AFactoryBase : public AActor, public IFactoryInteractio
 public:	
 	// Sets default values for this actor's properties
 	AFactoryBase();
+
+	static constexpr int32 NUM_QUBIT_SLOTS = 0;
+
+	TArray<AQubit*> Qubits;
 
 protected:
 	// Called when the game starts or when spawned
@@ -39,7 +45,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// this will apparently correctly allow the constant to be overriden by subclasses
+	virtual int32 GetNumQubitSlots() { return NUM_QUBIT_SLOTS; };
+
 	void RotateUIToCamera();
+
+	void UpdateQubitDisplay();
 
 	// Factory Interacton Interface
 	virtual void BeginHover(EPlacementMode PlacementMode) override;
