@@ -30,12 +30,11 @@ public:
 
 	virtual void ConnectAllOutputs() override;
 
-	// Linked list pointers
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing")
-	ATestingWire* PreviousWire;
+	UFUNCTION()
+	ATestingWire* GetInputWire(); // Returns null if the input is not a wire.
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing")
-	ATestingWire* NextWire;
+	UFUNCTION()
+	ATestingWire* GetOutputWire();  // Returns null if the output is not a wire.
 
 	// Which segment/path does this wire currently belong to?
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Testing")

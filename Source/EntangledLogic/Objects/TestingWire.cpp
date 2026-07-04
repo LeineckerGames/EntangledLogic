@@ -3,6 +3,7 @@
 #include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "EntangledLogic/Interfaces/InputOutputInterface.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
+#include "EntangledLogic/Core/Subsystems/WireSubsystem.h"
 
 ATestingWire::ATestingWire()
 {
@@ -20,6 +21,7 @@ void ATestingWire::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+// Called when the wire has been removed from the grid
 void ATestingWire::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	if (EndPlayReason == EEndPlayReason::Destroyed)
@@ -51,11 +53,18 @@ void ATestingWire::EndPlay(const EEndPlayReason::Type EndPlayReason)
 				OutputSlotActorInputOutputInterface->ConnectAllInputs();
 			}
 		}
+
+		// When the wire is removed from the grid, update wire segments
+		UWireSubsystem* WireSubsystem = GetWorld()->GetSubsystem<UWireSubsystem>();
+		WireSubsystem->RemoveWireFromPath(this);
+
 	}
 	Super::EndPlay(EndPlayReason);
 }
 
 // Input Output Interface
+
+// Called when the wire is placed on the grid
 void ATestingWire::ConnectAllInputsAndOutputs()
 {
 	Super::ConnectAllInputsAndOutputs();
@@ -171,6 +180,10 @@ void ATestingWire::ConnectAllInputsAndOutputs()
 		UE_LOG(LogTemp, Display, TEXT("No Actor found, Setting slot to null"));
 		InputComponents[0]->InputSlot = nullptr;
 	}
+
+	// When wire is placed on the grid, update to wire segments
+	UWireSubsystem* WireSubsystem = GetWorld()->GetSubsystem<UWireSubsystem>();
+	WireSubsystem->AddWireToPaths(this);
 }
 
 void ATestingWire::ConnectAllInputs()
@@ -287,3 +300,12 @@ void ATestingWire::ConnectAllOutputs()
 	}
 }
 
+ATestingWire* ATestingWire::GetInputWire()
+{
+	return Cast<ATestingWire>(InputComponents[0]->InputSlot);
+}
+
+ATestingWire* ATestingWire::GetOutputWire()
+{
+	return Cast<ATestingWire>(OutputComponents[0]->OutputSlot);
+}

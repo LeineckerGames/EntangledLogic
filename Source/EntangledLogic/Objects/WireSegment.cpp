@@ -47,7 +47,7 @@ void AWireSegment::InitializeSegment(ATestingWire* StartWire)
 		SplineComponent->SetSplinePointType(PointIndex, ESplinePointType::Linear);
 
 		LastWire = CurrentWire;
-		CurrentWire = CurrentWire->NextWire;
+		CurrentWire = CurrentWire->GetOutputWire();
 		PointIndex++;
 	}
 
