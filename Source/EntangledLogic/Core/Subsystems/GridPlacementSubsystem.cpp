@@ -159,7 +159,18 @@ FGridCoordinate UGridPlacementSubsystem::GridPositionToCoordinates(FVector GridL
 
 void UGridPlacementSubsystem::MoveSelectedFactoryOnGrid(FVector Location)
 {
+	if (!IsValid(SelectedFactory))
+	{
+		return;
+	}
+
 	UGridPlacementComponent* GridPlacementComponent = SelectedFactory->GetComponentByClass<UGridPlacementComponent>();
+	
+	if (!IsValid(GridPlacementComponent))
+	{
+		return;
+	}
+	
 	// Might want to change this not to run every frame
 	bool CollisonPass = CollisionCheck(GridComponentToCoordinates(GridPlacementComponent), GridPlacementComponent->GetFactoryShape());
 	GridPlacementComponent->UpdateCollisionMaterialParam(!CollisonPass);
@@ -167,10 +178,7 @@ void UGridPlacementSubsystem::MoveSelectedFactoryOnGrid(FVector Location)
 	FVector PlacementOffset = GridPlacementComponent->GetPlacementOffset();
 	FVector GridLocation = GetWorldGridLocation(Location, PlacementOffset);
 
-	if (!IsValid(SelectedFactory))
-	{
-		return;
-	}
+	
 
 	SelectedFactory->SetActorLocation(GridLocation);
 }
@@ -349,37 +357,22 @@ void UGridPlacementSubsystem::OnLeftClick()
 	{
 		PlaceSelectedActor();
 	}
-	
-	if (UWorld* World = GetWorld())
+	ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
+	APlayerCameraController* PlayerCameraController = Cast<APlayerCameraController>(TopDownPlayerController->GetPawn());
+	IFactoryInteractionInterface* CurrentInteraction = PlayerCameraController->GetIFactoryInteractionFromMouse();
+	if (CurrentInteraction)
 	{
-		ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(World->GetFirstPlayerController());
-		if (TopDownPlayerController && TopDownPlayerController->GetPawn())
-		{
-			APlayerCameraController* PlayerCameraController = Cast<APlayerCameraController>(TopDownPlayerController->GetPawn());
-			if (PlayerCameraController)
-			{
-				IFactoryInteractionInterface* CurrentInteraction = PlayerCameraController->GetIFactoryInteractionFromMouse();
-				if (CurrentInteraction)
-				{
-					CurrentInteraction->Interact(PlacementMode);
-				}
-			}
-		}
+		CurrentInteraction->Interact(PlacementMode);
 	}
 }
 
 void UGridPlacementSubsystem::AddGridPlacementIMC()
 {
-	// Add IMC to Player Controller safely
-	if (UWorld* World = GetWorld())
-	{
-		ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(World->GetFirstPlayerController());
-		if (TopDownPlayerController)
-		{
-			TopDownPlayerController->AddMappingContext(TopDownPlayerController->GridControls, 1);
-			UpdateControlUI();
-		}
-	}
+	// Add IMC to Player Controller
+	ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
+	TopDownPlayerController->AddMappingContext(TopDownPlayerController->GridControls, 1);
+	UpdateControlUI();
+	//UE_LOG(LogTemp, Display, TEXT("Added Grid Mapping Context"));
 }
 
 void UGridPlacementSubsystem::UpdateControlUI()
