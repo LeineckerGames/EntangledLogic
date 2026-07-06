@@ -62,6 +62,13 @@ void AQubitGeneratorFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+void AQubitGeneratorFactory::OnFactoryTick()
+{
+	Super::OnFactoryTick();
+
+
+}
+
 // Input Output Interface
 void AQubitGeneratorFactory::ConnectAllInputsAndOutputs()
 {

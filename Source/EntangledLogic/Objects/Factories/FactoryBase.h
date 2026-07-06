@@ -56,6 +56,8 @@ public:
 
 	void UpdateQubitDisplay();
 
+	virtual void OnFactoryTick();
+
 	// Factory Interacton Interface
 	virtual void BeginHover(EPlacementMode PlacementMode) override;
 	virtual void EndHover(EPlacementMode PlacementMode) override;

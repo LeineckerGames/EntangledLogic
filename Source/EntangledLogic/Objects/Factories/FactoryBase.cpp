@@ -4,6 +4,7 @@
 #include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
+#include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
 #include "EntangledLogic/Core/Framework/SortBySlotIndex.h"
 #include "EntangledLogic/UI/Factory/FactoryInfoUI.h"
 #include "EntangledLogic/UI/Factory/FactoryDevUI.h"
@@ -44,6 +45,16 @@ AFactoryBase::AFactoryBase()
 void AFactoryBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		UFactorySubsystem* FactorySubsystem = World->GetSubsystem<UFactorySubsystem>();
+		if (FactorySubsystem)
+		{
+			FactorySubsystem->OnFactoryTick.AddUObject(this, &AFactoryBase::OnFactoryTick);
+		}
+	}
 
 	Qubits.SetNum(NUM_QUBIT_SLOTS);
 	// Get Attached Inputs and Outputs and add them to the array
@@ -116,6 +127,11 @@ void AFactoryBase::UpdateQubitDisplay()
 		}
 	}
 	
+}
+
+void AFactoryBase::OnFactoryTick()
+{
+	UE_LOG(LogTemp, Display, TEXT("Running On Facory tick in Actor: %s"), *GetActorNameOrLabel());
 }
 
 // Factory Interaction Interface
