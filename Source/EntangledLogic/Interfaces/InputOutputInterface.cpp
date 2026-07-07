@@ -5,6 +5,101 @@
 
 void IInputOutputInterface::ConnectInputComponent(UFactoryInputComponent* InputComponentToConnect, bool ConnectPreviousFactory)
 {
+	UFactoryOutputComponent* ConnectedOutput = GetConnectedOutputComponent(InputComponentToConnect);
+	if (ConnectedOutput)
+	{
+		// Set the pointers if a valid spot
+		UE_LOG(LogTemp, Display, TEXT("Found a valid connection"));
+		InputComponentToConnect->InputSlot = ConnectedOutput->GetOwner();
+		if (ConnectPreviousFactory)
+		{
+			IInputOutputInterface* PrevFactoryIOInterface = Cast<IInputOutputInterface>(ConnectedOutput->GetOwner());
+			if (PrevFactoryIOInterface)
+			{
+				PrevFactoryIOInterface->ConnectAllOutputs();
+			}
+		}
+	}
+	else
+	{
+		// If no factory is found
+		UE_LOG(LogTemp, Display, TEXT("No Actor found, Setting slot to null"));
+		InputComponentToConnect->InputSlot = nullptr;
+	}
+
+}
+
+void IInputOutputInterface::ConnectOutputComponent(UFactoryOutputComponent* OutputComponentToConnect, bool ConnectPreviousFactory)
+{
+	UFactoryInputComponent* ConnectedInput = GetConnectedInputComponent(OutputComponentToConnect);
+	if (ConnectedInput)
+	{
+		// Set the pointers if a valid spot
+		UE_LOG(LogTemp, Display, TEXT("Found a valid connection"));
+		OutputComponentToConnect->OutputSlot = ConnectedInput->GetOwner();
+
+		if (ConnectPreviousFactory)
+		{
+			IInputOutputInterface* PrevFactoryIOInterface = Cast<IInputOutputInterface>(ConnectedInput->GetOwner());
+			if (PrevFactoryIOInterface)
+			{
+				PrevFactoryIOInterface->ConnectAllInputs();
+			}
+		}
+	}
+	else
+	{
+		// If no factory is found
+		UE_LOG(LogTemp, Display, TEXT("No Actor found, Setting slot to null"));
+		OutputComponentToConnect->OutputSlot = nullptr;
+	}
+}
+
+// Returns a Nullptr is no factory is found
+UFactoryInputComponent* IInputOutputInterface::GetConnectedInputComponent(UFactoryOutputComponent* OutputComponentToConnect)
+{
+	// Convert interface to UObject to get world
+	UObject* CurrentUObject = Cast<UObject>(this);
+	UWorld* World = CurrentUObject->GetWorld();
+
+	// Convert the meshes to grid positions and check adjacent factories
+	UGridPlacementSubsystem* GridPlacement = World->GetSubsystem<UGridPlacementSubsystem>();
+	FGridCoordinate OutputCoord = GridPlacement->GetGridPositionsFromOutputComponents(OutputComponentToConnect);
+
+	AActor* OutputSlotActor = GridPlacement->GetPlacedFactoryAtGridPosition(OutputCoord.XCoordinate, OutputCoord.YCoordinate);
+
+	// Connect Output Slot
+	if (OutputSlotActor)
+	{
+		// check if output grid pos = the actors input 
+		IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(OutputSlotActor);
+		if (IOInterface)
+		{
+			FVector OutputSlotForwardVector = OutputComponentToConnect->GetForwardVector();
+			TArray<UFactoryInputComponent*> FactoryInputComponents = IOInterface->GetInputComponents();
+
+			// Checks for the same input / output orentation and location
+			for (UFactoryInputComponent* CurrentInputComponent : FactoryInputComponents)
+			{
+				FGridCoordinate InputGridCoord = GridPlacement->GetGridPositionsFromInputComponents(CurrentInputComponent);
+				FVector InputSlotForwardVector = CurrentInputComponent->GetForwardVector();
+
+				if (InputSlotForwardVector.Equals(OutputSlotForwardVector, 0.01f) && InputGridCoord == OutputCoord)
+				{
+					// Set the pointers if a valid spot
+					UE_LOG(LogTemp, Display, TEXT("Found a valid connection"));
+					return CurrentInputComponent;
+				}
+			}
+
+		}
+	}
+	return nullptr;
+}
+
+// Returns a Nullptr is no factory is found
+UFactoryOutputComponent* IInputOutputInterface::GetConnectedOutputComponent(UFactoryInputComponent* InputComponentToConnect)
+{
 	// Convert interface to UObject to get world
 	UObject* CurrentUObject = Cast<UObject>(this);
 	UWorld* World = CurrentUObject->GetWorld();
@@ -40,85 +135,14 @@ void IInputOutputInterface::ConnectInputComponent(UFactoryInputComponent* InputC
 				{
 					// Set the pointers if a valid spot
 					UE_LOG(LogTemp, Display, TEXT("Found a valid connection"));
-					InputComponentToConnect->InputSlot = CurrentOutputComponent->GetOwner();
-					if (ConnectPreviousFactory)
-					{
-						IInputOutputInterface* PrevFactoryIOInterface = Cast<IInputOutputInterface>(CurrentOutputComponent->GetOwner());
-						if (PrevFactoryIOInterface)
-						{
-							PrevFactoryIOInterface->ConnectAllOutputs();
-						}
-					}
+					return CurrentOutputComponent;
 				}
 			}
 
 		}
 	}
-	else
-	{
-		// If no factory is found
-		UE_LOG(LogTemp, Display, TEXT("No Actor found, Setting slot to null"));
-		InputComponentToConnect->InputSlot = nullptr;
-	}
-
+	return nullptr;
 }
-
-void IInputOutputInterface::ConnectOutputComponent(UFactoryOutputComponent* OutputComponentToConnect, bool ConnectPreviousFactory)
-{
-	// Convert interface to UObject to get world
-	UObject* CurrentUObject = Cast<UObject>(this);
-	UWorld* World = CurrentUObject->GetWorld();
-
-	// Convert the meshes to grid positions and check adjacent factories
-	UGridPlacementSubsystem* GridPlacement = World->GetSubsystem<UGridPlacementSubsystem>();
-	FGridCoordinate OutputCoord = GridPlacement->GetGridPositionsFromOutputComponents(OutputComponentToConnect);
-
-	AActor* OutputSlotActor = GridPlacement->GetPlacedFactoryAtGridPosition(OutputCoord.XCoordinate, OutputCoord.YCoordinate);
-
-	// Connect Output Slot
-	if (OutputSlotActor)
-	{
-		// check if output grid pos = the actors input 
-		IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(OutputSlotActor);
-		if (IOInterface)
-		{
-			FVector OutputSlotForwardVector = OutputComponentToConnect->GetForwardVector();
-			TArray<UFactoryInputComponent*> FactoryInputComponents = IOInterface->GetInputComponents();
-
-			// Checks for the same input / output orentation and location
-			for (UFactoryInputComponent* CurrentInputComponent : FactoryInputComponents)
-			{
-				FGridCoordinate InputGridCoord = GridPlacement->GetGridPositionsFromInputComponents(CurrentInputComponent);
-				FVector InputSlotForwardVector = CurrentInputComponent->GetForwardVector();
-
-				if (InputSlotForwardVector.Equals(OutputSlotForwardVector, 0.01f) && InputGridCoord == OutputCoord)
-				{
-					// Set the pointers if a valid spot
-					UE_LOG(LogTemp, Display, TEXT("Found a valid connection"));
-					OutputComponentToConnect->OutputSlot = CurrentInputComponent->GetOwner();
-
-					if (ConnectPreviousFactory)
-					{
-						IInputOutputInterface* PrevFactoryIOInterface = Cast<IInputOutputInterface>(CurrentInputComponent->GetOwner());
-						if (PrevFactoryIOInterface)
-						{
-							PrevFactoryIOInterface->ConnectAllInputs();
-						}
-					}
-				}
-			}
-
-		}
-	}
-	else
-	{
-		// If no factory is found
-		UE_LOG(LogTemp, Display, TEXT("No Actor found, Setting slot to null"));
-		OutputComponentToConnect->OutputSlot = nullptr;
-	}
-
-}
-
 
 // Temp to fix compiler errors
 bool IInputOutputInterface::IsQubitSlotEmpty(int SlotIndex)

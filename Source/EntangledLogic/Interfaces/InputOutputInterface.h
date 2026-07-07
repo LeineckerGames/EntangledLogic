@@ -23,15 +23,19 @@ public:
 
 	virtual TArray<class UFactoryOutputComponent*> GetOutputComponents() = 0;
 
+	class UFactoryInputComponent* GetConnectedInputComponent(class UFactoryOutputComponent* OutputComponentToConnect);
+
+	class UFactoryOutputComponent* GetConnectedOutputComponent(class UFactoryInputComponent* InputComponentToConnect);
+
+	void ConnectInputComponent(class UFactoryInputComponent* InputComponentToConnect, bool ConnectPreviousFactory);
+
+	void ConnectOutputComponent(class UFactoryOutputComponent* OutputComponentToConnect, bool ConnectPreviousFactory);
+
 	virtual void ConnectAllInputsAndOutputs() = 0;
 
 	virtual bool IsQubitSlotEmpty(int32 QubitSlotIndex);
 
 	virtual void TransferQubit(class AQubit* QubitToTransfer, int32 QubitSlotIndex);
-
-	void ConnectInputComponent(class UFactoryInputComponent* InputComponentToConnect, bool ConnectPreviousFactory);
-
-	void ConnectOutputComponent(class UFactoryOutputComponent* OutputComponentToConnect, bool ConnectPreviousFactory);
 
 	virtual void ConnectAllInputs() = 0;
 

@@ -23,7 +23,7 @@ AWire::AWire()
 	GridPlacementComponent = CreateDefaultSubobject<UGridPlacementComponent>(TEXT("GridPlacementComponent"));
 	GridPlacementComponent->SetupAttachment(WireMesh);
 
-
+	Qubits.SetNum(NUM_QUBIT_SLOTS);
 }
 
 // Called when the game starts or when spawned
@@ -150,18 +150,27 @@ TArray<UFactoryOutputComponent*> AWire::GetOutputComponents()
 	return OutputComponents;
 }
 
+bool AWire::IsQubitSlotEmpty(int32 QubitSlotIndex)
+{
+	if (Qubits[QubitSlotIndex] == nullptr)
+	{
+		return true;
+	}
+	return false;
+}
+
 void AWire::ConnectAllInputsAndOutputs()
 {
-	UE_LOG(LogTemp, Display, TEXT("ConnectAllInputsAndOutputs Running in %s"), *GetActorNameOrLabel());
+	//UE_LOG(LogTemp, Display, TEXT("ConnectAllInputsAndOutputs Running in %s"), *GetActorNameOrLabel());
 }
 
 void AWire::ConnectAllInputs()
 {
-	UE_LOG(LogTemp, Display, TEXT("ConnectAllInputs Running in %s"), *GetActorNameOrLabel());
+	//UE_LOG(LogTemp, Display, TEXT("ConnectAllInputs Running in %s"), *GetActorNameOrLabel());
 }
 
 void AWire::ConnectAllOutputs()
 {
-	UE_LOG(LogTemp, Display, TEXT("ConnectAllOutputs Running in %s"), *GetActorNameOrLabel());
+	//UE_LOG(LogTemp, Display, TEXT("ConnectAllOutputs Running in %s"), *GetActorNameOrLabel());
 }
 

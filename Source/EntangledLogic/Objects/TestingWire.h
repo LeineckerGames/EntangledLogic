@@ -26,6 +26,8 @@ public:
 	// Input Output Interface
 	virtual void ConnectAllInputsAndOutputs() override;
 
+	virtual void TransferQubit(class AQubit* QubitToTransfer, int32 QubitSlotIndex) override;
+
 	virtual void ConnectAllInputs() override;
 
 	virtual void ConnectAllOutputs() override;

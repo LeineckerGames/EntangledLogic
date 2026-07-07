@@ -79,15 +79,21 @@ void AQubitGeneratorFactory::OnFactoryTick()
 				IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(CurrentOutputComponent->OutputSlot);
 				if (IOInterface)
 				{
-					if (IOInterface->IsQubitSlotEmpty(SlotNumber))
+					// Need a way to get the slot index from other actor and then use it here
+					UFactoryInputComponent* ConnectedInputComponent = IOInterface->GetConnectedInputComponent(CurrentOutputComponent);
+					if (ConnectedInputComponent)
 					{
-						UE_LOG(LogTemp, Display, TEXT("Slot Number %d is Empty"), SlotNumber);
-						// Create a new qubit and send it
-						UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
-						if (QubitSubsystem)
+						int32 InputSlotIndex = ConnectedInputComponent->SlotIndex;
+						UE_LOG(LogTemp, Display, TEXT("The input comp of %s has a slot index of %d"), *ConnectedInputComponent->GetOwner()->GetActorNameOrLabel(), InputSlotIndex);
+						if (IOInterface->IsQubitSlotEmpty(InputSlotIndex))
 						{
-							UE_LOG(LogTemp, Display, TEXT("Creating and Send a new Qubit"));
-							IOInterface->TransferQubit(QubitSubsystem->NewQubit(), SlotNumber);
+							// Create a new qubit and send it
+							UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
+							if (QubitSubsystem)
+							{
+								UE_LOG(LogTemp, Display, TEXT("Creating and Send a new Qubit"));
+								IOInterface->TransferQubit(QubitSubsystem->NewQubit(), InputSlotIndex);
+							}
 						}
 					}
 				}

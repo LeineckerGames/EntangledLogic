@@ -140,15 +140,21 @@ void AFactoryBase::OutputQubits()
 			AActor* CurrentActor = CurrentOutputComponent->OutputSlot;
 			if (CurrentActor)
 			{
-				UE_LOG(LogTemp, Display, TEXT("Found Actor to send Qubit: %s"), *CurrentActor->GetActorNameOrLabel());
+				//UE_LOG(LogTemp, Display, TEXT("Found Actor to send Qubit: %s"), *CurrentActor->GetActorNameOrLabel());
 				IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(CurrentOutputComponent->OutputSlot);
 				if (IOInterface)
 				{
 					// Need a way to get the slot index from other actor and then use it here
-					if (IOInterface->IsQubitSlotEmpty(SlotNumber))
+					UFactoryInputComponent* ConnectedInputComponent = IOInterface->GetConnectedInputComponent(CurrentOutputComponent);
+					if (ConnectedInputComponent)
 					{
-						IOInterface->TransferQubit(Qubits[SlotNumber], SlotNumber);
-						Qubits[SlotNumber] = nullptr;
+						int32 InputSlotIndex = ConnectedInputComponent->SlotIndex;
+						//UE_LOG(LogTemp, Display, TEXT("The input comp of %s has a slot index of %d"), *ConnectedInputComponent->GetOwner()->GetActorNameOrLabel(), InputSlotIndex);
+						if (IOInterface->IsQubitSlotEmpty(InputSlotIndex))
+						{
+							IOInterface->TransferQubit(Qubits[SlotNumber], InputSlotIndex);
+							Qubits[SlotNumber] = nullptr;
+						}
 					}
 				}
 			}
@@ -268,7 +274,7 @@ TArray<UFactoryOutputComponent*> AFactoryBase::GetOutputComponents()
 
 void AFactoryBase::ConnectAllInputsAndOutputs()
 {
-	UE_LOG(LogTemp, Display, TEXT("ConnectAllInputsAndOutputs Running in %s"), *GetActorNameOrLabel());
+	//UE_LOG(LogTemp, Display, TEXT("ConnectAllInputsAndOutputs Running in %s"), *GetActorNameOrLabel());
 }
 
 bool AFactoryBase::IsQubitSlotEmpty(int32 QubitSlotIndex)
@@ -287,10 +293,10 @@ void AFactoryBase::TransferQubit(AQubit* QubitToTransfer, int32 QubitSlotIndex)
 
 void AFactoryBase::ConnectAllInputs()
 {
-	UE_LOG(LogTemp, Display, TEXT("ConnectAllInputs Running in %s"), *GetActorNameOrLabel());
+	//UE_LOG(LogTemp, Display, TEXT("ConnectAllInputs Running in %s"), *GetActorNameOrLabel());
 }
 
 void AFactoryBase::ConnectAllOutputs()
 {
-	UE_LOG(LogTemp, Display, TEXT("ConnectAllOutputs Running in %s"), *GetActorNameOrLabel());
+	//UE_LOG(LogTemp, Display, TEXT("ConnectAllOutputs Running in %s"), *GetActorNameOrLabel());
 }
