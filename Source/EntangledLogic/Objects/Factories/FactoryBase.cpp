@@ -56,7 +56,7 @@ void AFactoryBase::BeginPlay()
 		}
 	}
 
-	Qubits.SetNum(NUM_QUBIT_SLOTS);
+	//Qubits.SetNum(NUM_QUBIT_SLOTS);
 	// Get Attached Inputs and Outputs and add them to the array
 	GetComponents<UFactoryInputComponent>(InputComponents);
 	GetComponents<UFactoryOutputComponent>(OutputComponents);
@@ -131,7 +131,7 @@ void AFactoryBase::UpdateQubitDisplay()
 
 void AFactoryBase::OnFactoryTick()
 {
-	UE_LOG(LogTemp, Display, TEXT("Running On Facory tick in Actor: %s"), *GetActorNameOrLabel());
+	//UE_LOG(LogTemp, Display, TEXT("Running On Facory tick in Actor: %s"), *GetActorNameOrLabel());
 }
 
 // Factory Interaction Interface
@@ -240,6 +240,20 @@ TArray<UFactoryOutputComponent*> AFactoryBase::GetOutputComponents()
 void AFactoryBase::ConnectAllInputsAndOutputs()
 {
 	UE_LOG(LogTemp, Display, TEXT("ConnectAllInputsAndOutputs Running in %s"), *GetActorNameOrLabel());
+}
+
+bool AFactoryBase::IsQubitSlotEmpty(int32 QubitSlotIndex)
+{
+	if (Qubits[QubitSlotIndex] == nullptr)
+	{
+		return true;
+	}
+	return false;
+}
+
+void AFactoryBase::TransferQubit(AQubit* QubitToTransfer, int32 QubitSlotIndex)
+{
+	Qubits[QubitSlotIndex] = QubitToTransfer;
 }
 
 void AFactoryBase::ConnectAllInputs()
