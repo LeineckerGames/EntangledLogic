@@ -430,6 +430,17 @@ TArray<FGridCoordinate> UGridPlacementSubsystem::GetGridPositionsFromInputOutput
 	return PlaneLocations;
 }
 
+FGridCoordinate UGridPlacementSubsystem::GetGridPositionsFromInputOutputPlanes(UStaticMeshComponent* MeshesToConvert)
+{
+	FTransform MeshTransform = MeshesToConvert->GetComponentTransform();
+	FVector WorldLocation = MeshTransform.GetLocation();
+	//UE_LOG(LogTemp, Display, TEXT("CurrentMesh World Location, X: %f Y: %f Z: %f "), WorldLocation.X, WorldLocation.Y, WorldLocation.Z);
+	FVector GridLocation = GetGridLocation(WorldLocation, FVector::ZeroVector);
+	//UE_LOG(LogTemp, Display, TEXT("CurrentMesh Grid Location, X: %f Y: %f Z: %f "), GridLocation.X, GridLocation.Y, GridLocation.Z);
+	FGridCoordinate GridPos = GridPositionToCoordinates(GridLocation);
+	return GridPos;
+}
+
 // Array of Input Component
 TArray<FGridCoordinate> UGridPlacementSubsystem::GetGridPositionsFromInputComponents(TArray<UFactoryInputComponent*> ComponentsToConvert)
 {

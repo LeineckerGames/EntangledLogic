@@ -45,6 +45,8 @@ protected:
 
 	class UUserWidget* FactoryWidget;
 
+	void OutputQubits();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -55,6 +57,8 @@ public:
 	void RotateUIToCamera();
 
 	void UpdateQubitDisplay();
+
+	virtual void OnFactoryTick();
 
 	// Factory Interacton Interface
 	virtual void BeginHover(EPlacementMode PlacementMode) override;
@@ -70,6 +74,10 @@ public:
 	virtual TArray<class UFactoryOutputComponent*> GetOutputComponents() override;
 
 	virtual void ConnectAllInputsAndOutputs() override;
+
+	virtual bool IsQubitSlotEmpty(int32 QubitSlotIndex) override;
+
+	virtual void TransferQubit(class AQubit* QubitToTransfer, int32 QubitSlotIndex) override;
 
 	virtual void ConnectAllInputs() override;
 

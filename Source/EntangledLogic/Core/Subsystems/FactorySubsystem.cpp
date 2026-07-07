@@ -123,7 +123,7 @@ void UFactorySubsystem::Tick(float DeltaTime)
 	if (CanTick)
 	{
 		CanTick = false;
-		UE_LOG(LogTemp, Display, TEXT("FACTORY TICK"));
+		OnFactoryTick.Broadcast();
 	}
 }
 

@@ -15,6 +15,8 @@ protected:
 
 public:
 
+	virtual void OnFactoryTick() override;
+
 	// Input Output Interface
 	virtual void ConnectAllInputsAndOutputs() override;
 

@@ -84,6 +84,7 @@ public:
 
 	// Can get rid of this once done
 	TArray<FGridCoordinate> GetGridPositionsFromInputOutputPlanes(TArray<UStaticMeshComponent*> MeshesToConvert);
+	FGridCoordinate GetGridPositionsFromInputOutputPlanes(UStaticMeshComponent* MeshesToConvert);
 
 	TArray<FGridCoordinate> GetGridPositionsFromInputComponents(TArray<class UFactoryInputComponent*> ComponentsToConvert);
 	FGridCoordinate GetGridPositionsFromInputComponents(UFactoryInputComponent* ComponentsToConvert);
