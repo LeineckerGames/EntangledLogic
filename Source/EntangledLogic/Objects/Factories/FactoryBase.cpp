@@ -154,6 +154,7 @@ void AFactoryBase::OutputQubits()
 						{
 							IOInterface->TransferQubit(Qubits[SlotNumber], InputSlotIndex);
 							Qubits[SlotNumber] = nullptr;
+							UpdateQubitDisplay();
 						}
 					}
 				}
@@ -221,6 +222,7 @@ void AFactoryBase::Interact(EPlacementMode PlacementMode)
 		case EPlacementMode::Disabled:
 			//UE_LOG(LogTemp, Display, TEXT("Selecting Actor %s"), *GetActorNameOrLabel());
 			FactoryDisplayWindow->ToggleVisibility();
+			UpdateQubitDisplay();
 
 			// Open selected pop up UI
 			break;
