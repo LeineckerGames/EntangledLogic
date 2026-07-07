@@ -15,21 +15,7 @@ AXGateFactory::AXGateFactory()
 void AXGateFactory::OnFactoryTick()
 {
 	Super::OnFactoryTick();
-
-	//Get output factory and send qubit
-	if (OutputComponents[0]->OutputSlot)
-	{
-		IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(OutputComponents[0]->OutputSlot);
-		if (IOInterface)
-		{
-			if (IOInterface->IsQubitSlotEmpty(0))
-			{
-				UE_LOG(LogTemp, Display, TEXT("Sending Qubit to next factory"));
-				IOInterface->TransferQubit(Qubits[0], 0);
-			}
-		}
-	}
-
+	OutputQubits();
 }
 
 void AXGateFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)

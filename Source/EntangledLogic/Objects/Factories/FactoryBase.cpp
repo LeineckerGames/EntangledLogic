@@ -129,6 +129,35 @@ void AFactoryBase::UpdateQubitDisplay()
 	
 }
 
+void AFactoryBase::OutputQubits()
+{
+	//Get output factory and send qubits
+	int32 SlotNumber = 0;
+	for (UFactoryOutputComponent* CurrentOutputComponent : OutputComponents)
+	{
+		if (CurrentOutputComponent->OutputSlot)
+		{
+			AActor* CurrentActor = CurrentOutputComponent->OutputSlot;
+			if (CurrentActor)
+			{
+				UE_LOG(LogTemp, Display, TEXT("Found Actor to send Qubit: %s"), *CurrentActor->GetActorNameOrLabel());
+				IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(CurrentOutputComponent->OutputSlot);
+				if (IOInterface)
+				{
+					// Need a way to get the slot index from other actor and then use it here
+					if (IOInterface->IsQubitSlotEmpty(SlotNumber))
+					{
+						IOInterface->TransferQubit(Qubits[SlotNumber], SlotNumber);
+						Qubits[SlotNumber] = nullptr;
+					}
+				}
+			}
+
+		}
+		SlotNumber++;
+	}
+}
+
 void AFactoryBase::OnFactoryTick()
 {
 	//UE_LOG(LogTemp, Display, TEXT("Running On Facory tick in Actor: %s"), *GetActorNameOrLabel());

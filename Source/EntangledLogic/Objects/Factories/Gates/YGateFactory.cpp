@@ -5,6 +5,11 @@
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "Components/SceneCaptureComponent2D.h"
 
+AYGateFactory::AYGateFactory()
+{
+	Qubits.SetNum(NUM_QUBIT_SLOTS);
+}
+
 void AYGateFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	if (EndPlayReason == EEndPlayReason::Destroyed)
@@ -38,6 +43,12 @@ void AYGateFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		}
 	}
 	Super::EndPlay(EndPlayReason);
+}
+
+void AYGateFactory::OnFactoryTick()
+{
+	Super::OnFactoryTick();
+	OutputQubits();
 }
 
 // Input Output Interface
