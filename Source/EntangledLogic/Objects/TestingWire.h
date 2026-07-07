@@ -32,8 +32,6 @@ public:
 
 	virtual void ConnectAllOutputs() override;
 
-	virtual void DisconnectAllInputsAndOutputs() override;
-
 	UFUNCTION()
 	ATestingWire* GetInputWire(); // Returns null if the input is not a wire.
 
