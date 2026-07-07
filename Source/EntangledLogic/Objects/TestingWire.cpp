@@ -300,6 +300,12 @@ void ATestingWire::ConnectAllOutputs()
 	}
 }
 
+// Add to interface and .h file, set equal to 0
+void ATestingWire::DisconnectAllInputsAndOutputs() 
+{
+
+}
+
 ATestingWire* ATestingWire::GetInputWire()
 {
 	return Cast<ATestingWire>(InputComponents[0]->InputSlot);

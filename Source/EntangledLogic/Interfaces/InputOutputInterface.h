@@ -28,4 +28,6 @@ public:
 	virtual void ConnectAllInputs() = 0;
 
 	virtual void ConnectAllOutputs() = 0;
+
+	virtual void DisconnectAllInputsAndOutputs() = 0;
 };
