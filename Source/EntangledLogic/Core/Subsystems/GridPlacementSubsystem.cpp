@@ -223,6 +223,13 @@ void UGridPlacementSubsystem::PickupFactory(AActor* FactoryToPickup)
 	SelectedFactoryClass = FactoryToPickup->GetClass();
 	FactoryCreationRotator = FactoryToPickup->GetActorRotation();
 	SetPlacementMode(EPlacementMode::Placing);
+
+	// Update Input Outputs
+	IInputOutputInterface* SelectedFactoryInputOutputInterface = Cast<IInputOutputInterface>(SelectedFactory);
+	if (SelectedFactoryInputOutputInterface)
+	{
+		SelectedFactoryInputOutputInterface->DisconnectAllInputsAndOutputs();
+	}
 }
 
 void UGridPlacementSubsystem::DeselectSelectedActor()

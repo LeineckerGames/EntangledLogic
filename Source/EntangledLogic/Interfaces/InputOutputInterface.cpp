@@ -155,3 +155,10 @@ void IInputOutputInterface::TransferQubit(AQubit* Qubit, int SlotIndex)
 {
 	// Default implementation
 }
+
+void IInputOutputInterface::DisconnectAllInputsAndOutputs()
+{
+	// Default implementation
+	unimplemented();
+	return;
+}
