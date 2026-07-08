@@ -291,6 +291,7 @@ bool AFactoryBase::IsQubitSlotEmpty(int32 QubitSlotIndex)
 void AFactoryBase::TransferQubit(AQubit* QubitToTransfer, int32 QubitSlotIndex)
 {
 	Qubits[QubitSlotIndex] = QubitToTransfer;
+	UpdateQubitDisplay();
 }
 
 void AFactoryBase::ConnectAllInputs()
