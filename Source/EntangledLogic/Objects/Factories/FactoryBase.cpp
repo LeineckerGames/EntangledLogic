@@ -174,7 +174,6 @@ bool AFactoryBase::OutputQubits()
 	{
 		if (CurrentOutputComponent->OutputSlot && Qubits[SlotNumber] != nullptr)
 		{
-			QubitCount++;
 			AActor* CurrentActor = CurrentOutputComponent->OutputSlot;
 			if (CurrentActor)
 			{
@@ -186,6 +185,7 @@ bool AFactoryBase::OutputQubits()
 					UFactoryInputComponent* ConnectedInputComponent = IOInterface->GetConnectedInputComponent(CurrentOutputComponent);
 					if (ConnectedInputComponent)
 					{
+						QubitCount++;
 						int32 InputSlotIndex = ConnectedInputComponent->SlotIndex;
 						//UE_LOG(LogTemp, Display, TEXT("The input comp of %s has a slot index of %d"), *ConnectedInputComponent->GetOwner()->GetActorNameOrLabel(), InputSlotIndex);
 						if (IOInterface->IsQubitSlotEmpty(InputSlotIndex))
@@ -203,7 +203,7 @@ bool AFactoryBase::OutputQubits()
 	}
 
 	// Makes sure all qubits succeded
-	if (ValidQubitCount == QubitCount)
+	if (QubitCount != 0 && ValidQubitCount == QubitCount)
 	{
 		return true;
 	}
