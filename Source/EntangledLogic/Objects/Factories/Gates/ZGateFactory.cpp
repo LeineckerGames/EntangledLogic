@@ -3,6 +3,8 @@
 #include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "EntangledLogic/Interfaces/InputOutputInterface.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
+#include "EntangledLogic/Core/Subsystems/QubitDataSubsystem.h"
+#include "EntangledLogic/Core/Framework/QuantumGatesEnum.h"
 #include "Components/SceneCaptureComponent2D.h"
 
 AZGateFactory::AZGateFactory()
@@ -48,7 +50,29 @@ void AZGateFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void AZGateFactory::OnFactoryTick()
 {
 	Super::OnFactoryTick();
-	OutputQubits();
+	if (IsQubitProcessed)
+	{
+		if (OutputQubits())
+		{
+			IsQubitProcessed = false;
+		}
+	}
+}
+
+void AZGateFactory::OnQubitProcessed()
+{
+	Super::OnQubitProcessed();
+	UWorld* world = GetWorld();
+	if (world)
+	{
+		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
+		if (QubitSubsystem)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Applying the Z Gate on the qubit"));
+			QubitSubsystem->Apply(*Qubits[0], EQuantumGate::Z_Gate);
+			UpdateQubitDisplay();
+		}
+	}
 }
 
 // Input Output Interface

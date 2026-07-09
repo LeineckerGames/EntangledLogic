@@ -3,6 +3,8 @@
 #include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "EntangledLogic/Interfaces/InputOutputInterface.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
+#include "EntangledLogic/Core/Subsystems/QubitDataSubsystem.h"
+#include "EntangledLogic/Core/Framework/QuantumGatesEnum.h"
 #include "Components/SceneCaptureComponent2D.h"
 
 AHGateFactory::AHGateFactory()
@@ -48,7 +50,29 @@ void AHGateFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void AHGateFactory::OnFactoryTick()
 {
 	Super::OnFactoryTick();
-	OutputQubits();
+	if (IsQubitProcessed)
+	{
+		if (OutputQubits())
+		{
+			IsQubitProcessed = false;
+		}
+	}
+}
+
+void AHGateFactory::OnQubitProcessed()
+{
+	Super::OnQubitProcessed();
+	UWorld* world = GetWorld();
+	if (world)
+	{
+		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
+		if (QubitSubsystem)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Applying the H Gate on the qubit"));
+			QubitSubsystem->Apply(*Qubits[0], EQuantumGate::H_Gate);
+			UpdateQubitDisplay();
+		}
+	}
 }
 
 // Input Output Interface
