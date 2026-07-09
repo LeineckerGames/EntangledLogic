@@ -19,8 +19,8 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	class USizeBox* NotifcationSizeBox;
 
-	UPROPERTY(meta = (BindWidget))
-	class UTextBox* NotificationText;
+	//UPROPERTY(meta = (BindWidget))
+	//class UTextBox* NotificationText;
 
 	UPROPERTY(meta = (BindWidget))
 	class UProgressBar* NotificationText;
