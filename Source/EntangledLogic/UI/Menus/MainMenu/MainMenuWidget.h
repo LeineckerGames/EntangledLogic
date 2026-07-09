@@ -10,6 +10,7 @@ DECLARE_MULTICAST_DELEGATE(FOnMainMenuQuitButtonClicked);
 class UButton;
 class UTextBlock;
 class UWidget;
+class USavingLoadingSubsystem;
 
 UCLASS()
 class ENTANGLEDLOGIC_API UMainMenuWidget : public UUserWidget
@@ -23,11 +24,6 @@ public:
     // Broadcast event for when the quit button is clicked
     FOnMainMenuQuitButtonClicked OnQuitButtonClicked;
 
-    // Function to process the selected save slot and optional custom name
-	// TODO: Implement save slot selection processing
-    //UFUNCTION()
-    //void ProcessSlotSelection(const FSaveSlotInfo& TargetSlot, const FString& CustomNewName);
-
 protected:
     virtual void NativeConstruct() override;
 
@@ -40,6 +36,97 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     UButton* LoadScreenBackButton;
+
+    UPROPERTY(meta = (BindWidget))
+    UButton* LoadSlot1Button;
+
+    UPROPERTY(meta = (BindWidget))
+    UTextBlock* LoadSlot1TextBlock;
+
+    UPROPERTY(meta = (BindWidget))
+    UButton* LoadSlot2Button;
+
+    UPROPERTY(meta = (BindWidget))
+    UTextBlock* LoadSlot2TextBlock;
+
+    UPROPERTY(meta = (BindWidget))
+    UButton* LoadSlot3Button;
+
+    UPROPERTY(meta = (BindWidget))
+    UTextBlock* LoadSlot3TextBlock;
+
+    UPROPERTY(meta = (BindWidget))
+    UButton* LoadSlot4Button;
+
+    UPROPERTY(meta = (BindWidget))
+    UTextBlock* LoadSlot4TextBlock;
+
+    UPROPERTY(meta = (BindWidget))
+    UButton* DeleteMenuButton;
+
+    UPROPERTY(meta = (BindWidget))
+    UButton* CloseDeleteMenuButton;
+
+    UPROPERTY(meta = (BindWidget))
+    UButton* DeleteSaveSlot1Button;
+
+    UPROPERTY(meta = (BindWidget))
+    UTextBlock* DeleteSaveSlot1TextBlock;
+
+    UPROPERTY(meta = (BindWidget))
+    UButton* DeleteSaveSlot2Button;
+
+    UPROPERTY(meta = (BindWidget))
+    UTextBlock* DeleteSaveSlot2TextBlock;
+
+    UPROPERTY(meta = (BindWidget))
+    UButton* DeleteSaveSlot3Button;
+
+    UPROPERTY(meta = (BindWidget))
+    UTextBlock* DeleteSaveSlot3TextBlock;
+
+    UPROPERTY(meta = (BindWidget))
+    UButton* DeleteSaveSlot4Button;
+
+    UPROPERTY(meta = (BindWidget))
+    UTextBlock* DeleteSaveSlot4TextBlock;
+
+    UPROPERTY(meta = (BindWidget))
+    UButton* DeleteYesButton;
+
+    UPROPERTY(meta = (BindWidget))
+    UButton* DeleteNoButton;
+
+	// Sub menu references
+    UPROPERTY(meta = (BindWidget))
+    UWidget* DeleteOptionsGroup;
+
+    UPROPERTY(meta = (BindWidget))
+    UWidget* DeleteAYS;
+
+    UFUNCTION()
+    void OnDeleteMenuButtonClicked();
+
+    UFUNCTION()
+    void OnCloseDeleteMenuButtonClicked();
+
+    UFUNCTION()
+    void OnDeleteSaveSlot1Clicked();
+
+    UFUNCTION()
+    void OnDeleteSaveSlot2Clicked();
+
+    UFUNCTION()
+    void OnDeleteSaveSlot3Clicked();
+
+    UFUNCTION()
+    void OnDeleteSaveSlot4Clicked();
+
+    UFUNCTION()
+    void OnDeleteYesButtonClicked();
+
+    UFUNCTION()
+    void OnDeleteNoButtonClicked();
 
     UPROPERTY(meta = (BindWidget))
     UButton* SettingsButton;
@@ -77,6 +164,21 @@ protected:
     void OnLoadScreenBackClicked();
 
     UFUNCTION()
+    void OnLoadSlot1ButtonClicked();
+
+    UFUNCTION()
+    void OnLoadSlot2ButtonClicked();
+
+    UFUNCTION()
+    void OnLoadSlot3ButtonClicked();
+
+    UFUNCTION()
+    void OnLoadSlot4ButtonClicked();
+
+    UFUNCTION()
+    void RefreshLoadSlotButtons();
+
+    UFUNCTION()
     void OnSettingsClicked();
 
     UFUNCTION()
@@ -88,15 +190,14 @@ protected:
     UFUNCTION()
     void OnQuitGameClicked();
 
-    // TODO: Implement save slot retrieval and loading functionality
-    //UFUNCTION()
-    //TArray<FSaveSlotInfo> GetAvailableSaveSlots() const;
-
-    //UFUNCTION()
-    //void LoadSave();
-
-    // TODO: Update this later to load into the loaded save file's level instead of a hardcoded one
     // The literal asset name of the level map you want to load when clicking Start
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Setup")
     FName GameplayLevelName = FName("NickDevLevel");
+
+private:
+    USavingLoadingSubsystem* GetSaveSystem() const;
+
+	void TriggerLoad(int32 SlotIndex);
+
+    int32 PendingSaveSlot = -1;
 };
