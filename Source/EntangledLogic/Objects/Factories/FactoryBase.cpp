@@ -93,6 +93,40 @@ void AFactoryBase::BeginPlay()
 	
 }
 
+void AFactoryBase::StartProcessingQubits()
+{
+	// Check if all qubits are in the machine
+	int32 ValidQubitCount = 0;
+	int32 QubitCount = 0;
+	for (AQubit* CurrentQubit : Qubits)
+	{
+		if (CurrentQubit)
+		{
+			ValidQubitCount++;
+		}
+		QubitCount++;
+	}
+
+	if (ValidQubitCount == QubitCount)
+	{
+		if (IsQubitProcessed == false)
+		{
+			UWorld* World = GetWorld();
+			if (World)
+			{
+				FTimerHandle TimerHandle;
+				World->GetTimerManager().SetTimer(TimerHandle, this, &AFactoryBase::OnQubitProcessed, ProcesssingTime);
+			}
+		}
+	}
+}
+
+void AFactoryBase::OnQubitProcessed()
+{
+	IsQubitProcessed = true;
+	// Modify Qubit in child Gate class
+}
+
 // Called every frame
 void AFactoryBase::Tick(float DeltaTime)
 {
@@ -129,14 +163,18 @@ void AFactoryBase::UpdateQubitDisplay()
 	
 }
 
-void AFactoryBase::OutputQubits()
+// Returns true if succesfull
+bool AFactoryBase::OutputQubits()
 {
 	//Get output factory and send qubits
 	int32 SlotNumber = 0;
+	int32 ValidQubitCount = 0;
+	int32 QubitCount = 0;
 	for (UFactoryOutputComponent* CurrentOutputComponent : OutputComponents)
 	{
 		if (CurrentOutputComponent->OutputSlot && Qubits[SlotNumber] != nullptr)
 		{
+			QubitCount++;
 			AActor* CurrentActor = CurrentOutputComponent->OutputSlot;
 			if (CurrentActor)
 			{
@@ -155,14 +193,21 @@ void AFactoryBase::OutputQubits()
 							IOInterface->TransferQubit(Qubits[SlotNumber], InputSlotIndex);
 							Qubits[SlotNumber] = nullptr;
 							UpdateQubitDisplay();
+							ValidQubitCount++;
 						}
 					}
 				}
 			}
-
 		}
 		SlotNumber++;
 	}
+
+	// Makes sure all qubits succeded
+	if (ValidQubitCount == QubitCount)
+	{
+		return true;
+	}
+	return false;
 }
 
 void AFactoryBase::OnFactoryTick()
@@ -291,6 +336,7 @@ bool AFactoryBase::IsQubitSlotEmpty(int32 QubitSlotIndex)
 void AFactoryBase::TransferQubit(AQubit* QubitToTransfer, int32 QubitSlotIndex)
 {
 	Qubits[QubitSlotIndex] = QubitToTransfer;
+	StartProcessingQubits();
 	UpdateQubitDisplay();
 }
 
