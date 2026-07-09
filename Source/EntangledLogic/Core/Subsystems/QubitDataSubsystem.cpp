@@ -99,10 +99,13 @@ bool UQubitDataSubsystem::CombineState(AQubit& qubitA, AQubit& qubitB)
 // Todo: convert pointers outside of state structs into weak object pointers?
 void UQubitDataSubsystem::DeleteQubit(AQubit& qubit)
 {
-	for (AQubit* q : qubit.State->qubits)
+	if (&qubit)
 	{
-		// q = NULL;
-		q->Destroy();
+		for (AQubit* q : qubit.State->qubits)
+		{
+			// q = NULL;
+			if (q) q->Destroy();
+		}
 	}
 }
 

@@ -8,7 +8,7 @@
 
 ABlackholeFactory::ABlackholeFactory()
 {
-	Qubits.SetNum(NUM_QUBIT_SLOTS);
+	Qubits.SetNum(GetNumQubitSlots());
 }
 
 // Need to add the deletion of qubits once they transfer
@@ -22,7 +22,7 @@ void ABlackholeFactory::OnFactoryTick()
 		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
 
 		if (QubitSubsystem) {
-			for (int i = 0; i < NUM_QUBIT_SLOTS; i++) {
+			for (int i = 0; i < GetNumQubitSlots(); i++) {
 				if (Qubits[i]) {
 					QubitSubsystem->DeleteQubit(*Qubits[i]);
 					Qubits[i] = nullptr;
