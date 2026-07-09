@@ -1,5 +1,6 @@
 #include "WireSegment.h"
 #include "TestingWire.h"
+#include <EntangledLogic/Core/Subsystems/FactorySubsystem.h>
 
 AWireSegment::AWireSegment()
 {
@@ -18,12 +19,72 @@ void AWireSegment::BeginPlay()
 
 	// Bind the Y key to the AddTestingItemToWire function
 	// Bind the U key to the ToggleOutput function
+	/*
 	if (InputComponent)
 	{
-		FInputKeyBinding& Binding = InputComponent->BindKey(EKeys::Y, IE_Pressed, this, &AWireSegment::AddTestingItemToWire);
+		FInputKeyBinding& Binding = InputComponent->BindKey(EKeys::Y, IE_Pressed, this, &AWireSegment::AddQubitToWire);
 		
 		// Tell Unreal NOT to consume the input so other actors can hear it tooWhaWhat d
 		Binding.bConsumeInput = false;
+	}
+	*/
+
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		UFactorySubsystem* FactorySubsystem = World->GetSubsystem<UFactorySubsystem>();
+		if (FactorySubsystem)
+		{
+			FactorySubsystem->OnFactoryTick.AddUObject(this, &AWireSegment::OnFactoryTick);
+		}
+	}
+}
+
+void AWireSegment::OnFactoryTick()
+{
+	if (bIsFrontBlocked) 
+	{
+		AQubit* QubitToRemove = RemoveFrontItem();
+		OutputQubit(QubitToRemove);
+	}
+}
+
+void AWireSegment::OutputQubit(AQubit* QubitToSend)
+{
+	TArray<UFactoryOutputComponent*> OutputComponents = LastWire->GetOutputComponents();
+
+	//Get output factory and send qubits
+	int32 SlotNumber = 0;
+	for (UFactoryOutputComponent* CurrentOutputComponent : OutputComponents)
+	{
+		if (CurrentOutputComponent->OutputSlot)
+		{
+			AActor* CurrentActor = CurrentOutputComponent->OutputSlot;
+			if (CurrentActor)
+			{
+				//UE_LOG(LogTemp, Display, TEXT("Found Actor to send Qubit: %s"), *CurrentActor->GetActorNameOrLabel());
+				IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(CurrentOutputComponent->OutputSlot);
+				if (IOInterface)
+				{
+					// Need a way to get the slot index from other actor and then use it here
+					UFactoryInputComponent* ConnectedInputComponent = IOInterface->GetConnectedInputComponent(CurrentOutputComponent);
+					if (ConnectedInputComponent)
+					{
+						int32 InputSlotIndex = ConnectedInputComponent->SlotIndex;
+						//UE_LOG(LogTemp, Display, TEXT("The input comp of %s has a slot index of %d"), *ConnectedInputComponent->GetOwner()->GetActorNameOrLabel(), InputSlotIndex);
+						if (IOInterface->IsQubitSlotEmpty(InputSlotIndex))
+						{
+							// Send qubit to next factory
+							
+							IOInterface->TransferQubit(QubitToSend, InputSlotIndex);
+							
+						}
+					}
+				}
+			}
+
+		}
+		SlotNumber++;
 	}
 }
 
@@ -73,19 +134,9 @@ void AWireSegment::Tick(float DeltaTime)
 		// Use a while loop in case multiple items exit in a single frame
 		while (HeadGap <= 0.0f && !ItemsOnWire.IsEmpty())
 		{
-			// Attempt to leave the segment
-			if (LeaveWireSegment())
-			{
-				// Successfully left! RemoveFrontItem() is assumed to have been called.
-				// The while loop will evaluate the new HeadGap of the new front item next.
-			}
-			else
-			{
-				// LeaveWireSegment failed or returned false. Stop moving and block the line.
-				HeadGap = 0.0f;
-				bIsFrontBlocked = true;
-				break;
-			}
+			HeadGap = 0.0f;
+			bIsFrontBlocked = true;
+			break;
 		}
 	}
 	else
@@ -121,16 +172,8 @@ void AWireSegment::Tick(float DeltaTime)
 	}
 }
 
-bool AWireSegment::LeaveWireSegment()
-{
-	// TODO: Attempt to push the front-most item out of the wire segment.
-	// If successful, make sure to call RemoveFrontItem() and return true.
 
-	// Returning false emulates the segment being physically blocked and full.
-	return false;
-}
-
-bool AWireSegment::AddItemToWire(UStaticMesh* MeshToUse)
+bool AWireSegment::AddQubitToWire(AQubit* Qubit)
 {
 	if (Capacity > 0 && ItemsOnWire.Num() >= Capacity)
 	{
@@ -140,7 +183,7 @@ bool AWireSegment::AddItemToWire(UStaticMesh* MeshToUse)
 	FWireItemData NewItem;
 
 	NewItem.ItemMesh = NewObject<UStaticMeshComponent>(this);
-	NewItem.ItemMesh->SetStaticMesh(MeshToUse);
+	NewItem.ItemMesh->SetStaticMesh(QubitMesh);
 	NewItem.ItemMesh->SetupAttachment(SplineComponent);
 	NewItem.ItemMesh->RegisterComponent();
 
@@ -162,12 +205,15 @@ bool AWireSegment::AddItemToWire(UStaticMesh* MeshToUse)
 	}
 
 	ItemsOnWire.Add(NewItem);
+	QubitDatasOnWire.Add(Qubit);
 	return true;
 }
 
-void AWireSegment::RemoveFrontItem()
+AQubit* AWireSegment::RemoveFrontItem()
 {
-	if (ItemsOnWire.IsEmpty()) return;
+	if (ItemsOnWire.IsEmpty()) return nullptr;
+
+	AQubit* QubitToRemove = QubitDatasOnWire[0];
 
 	if (ItemsOnWire[0].ItemMesh)
 	{
@@ -178,16 +224,19 @@ void AWireSegment::RemoveFrontItem()
 	{
 		HeadGap += ItemsOnWire[1].GapToNextItem;
 		ItemsOnWire.RemoveAt(0);
+		QubitDatasOnWire.RemoveAt(0);
 		ItemsOnWire[0].GapToNextItem = 0.0f;
 		ActiveGapIndex = FMath::Max(1, ActiveGapIndex - 1);
 	}
 	else
 	{
 		ItemsOnWire.RemoveAt(0);
+		QubitDatasOnWire.RemoveAt(0);
 		ActiveGapIndex = 1;
 	}
 
 	bIsFrontBlocked = false;
+	return QubitToRemove;
 }
 
 bool AWireSegment::IsEmpty()
@@ -198,9 +247,4 @@ bool AWireSegment::IsEmpty()
 bool AWireSegment::IsFull()
 {
 	return Capacity > 0 && ItemsOnWire.Num() >= Capacity;
-}
-
-void AWireSegment::AddTestingItemToWire()
-{
-	AddItemToWire(TestingItemMesh);
 }

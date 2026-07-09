@@ -37,7 +37,7 @@ void AWire::BeginPlay()
 	// Sort arrays by input / output slot
 	InputComponents.Sort(SortBySlotIndex<UFactoryInputComponent>);
 	OutputComponents.Sort(SortBySlotIndex<UFactoryOutputComponent>);
-
+	/*
 	UWorld* World = GetWorld();
 	if (World)
 	{
@@ -47,7 +47,7 @@ void AWire::BeginPlay()
 			FactorySubsystem->OnFactoryTick.AddUObject(this, &AWire::OnFactoryTick);
 		}
 	}
-
+	*/
 }
 
 // Called every frame
@@ -57,6 +57,7 @@ void AWire::Tick(float DeltaTime)
 
 }
 
+/*
 void AWire::OnFactoryTick()
 {
 	OutputQubits();
@@ -100,6 +101,7 @@ void AWire::OutputQubits()
 		SlotNumber++;
 	}
 }
+*/
 
 // Factory Interaction Interface
 void AWire::BeginHover(EPlacementMode PlacementMode)

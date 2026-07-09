@@ -43,9 +43,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "InputOutputs")
 	TArray<class UFactoryOutputComponent*> OutputComponents;
 
+	/*
 	void OnFactoryTick();
 
 	void OutputQubits();
+	*/
 
 	/*
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

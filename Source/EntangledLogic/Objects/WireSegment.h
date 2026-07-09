@@ -42,15 +42,11 @@ public:
 
 	// Attempt to push an item onto the start of the queue
 	UFUNCTION(BlueprintCallable, Category = "Wire Segment")
-	bool AddItemToWire(UStaticMesh* MeshToUse);
+	bool AddQubitToWire(AQubit* Qubit);
 
 	// Removes the front-most item from the queue
 	UFUNCTION(BlueprintCallable, Category = "Wire Segment")
-	void RemoveFrontItem();
-
-	// Called when an item reaches the end of the wire segment path
-	UFUNCTION(BlueprintCallable, Category = "Wire Segment")
-	bool LeaveWireSegment();
+	AQubit* RemoveFrontItem();
 
 	UFUNCTION(BlueprintPure, Category = "Wire Segment")
 	bool IsEmpty();
@@ -73,6 +69,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	TArray<FWireItemData> ItemsOnWire;
 
+	// Queue Data
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
+	TArray<AQubit*> QubitDatasOnWire;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	float HeadGap;
 
@@ -89,9 +89,10 @@ public:
 	bool bIsFrontBlocked = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug", meta = (AllowPrivateAccess = "true"))
-	UStaticMesh* TestingItemMesh;
+	UStaticMesh* QubitMesh;
 
-	UFUNCTION()
-	void AddTestingItemToWire();
+	void OnFactoryTick();
+
+	void OutputQubit(AQubit* QubitToSend);
 
 };
