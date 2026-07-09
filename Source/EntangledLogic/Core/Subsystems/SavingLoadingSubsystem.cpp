@@ -19,21 +19,52 @@ void USavingLoadingSubsystem::CreateSave()
 	}
 }
 
-void USavingLoadingSubsystem::RequestLoad()
+// Helper function to get the save slot name based on the index
+FString USavingLoadingSubsystem::GetSlotNameFromIndex(int32 SlotIndex) const
 {
-	UE_LOG(LogTemp, Display, TEXT("Load Requested"));
-	LoadSave();
+	return FString::Printf(TEXT("SaveSlot_%d"), SlotIndex);
 }
 
-void USavingLoadingSubsystem::LoadSave()
+// Helper function to get the save slot metadata based on the index
+FSlotMetadata USavingLoadingSubsystem::GetMetadataForSlot(int32 SlotIndex)
 {
-	bool DoesSaveGameExist = UGameplayStatics::DoesSaveGameExist(SaveGameSlotName, 0);
-	if(DoesSaveGameExist)
+	FSlotMetadata DefaultMetadata;
+
+	if (UGameplayStatics::DoesSaveGameExist(TEXT("SlotMetadataMaster"), 0))
+	{
+		if (USaveMetadata* MasterMeta = Cast<USaveMetadata>(UGameplayStatics::LoadGameFromSlot(TEXT("SlotMetadataMaster"), 0)))
+		{
+			if (MasterMeta->SlotRegistry.Contains(SlotIndex))
+			{
+				return MasterMeta->SlotRegistry[SlotIndex];
+			}
+		}
+	}
+
+	// Return empty default data if not found
+	return DefaultMetadata;
+}
+
+// Request load for a specific slot index
+void USavingLoadingSubsystem::RequestLoad(int32 SlotIndex)
+{
+	UE_LOG(LogTemp, Display, TEXT("Load Requested for Slot %d"), SlotIndex);
+	LoadSave(GetSlotNameFromIndex(SlotIndex));
+}
+
+// Load save for a specific slot name
+void USavingLoadingSubsystem::LoadSave(const FString& SlotName)
+{
+	if (UGameplayStatics::DoesSaveGameExist(SlotName, 0))
 	{
 		FAsyncLoadGameFromSlotDelegate LoadDelegate;
 		LoadDelegate.BindUObject(this, &USavingLoadingSubsystem::OnLoadGameFinished);
 
-		UGameplayStatics::AsyncLoadGameFromSlot(SaveGameSlotName, 0, LoadDelegate);
+		UGameplayStatics::AsyncLoadGameFromSlot(SlotName, 0, LoadDelegate);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Save file %s does not exist!"), *SlotName);
 	}
 }
 
@@ -50,28 +81,62 @@ void USavingLoadingSubsystem::OnLoadGameFinished(const FString& SlotName, const 
 	}
 }
 
-void USavingLoadingSubsystem::RequestSave()
+// Request save for a specific slot index
+void USavingLoadingSubsystem::RequestSave(int32 SlotIndex, const FString& CustomSlotName)
 {
 	if (FactorySaveRef)
 	{
 		UE_LOG(LogTemp, Display, TEXT("Save All Data Called"));
 		FactorySaveRef->SaveAllData(FactorySaveRef, RegisteredUObjects);
-		UE_LOG(LogTemp, Display, TEXT("Save Game Called"));
-		SaveGame();
+
+		FString TargetSlotName = GetSlotNameFromIndex(SlotIndex);
+		UE_LOG(LogTemp, Display, TEXT("Saving Game To: %s"), *TargetSlotName);
+		SaveGame(GetSlotNameFromIndex(SlotIndex));
+		UpdateSlotMetadata(SlotIndex, CustomSlotName);
 	}
 }
 
-void USavingLoadingSubsystem::SaveGame()
+//	Save game to a specific slot name
+void USavingLoadingSubsystem::SaveGame(const FString& SlotName)
 {
 	if (FactorySaveRef)
 	{
-		UGameplayStatics::AsyncSaveGameToSlot(FactorySaveRef, SaveGameSlotName, 0);
+		UGameplayStatics::AsyncSaveGameToSlot(FactorySaveRef, SlotName, 0);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Display, TEXT("FactorySaveGame Ref is NULL"));
+		UE_LOG(LogTemp, Error, TEXT("FactorySaveGame Ref is NULL"));
 	}
-	
+}
+
+// Update the metadata for a specific slot index
+void USavingLoadingSubsystem::UpdateSlotMetadata(int32 SlotIndex, const FString& CustomSlotName)
+{
+	USaveMetadata* MasterMeta = nullptr;
+
+	// Load the master metadata save game if it exists, otherwise create a new one
+	if (UGameplayStatics::DoesSaveGameExist(TEXT("SlotMetadataMaster"), 0))
+	{
+		MasterMeta = Cast<USaveMetadata>(UGameplayStatics::LoadGameFromSlot(TEXT("SlotMetadataMaster"), 0));
+	}
+
+	if (!MasterMeta)
+	{
+		MasterMeta = Cast<USaveMetadata>(UGameplayStatics::CreateSaveGameObject(USaveMetadata::StaticClass()));
+	}
+
+	if (MasterMeta)
+	{
+		FSlotMetadata NewMeta;
+		NewMeta.bIsSlotEmpty = false;
+		NewMeta.PlayerName = CustomSlotName.IsEmpty() ? FString::Printf(TEXT("Save Slot %d"), SlotIndex) : CustomSlotName;
+		NewMeta.DateSaved = FDateTime::Now().ToString(TEXT("%Y-%m-%d %H:%M"));
+
+		MasterMeta->SlotRegistry.Add(SlotIndex, NewMeta);
+		UGameplayStatics::SaveGameToSlot(MasterMeta, TEXT("SlotMetadataMaster"), 0);
+
+		OnSaveDirectoryUpdated.Broadcast();
+	}
 }
 
 void USavingLoadingSubsystem::RegisterUObjectToSavingLoading(UObject* ObjectToRegister)
@@ -82,10 +147,27 @@ void USavingLoadingSubsystem::RegisterUObjectToSavingLoading(UObject* ObjectToRe
 	}
 }
 
-void USavingLoadingSubsystem::DeleteSaveFile() const
+// Delete save file for a specific slot index
+void USavingLoadingSubsystem::DeleteSaveFile(int32 SlotIndex)
 {
-	UGameplayStatics::DeleteGameInSlot(SaveGameSlotName, 0);
+	// Get the slot name based on the index
+	FString TargetSlotName = GetSlotNameFromIndex(SlotIndex);
+	if (UGameplayStatics::DoesSaveGameExist(TargetSlotName, 0))
+	{
+		UGameplayStatics::DeleteGameInSlot(TargetSlotName, 0);
+	}
+
+	// Update the master metadata to reflect that this slot is now empty
+	if (UGameplayStatics::DoesSaveGameExist(TEXT("SlotMetadataMaster"), 0))
+	{
+		if (USaveMetadata* MasterMeta = Cast<USaveMetadata>(UGameplayStatics::LoadGameFromSlot(TEXT("SlotMetadataMaster"), 0)))
+		{
+			if (MasterMeta->SlotRegistry.Contains(SlotIndex))
+			{
+				MasterMeta->SlotRegistry.Remove(SlotIndex);
+				UGameplayStatics::SaveGameToSlot(MasterMeta, TEXT("SlotMetadataMaster"), 0);
+				OnSaveDirectoryUpdated.Broadcast();
+			}
+		}
+	}
 }
-//LogTemp: Display: Save Game Pressed
-//LogTemp : Display: Save All Data Called
-//LogTemp : Display: Save Game Called

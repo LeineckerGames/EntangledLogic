@@ -9,4 +9,6 @@ class ENTANGLEDLOGIC_API USettingsTabLanguage : public UUserWidget
 {
 	GENERATED_BODY()
 
+protected:
+	virtual void NativeConstruct() override;
 };

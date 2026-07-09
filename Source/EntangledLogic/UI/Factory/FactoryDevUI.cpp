@@ -72,7 +72,7 @@ void UFactoryDevUI::SaveGame()
 {
     UE_LOG(LogTemp, Display, TEXT("Save Game Pressed"));
     USavingLoadingSubsystem* SavingLoadingSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USavingLoadingSubsystem>();
-    SavingLoadingSubsystem->RequestSave();
+    SavingLoadingSubsystem->RequestSave(8, TEXT("")); // slot 8
 }
 
 void UFactoryDevUI::LoadGame()
@@ -85,7 +85,7 @@ void UFactoryDevUI::LoadGame()
         USavingLoadingSubsystem* SavingLoading = World->GetGameInstance()->GetSubsystem<USavingLoadingSubsystem>();
         if (SavingLoading)
         {
-            SavingLoading->RequestToLoadAll.Broadcast();
+            SavingLoading->RequestToLoadAll.Broadcast(8); // slot 8
         }
     }
 }
@@ -99,7 +99,7 @@ void UFactoryDevUI::DeleteSave()
         USavingLoadingSubsystem* SavingLoading = World->GetGameInstance()->GetSubsystem<USavingLoadingSubsystem>();
         if (SavingLoading)
         {
-            SavingLoading->DeleteSaveFile();
+            SavingLoading->DeleteSaveFile(8); // slot 8
             UE_LOG(LogTemp, Display, TEXT("Deleted Save File"));
         }
     }
