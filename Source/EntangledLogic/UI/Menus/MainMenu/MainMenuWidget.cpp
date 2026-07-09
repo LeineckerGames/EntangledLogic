@@ -4,7 +4,7 @@
 #include "Components/Widget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
-//#include "SaveLoad/SaveGameData.h"
+#include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
 #include "EntangledLogic/UI/Menus/SettingsMenu/SettingsMenuWidget.h"
 
 void UMainMenuWidget::NativeConstruct()
@@ -16,6 +16,19 @@ void UMainMenuWidget::NativeConstruct()
 
     if (PlayButton) PlayButton->OnClicked.AddDynamic(this, &UMainMenuWidget::OnPlayClicked);
     if (LoadScreenBackButton) LoadScreenBackButton->OnClicked.AddDynamic(this, &UMainMenuWidget::OnLoadScreenBackClicked);
+    if (LoadSlot1Button) LoadSlot1Button->OnClicked.AddDynamic(this, &UMainMenuWidget::OnLoadSlot1ButtonClicked);
+    if (LoadSlot2Button) LoadSlot2Button->OnClicked.AddDynamic(this, &UMainMenuWidget::OnLoadSlot2ButtonClicked);
+    if (LoadSlot3Button) LoadSlot3Button->OnClicked.AddDynamic(this, &UMainMenuWidget::OnLoadSlot3ButtonClicked);
+    if (LoadSlot4Button) LoadSlot4Button->OnClicked.AddDynamic(this, &UMainMenuWidget::OnLoadSlot4ButtonClicked);
+
+    if (DeleteMenuButton) DeleteMenuButton->OnClicked.AddDynamic(this, &UMainMenuWidget::OnDeleteMenuButtonClicked);
+    if (CloseDeleteMenuButton) CloseDeleteMenuButton->OnClicked.AddDynamic(this, &UMainMenuWidget::OnCloseDeleteMenuButtonClicked);
+    if (DeleteSaveSlot1Button) DeleteSaveSlot1Button->OnClicked.AddDynamic(this, &UMainMenuWidget::OnDeleteSaveSlot1Clicked);
+    if (DeleteSaveSlot2Button) DeleteSaveSlot2Button->OnClicked.AddDynamic(this, &UMainMenuWidget::OnDeleteSaveSlot2Clicked);
+    if (DeleteSaveSlot3Button) DeleteSaveSlot3Button->OnClicked.AddDynamic(this, &UMainMenuWidget::OnDeleteSaveSlot3Clicked);
+    if (DeleteSaveSlot4Button) DeleteSaveSlot4Button->OnClicked.AddDynamic(this, &UMainMenuWidget::OnDeleteSaveSlot4Clicked);
+    if (DeleteYesButton) DeleteYesButton->OnClicked.AddDynamic(this, &UMainMenuWidget::OnDeleteYesButtonClicked);
+    if (DeleteNoButton) DeleteNoButton->OnClicked.AddDynamic(this, &UMainMenuWidget::OnDeleteNoButtonClicked);
 
     if (SettingsButton)  SettingsButton->OnClicked.AddDynamic(this, &UMainMenuWidget::OnSettingsClicked);
 
@@ -29,6 +42,8 @@ void UMainMenuWidget::NativeConstruct()
     if (MainMenuOptionsGroup) MainMenuOptionsGroup->SetVisibility(ESlateVisibility::Collapsed);
     if (CreditsPanel)  CreditsPanel->SetVisibility(ESlateVisibility::Collapsed);
     if (LoadOptionsGroup)  LoadOptionsGroup->SetVisibility(ESlateVisibility::Collapsed);
+    if (DeleteOptionsGroup)  DeleteOptionsGroup->SetVisibility(ESlateVisibility::Collapsed);
+    if (DeleteAYS)  DeleteAYS->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 // Big invisible button
@@ -47,14 +62,12 @@ void UMainMenuWidget::OnAnywhereClicked()
 // Play button
 void UMainMenuWidget::OnPlayClicked()
 {
-    // Hide the actual menu selection
+	// Refresh the load slot text blocks with the latest save data
+    RefreshLoadSlotButtons();
+
+	// Hide the main menu options and show the load options
     if (MainMenuOptionsGroup) MainMenuOptionsGroup->SetVisibility(ESlateVisibility::Collapsed);
     if (LoadOptionsGroup) LoadOptionsGroup->SetVisibility(ESlateVisibility::Visible);
-
-	// TODO: Load save slots from disk and display them in the load options group
-    //LoadSave();
-    if (LoadOptionsGroup) LoadOptionsGroup->SetVisibility(ESlateVisibility::Collapsed);
-    UGameplayStatics::OpenLevel(this, GameplayLevelName);
 }
 
 // Return from play button
@@ -64,7 +77,160 @@ void UMainMenuWidget::OnLoadScreenBackClicked()
     if (MainMenuOptionsGroup) MainMenuOptionsGroup->SetVisibility(ESlateVisibility::Visible);
 }
 
-// Settings button shout to MainMenuPlayerController
+// Load from slot 1
+void UMainMenuWidget::OnLoadSlot1ButtonClicked()
+{
+    TriggerLoad(1);
+    UGameplayStatics::OpenLevel(this, GameplayLevelName);
+}
+
+// Load from slot 2
+void UMainMenuWidget::OnLoadSlot2ButtonClicked()
+{
+    TriggerLoad(2);
+    UGameplayStatics::OpenLevel(this, GameplayLevelName);
+}
+
+// Load from slot 3
+void UMainMenuWidget::OnLoadSlot3ButtonClicked()
+{
+    TriggerLoad(3);
+    UGameplayStatics::OpenLevel(this, GameplayLevelName);
+}
+
+// Load from slot 4
+void UMainMenuWidget::OnLoadSlot4ButtonClicked()
+{
+    TriggerLoad(4);
+    UGameplayStatics::OpenLevel(this, GameplayLevelName);
+}
+
+// Return from play button
+void UMainMenuWidget::RefreshLoadSlotButtons()
+{
+    if (UGameInstance* GI = GetGameInstance())
+    {
+        if (USavingLoadingSubsystem* SaveSystem = GI->GetSubsystem<USavingLoadingSubsystem>())
+        {
+            FSlotMetadata Slot1Data = SaveSystem->GetMetadataForSlot(1);
+            if (LoadSlot1TextBlock)
+            {
+                FString DisplayString = Slot1Data.bIsSlotEmpty ?
+                    TEXT("Slot 1: Empty") :
+                    FString::Printf(TEXT("%s | (%s)"), *Slot1Data.PlayerName, *Slot1Data.DateSaved);
+
+                LoadSlot1TextBlock->SetText(FText::FromString(DisplayString));
+                DeleteSaveSlot1TextBlock->SetText(FText::FromString(DisplayString));
+            }
+
+            FSlotMetadata Slot2Data = SaveSystem->GetMetadataForSlot(2);
+            if (LoadSlot2TextBlock)
+            {
+                FString DisplayString = Slot2Data.bIsSlotEmpty ?
+                    TEXT("Slot 2: Empty") :
+                    FString::Printf(TEXT("%s | (%s)"), *Slot2Data.PlayerName, *Slot2Data.DateSaved);
+
+                LoadSlot2TextBlock->SetText(FText::FromString(DisplayString));
+                DeleteSaveSlot2TextBlock->SetText(FText::FromString(DisplayString));
+            }
+
+            FSlotMetadata Slot3Data = SaveSystem->GetMetadataForSlot(3);
+            if (LoadSlot3TextBlock)
+            {
+                FString DisplayString = Slot3Data.bIsSlotEmpty ?
+                    TEXT("Slot 3: Empty") :
+                    FString::Printf(TEXT("%s | (%s)"), *Slot3Data.PlayerName, *Slot3Data.DateSaved);
+
+                LoadSlot3TextBlock->SetText(FText::FromString(DisplayString));
+                DeleteSaveSlot3TextBlock->SetText(FText::FromString(DisplayString));
+            }
+
+            FSlotMetadata Slot4Data = SaveSystem->GetMetadataForSlot(4);
+            if (LoadSlot4TextBlock)
+            {
+                FString DisplayString = Slot4Data.bIsSlotEmpty ?
+                    TEXT("Slot 4: Empty") :
+                    FString::Printf(TEXT("%s | (%s)"), *Slot4Data.PlayerName, *Slot4Data.DateSaved);
+
+                LoadSlot4TextBlock->SetText(FText::FromString(DisplayString));
+                DeleteSaveSlot4TextBlock->SetText(FText::FromString(DisplayString));
+            }
+        }
+    }
+}
+
+// Opens the delete menu
+void UMainMenuWidget::OnDeleteMenuButtonClicked()
+{
+    if (LoadOptionsGroup) LoadOptionsGroup->SetVisibility(ESlateVisibility::Collapsed);
+    if (DeleteOptionsGroup) DeleteOptionsGroup->SetVisibility(ESlateVisibility::Visible);
+}
+
+// Closes the delete menu and returns to the pause menu
+void UMainMenuWidget::OnCloseDeleteMenuButtonClicked()
+{
+    if (DeleteOptionsGroup) DeleteOptionsGroup->SetVisibility(ESlateVisibility::Collapsed);
+    if (LoadOptionsGroup) LoadOptionsGroup->SetVisibility(ESlateVisibility::Visible);
+}
+
+// Opens the Delete Are You Sure menu for the selected save slot
+void UMainMenuWidget::OnDeleteSaveSlot1Clicked()
+{
+    PendingSaveSlot = 1;
+    if (DeleteOptionsGroup) DeleteOptionsGroup->SetVisibility(ESlateVisibility::Collapsed);
+    if (DeleteAYS) DeleteAYS->SetVisibility(ESlateVisibility::Visible);
+}
+
+// Opens the Delete Are You Sure menu for the selected save slot
+void UMainMenuWidget::OnDeleteSaveSlot2Clicked()
+{
+    PendingSaveSlot = 2;
+    if (DeleteOptionsGroup) DeleteOptionsGroup->SetVisibility(ESlateVisibility::Collapsed);
+    if (DeleteAYS) DeleteAYS->SetVisibility(ESlateVisibility::Visible);
+}
+
+// Opens the Delete Are You Sure menu for the selected save slot
+void UMainMenuWidget::OnDeleteSaveSlot3Clicked()
+{
+    PendingSaveSlot = 3;
+    if (DeleteOptionsGroup) DeleteOptionsGroup->SetVisibility(ESlateVisibility::Collapsed);
+    if (DeleteAYS) DeleteAYS->SetVisibility(ESlateVisibility::Visible);
+}
+
+// Opens the Delete Are You Sure menu for the selected save slot
+void UMainMenuWidget::OnDeleteSaveSlot4Clicked()
+{
+    PendingSaveSlot = 4;
+    if (DeleteOptionsGroup) DeleteOptionsGroup->SetVisibility(ESlateVisibility::Collapsed);
+    if (DeleteAYS) DeleteAYS->SetVisibility(ESlateVisibility::Visible);
+}
+
+// Deletes the save file in the selected slot and returns to the save menu
+void UMainMenuWidget::OnDeleteYesButtonClicked()
+{
+    if (UGameInstance* GI = GetGameInstance())
+    {
+        if (USavingLoadingSubsystem* SaveSystem = GI->GetSubsystem<USavingLoadingSubsystem>())
+        {
+            SaveSystem->DeleteSaveFile(PendingSaveSlot);
+            RefreshLoadSlotButtons();
+        }
+    }
+
+    PendingSaveSlot = -1;
+    if (DeleteAYS) DeleteAYS->SetVisibility(ESlateVisibility::Collapsed);
+    if (LoadOptionsGroup) LoadOptionsGroup->SetVisibility(ESlateVisibility::Visible);
+}
+
+// Return to the delete menu without deleting
+void UMainMenuWidget::OnDeleteNoButtonClicked()
+{
+    PendingSaveSlot = -1;
+    if (DeleteAYS) DeleteAYS->SetVisibility(ESlateVisibility::Collapsed);
+    if (DeleteOptionsGroup) DeleteOptionsGroup->SetVisibility(ESlateVisibility::Visible);
+}
+
+// Settings button shout to MainMenuPlayerController/MainMenuHUD
 void UMainMenuWidget::OnSettingsClicked()
 {
     OnSettingsButtonClicked.Broadcast();
@@ -82,64 +248,31 @@ void UMainMenuWidget::OnCloseCreditsClicked()
     if (CreditsPanel) CreditsPanel->SetVisibility(ESlateVisibility::Collapsed);
 }
 
-// Quit button shout to MainMenuPlayerController
+// Quit button shout to MainMenuPlayerController/MainMenuHUD
 void UMainMenuWidget::OnQuitGameClicked()
 {
     OnQuitButtonClicked.Broadcast();
 }
 
-/*
-// Load player save slots from disk and return them to the menu for display
-TArray<FSaveSlotInfo> UMainMenuWidget::GetAvailableSaveSlots() const
+// Load helper function
+USavingLoadingSubsystem* UMainMenuWidget::GetSaveSystem() const
 {
-
+    if (UGameInstance* GI = GetGameInstance())
+    {
+        return GI->GetSubsystem<USavingLoadingSubsystem>();
+    }
+    return nullptr;
 }
 
-// On click of a save slot, determine if it is filled or empty and either load or create a new save file accordingly
-void UMainMenuWidget::ProcessSlotSelection(const FSaveSlotInfo& TargetSlot, const FString& CustomNewName)
+// Trigger load
+void UMainMenuWidget::TriggerLoad(int32 SlotIndex)
 {
-    UGameInstance* GameInst = GetGameInstance();
-    if (!GameInst) return;
-
-    UGameSaveSubsystem* SaveSys = GameInst->GetSubsystem<UGameSaveSubsystem>();
-    if (!SaveSys) return;
-
-    if (TargetSlot.bIsFilled)
+    if (USavingLoadingSubsystem* SaveSystem = GetSaveSystem())
     {
-        // 1. FILLED SLOT: Safely cast down to the Load Contract interface and boot it up
-        if (ILoadExecutor* LoadEngine = Cast<ILoadExecutor>(SaveSys))
-        {
-            LoadEngine->ExecuteLoad(TargetSlot.SlotName);
-        }
-    }
-    else
-    {
-        // 2. UNFILLED SLOT: Save initialization block first (sets up the file)
-        if (ISaveExecutor* SaveEngine = Cast<ISaveExecutor>(SaveSys))
-        {
-            // Explicitly pass the slot name and the player's newly typed custom text entry.
-            // Your ExecuteSave implementation will assign CustomNewName to the save file.
-            SaveEngine->ExecuteSave(TargetSlot.SlotName);
-        }
+        UGameplayStatics::SetGamePaused(GetWorld(), false);
 
-        // 3. Immediately follow up by loading that freshly generated file
-        if (ILoadExecutor* LoadEngine = Cast<ILoadExecutor>(SaveSys))
-        {
-            LoadEngine->ExecuteLoad(TargetSlot.SlotName);
-        }
+        SetVisibility(ESlateVisibility::Collapsed);
+
+        SaveSystem->RequestLoad(SlotIndex);
     }
 }
-
-// Copy of above function
-void UMainMenuWidget::LoadSave()
-{
-    if (UGameInstance* GameInst = GetGameInstance())
-    {
-        if (UGameSaveSubsystem* SaveSys = GameInst->GetSubsystem<UGameSaveSubsystem>())
-        {
-            // Call our dynamic disk scanner function
-            return SaveSys->GetFixedSaveSlots();
-        }
-    }
-    return TArray<FSaveSlotInfo>();
-}*/

@@ -28,22 +28,6 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     USlider* SFXVolumeSlider;
-    
-    UPROPERTY(EditDefaultsOnly, Category = "Audio Settings")
-    USoundControlBusMix* SettingsBusMixAsset;
-
-    UPROPERTY(EditDefaultsOnly, Category = "Audio Settings")
-    USoundControlBus* MasterBusAsset;
-
-    UPROPERTY(EditDefaultsOnly, Category = "Audio Settings")
-    USoundControlBus* MusicBusAsset;
-
-    UPROPERTY(EditDefaultsOnly, Category = "Audio Settings")
-    USoundControlBus* SFXBusAsset;
-
-    UPROPERTY(EditDefaultsOnly, Category = "Audio Settings")
-    USoundControlBus* DialogBusAsset;
-    
 
     // On change functions
     UFUNCTION()
@@ -57,8 +41,4 @@ protected:
 
     UFUNCTION()
     void OnSFXVolumeChanged(float Value);
-
-private:
-    void InitAudio();
-    void SetBusVolume(USoundControlBus* Bus, float Volume);
 };
