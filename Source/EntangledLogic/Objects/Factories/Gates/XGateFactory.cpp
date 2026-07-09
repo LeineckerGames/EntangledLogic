@@ -19,7 +19,8 @@ void AXGateFactory::OnFactoryTick()
 	Super::OnFactoryTick();
 	if (IsQubitProcessed)
 	{
-		if (OutputQubits())
+		bool IsSuccess = OutputQubits();
+		if (IsSuccess)
 		{
 			UE_LOG(LogTemp, Display, TEXT("Outputting Qubits, IsQubitProcessed = false"))
 			IsQubitProcessed = false;
