@@ -15,9 +15,9 @@ struct FWireItemData
 	GENERATED_BODY()
 
 	// The distance between this item and the item directly in front of it 
-	// Defaulted to 20.0f (0.2 meters)
+	// Defaulted to 25.0f (0.25 meters)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float GapToNextItem = 20.0f;
+	float GapToNextItem = 25.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* ItemMesh = nullptr;
@@ -87,7 +87,7 @@ public:
 	float HeadGap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
-	float ItemSize = 20.0f;
+	float ItemSize = 25.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	float MovementSpeed = 100.0f;
