@@ -27,38 +27,7 @@ void ATestingWire::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	if (EndPlayReason == EEndPlayReason::Destroyed)
 	{
-		// Get the current actor pointers
-		AActor* InputSlot0Actor = InputComponents[0]->InputSlot;
-		AActor* OutputSlot0Actor = OutputComponents[0]->OutputSlot;
-
-
-		// Update the prev and next factory pointers
-		if (InputSlot0Actor)
-		{
-			IInputOutputInterface* InputSlotActorInputOutputInterface = Cast<IInputOutputInterface>(InputSlot0Actor);
-			if (InputSlotActorInputOutputInterface)
-			{
-				UE_LOG(LogTemp, Display, TEXT("Connect All Outputs Running in destroyed"));
-				// Updates the previous factory to connect to the current
-				InputSlotActorInputOutputInterface->ConnectAllOutputs();
-			}
-		}
-
-		if (OutputSlot0Actor)
-		{
-			IInputOutputInterface* OutputSlotActorInputOutputInterface = Cast<IInputOutputInterface>(OutputSlot0Actor);
-			if (OutputSlotActorInputOutputInterface)
-			{
-				UE_LOG(LogTemp, Display, TEXT("Connect All Inputs Running in destroyed"));
-				// Updates the next factory to connect to the current
-				OutputSlotActorInputOutputInterface->ConnectAllInputs();
-			}
-		}
-
-		// When the wire is removed from the grid, update wire segments
-		UWireSubsystem* WireSubsystem = GetWorld()->GetSubsystem<UWireSubsystem>();
-		WireSubsystem->RemoveWireFromPath(this);
-
+		DisconnectAllInputsAndOutputs();
 	}
 	Super::EndPlay(EndPlayReason);
 }
@@ -89,6 +58,41 @@ void ATestingWire::TransferQubit(AQubit* QubitToTransfer, int32 QubitSlotIndex)
 	Qubits.Enqueue(QubitToTransfer);
 	UE_LOG(LogTemp, Display, TEXT("Running AddTestingItemToWire"));
 	AssignedSegment->AddTestingItemToWire();
+}
+
+void ATestingWire::DisconnectAllInputsAndOutputs()
+{
+	// Get the current actor pointers
+	AActor* InputSlot0Actor = InputComponents[0]->InputSlot;
+	AActor* OutputSlot0Actor = OutputComponents[0]->OutputSlot;
+
+
+	// Update the prev and next factory pointers
+	if (InputSlot0Actor)
+	{
+		IInputOutputInterface* InputSlotActorInputOutputInterface = Cast<IInputOutputInterface>(InputSlot0Actor);
+		if (InputSlotActorInputOutputInterface)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Connect All Outputs Running in destroyed"));
+			// Updates the previous factory to connect to the current
+			InputSlotActorInputOutputInterface->ConnectAllOutputs();
+		}
+	}
+
+	if (OutputSlot0Actor)
+	{
+		IInputOutputInterface* OutputSlotActorInputOutputInterface = Cast<IInputOutputInterface>(OutputSlot0Actor);
+		if (OutputSlotActorInputOutputInterface)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Connect All Inputs Running in destroyed"));
+			// Updates the next factory to connect to the current
+			OutputSlotActorInputOutputInterface->ConnectAllInputs();
+		}
+	}
+
+	// When the wire is removed from the grid, update wire segments
+	UWireSubsystem* WireSubsystem = GetWorld()->GetSubsystem<UWireSubsystem>();
+	WireSubsystem->RemoveWireFromPath(this);
 }
 
 void ATestingWire::ConnectAllInputs()
