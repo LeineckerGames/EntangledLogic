@@ -3,6 +3,7 @@
 #include "Components/CheckBox.h"
 #include "Components/ComboBoxString.h"
 #include "Components/TextBlock.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/GameUserSettings.h"
 #include "Engine/EngineTypes.h"
 
@@ -10,6 +11,7 @@ void USettingsTabGraphics::NativeConstruct()
 {
     Super::NativeConstruct();
 
+	// Bind the dropdown and checkbox events to their respective functions
     if (ResolutionComboBox) ResolutionComboBox->OnSelectionChanged.AddDynamic(this, &USettingsTabGraphics::OnResolutionChanged);
     if (WindowModeComboBox) WindowModeComboBox->OnSelectionChanged.AddDynamic(this, &USettingsTabGraphics::OnWindowModeChanged);
     if (VSyncToggle)
@@ -29,7 +31,6 @@ void USettingsTabGraphics::NativeConstruct()
 
 
     // Init
-    // Null check the settings object before trying to pull current values from it
     UGameUserSettings* Settings = UGameUserSettings::GetGameUserSettings();
     if (!Settings) return;
 
@@ -189,24 +190,26 @@ void USettingsTabGraphics::StartRevertTimer()
         FText FormattedDisplay = FText::Format(FormatTemplate, FText::AsNumber(CountdownSecondsRemaining));
         CountdownText->SetText(FormattedDisplay);
     }
-    UE_LOG(LogTemp, Warning, TEXT("Starting loop"));
+
     // Start a looping timer running every 1 second
-    GetWorld()->GetTimerManager().SetTimer(
+    UWorld* World = GetWorld();
+    if (!World) return;
+
+    // FIXME: This doesn't tick when game is paused because rainbows and gametick :_) sob
+    FTimerManager& TimerManager = World->GetTimerManager();
+    TimerManager.SetTimer(
         CountdownTimerHandle,
         this,
         &USettingsTabGraphics::UpdateCountdown,
         1.0f,
         true
     );
-    UE_LOG(LogTemp, Warning, TEXT("Loop started"));
 }
 
 // Are You Sure Timer Update
 void USettingsTabGraphics::UpdateCountdown()
 {
     CountdownSecondsRemaining--;
-
-    UE_LOG(LogTemp, Warning, TEXT("Timer Ticking! Seconds Remaining: %d"), CountdownSecondsRemaining);
 
     if (CountdownText)
     {
