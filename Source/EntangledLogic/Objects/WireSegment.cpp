@@ -108,7 +108,7 @@ void AWireSegment::InitializeSegment(ATestingWire* StartWire)
 	while (CurrentWire != nullptr)
 	{
 		// Add spline points at each wire's world location
-		SplineComponent->AddSplinePoint(CurrentWire->GetActorLocation(), ESplineCoordinateSpace::World, false);
+		SplineComponent->AddSplinePoint(CurrentWire->GetActorLocation() + FVector(0.0f, 0.0f, 20.0f), ESplineCoordinateSpace::World, false);
 
 		// Making it linear so it flows cleanly block-to-block, adjust as needed
 		SplineComponent->SetSplinePointType(PointIndex, ESplinePointType::Linear);
