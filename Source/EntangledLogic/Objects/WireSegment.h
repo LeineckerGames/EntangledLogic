@@ -52,7 +52,7 @@ public:
 
 	// Attempt to push an item onto the start of the queue
 	UFUNCTION(BlueprintCallable, Category = "Wire Segment")
-	bool AddItemToWire(UStaticMesh* MeshToUse, AQubit* QubitData);
+	bool AddItemToWire(AQubit* QubitData);
 
 	// Removes the front-most item from the queue
 	UFUNCTION(BlueprintCallable, Category = "Wire Segment")

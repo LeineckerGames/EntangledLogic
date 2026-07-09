@@ -1,5 +1,6 @@
 #include "WireSegment.h"
 #include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
+#include "EntangledLogic/Core/DevSettings/FactorySettings.h"
 #include "TestingWire.h"
 
 AWireSegment::AWireSegment()
@@ -196,7 +197,7 @@ bool AWireSegment::LeaveWireSegment()
 	return false;
 }
 
-bool AWireSegment::AddItemToWire(UStaticMesh* MeshToUse, AQubit* QubitData)
+bool AWireSegment::AddItemToWire(AQubit* QubitData)
 {
 	if (Capacity > 0 && ItemsOnWire.Num() >= Capacity)
 	{
@@ -206,7 +207,13 @@ bool AWireSegment::AddItemToWire(UStaticMesh* MeshToUse, AQubit* QubitData)
 	FWireItemData NewItem;
 
 	NewItem.ItemMesh = NewObject<UStaticMeshComponent>(this);
-	NewItem.ItemMesh->SetStaticMesh(MeshToUse);
+	const UFactorySettings* Settings = GetDefault<UFactorySettings>();
+	if (Settings && !Settings->QubitMesh.IsNull())
+	{
+		UStaticMesh* LoadedMesh = Settings->QubitMesh.LoadSynchronous();
+		NewItem.ItemMesh->SetStaticMesh(LoadedMesh);
+	}
+
 	NewItem.ItemMesh->SetupAttachment(SplineComponent);
 	NewItem.ItemMesh->RegisterComponent();
 	NewItem.QubitData = QubitData;
@@ -274,7 +281,7 @@ bool AWireSegment::IsFull()
 
 void AWireSegment::AddTestingItemToWire(AQubit* QubitData)
 {
-	AddItemToWire(TestingItemMesh, QubitData);
+	AddItemToWire(QubitData);
 }
 
 ////Get output factory and send qubits
