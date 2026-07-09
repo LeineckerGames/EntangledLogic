@@ -6,6 +6,7 @@
 #include "EntangledLogic/Interfaces/InputOutputInterface.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
+#include "Containers/CircularQueue.h"
 #include "Wire.generated.h"
 
 class AQubit;
@@ -42,6 +43,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "InputOutputs")
 	TArray<class UFactoryOutputComponent*> OutputComponents;
 
+	void OnFactoryTick();
+
+	void OutputQubits();
+
 	/*
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UWidgetComponent* FactoryDisplayWindow;
@@ -52,7 +57,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	TArray<AQubit*> Qubits;
+	TCircularQueue<AQubit*> Qubits{ NUM_QUBIT_SLOTS };
 
 	// Factory Interacton Interface
 	virtual void BeginHover(EPlacementMode PlacementMode) override;

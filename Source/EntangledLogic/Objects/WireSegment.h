@@ -88,8 +88,6 @@ public:
 	int32 ActiveGapIndex = 1;
 	bool bIsFrontBlocked = false;
 
-
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug", meta = (AllowPrivateAccess = "true"))
 	UStaticMesh* TestingItemMesh;
 
