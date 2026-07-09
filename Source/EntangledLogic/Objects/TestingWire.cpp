@@ -53,11 +53,21 @@ void ATestingWire::ConnectAllInputsAndOutputs()
 	WireSubsystem->AddWireToPaths(this);
 }
 
+
+bool ATestingWire::IsQubitSlotEmpty(int32 QubitSlotIndex)
+{
+	if (AssignedSegment->IsFull())
+	{
+		return false;
+	}
+	return true;
+}
+
 void ATestingWire::TransferQubit(AQubit* QubitToTransfer, int32 QubitSlotIndex)
 {
-	Qubits.Enqueue(QubitToTransfer);
+	//Qubits.Enqueue(QubitToTransfer);
 	UE_LOG(LogTemp, Display, TEXT("Running AddTestingItemToWire"));
-	AssignedSegment->AddTestingItemToWire();
+	AssignedSegment->AddTestingItemToWire(QubitToTransfer);
 }
 
 void ATestingWire::DisconnectAllInputsAndOutputs()

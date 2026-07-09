@@ -1,7 +1,6 @@
 #include "Wire.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
-#include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
 #include "EntangledLogic/Core/Framework/SortBySlotIndex.h"
 
 
@@ -38,16 +37,6 @@ void AWire::BeginPlay()
 	InputComponents.Sort(SortBySlotIndex<UFactoryInputComponent>);
 	OutputComponents.Sort(SortBySlotIndex<UFactoryOutputComponent>);
 
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		UFactorySubsystem* FactorySubsystem = World->GetSubsystem<UFactorySubsystem>();
-		if (FactorySubsystem)
-		{
-			FactorySubsystem->OnFactoryTick.AddUObject(this, &AWire::OnFactoryTick);
-		}
-	}
-
 }
 
 // Called every frame
@@ -55,50 +44,6 @@ void AWire::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-}
-
-void AWire::OnFactoryTick()
-{
-	OutputQubits();
-}
-
-void AWire::OutputQubits()
-{
-	//Get output factory and send qubits
-	int32 SlotNumber = 0;
-	for (UFactoryOutputComponent* CurrentOutputComponent : OutputComponents)
-	{
-		if (CurrentOutputComponent->OutputSlot)
-		{
-			AActor* CurrentActor = CurrentOutputComponent->OutputSlot;
-			if (CurrentActor)
-			{
-				//UE_LOG(LogTemp, Display, TEXT("Found Actor to send Qubit: %s"), *CurrentActor->GetActorNameOrLabel());
-				IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(CurrentOutputComponent->OutputSlot);
-				if (IOInterface)
-				{
-					// Need a way to get the slot index from other actor and then use it here
-					UFactoryInputComponent* ConnectedInputComponent = IOInterface->GetConnectedInputComponent(CurrentOutputComponent);
-					if (ConnectedInputComponent)
-					{
-						int32 InputSlotIndex = ConnectedInputComponent->SlotIndex;
-						//UE_LOG(LogTemp, Display, TEXT("The input comp of %s has a slot index of %d"), *ConnectedInputComponent->GetOwner()->GetActorNameOrLabel(), InputSlotIndex);
-						if (IOInterface->IsQubitSlotEmpty(InputSlotIndex))
-						{
-							// Pop qubit and send it to next factory
-							AQubit* QubitToSend;
-							if (Qubits.Dequeue(QubitToSend))
-							{
-								IOInterface->TransferQubit(QubitToSend, InputSlotIndex);
-							}
-						}
-					}
-				}
-			}
-
-		}
-		SlotNumber++;
-	}
 }
 
 // Factory Interaction Interface
@@ -202,15 +147,6 @@ TArray<UFactoryInputComponent*> AWire::GetInputComponents()
 TArray<UFactoryOutputComponent*> AWire::GetOutputComponents()
 {
 	return OutputComponents;
-}
-
-bool AWire::IsQubitSlotEmpty(int32 QubitSlotIndex)
-{
-	if (Qubits.IsFull())
-	{
-		return false;
-	}
-	return true;
 }
 
 void AWire::ConnectAllInputsAndOutputs()

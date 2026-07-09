@@ -135,7 +135,7 @@ void AFactoryBase::OutputQubits()
 	int32 SlotNumber = 0;
 	for (UFactoryOutputComponent* CurrentOutputComponent : OutputComponents)
 	{
-		if (CurrentOutputComponent->OutputSlot)
+		if (CurrentOutputComponent->OutputSlot && Qubits[SlotNumber] != nullptr)
 		{
 			AActor* CurrentActor = CurrentOutputComponent->OutputSlot;
 			if (CurrentActor)

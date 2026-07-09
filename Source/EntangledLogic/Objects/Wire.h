@@ -43,10 +43,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "InputOutputs")
 	TArray<class UFactoryOutputComponent*> OutputComponents;
 
-	void OnFactoryTick();
-
-	void OutputQubits();
-
 	/*
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UWidgetComponent* FactoryDisplayWindow;
@@ -57,7 +53,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	TCircularQueue<AQubit*> Qubits{ NUM_QUBIT_SLOTS };
+	//TCircularQueue<AQubit*> Qubits{ NUM_QUBIT_SLOTS };
 
 	// Factory Interacton Interface
 	virtual void BeginHover(EPlacementMode PlacementMode) override;
@@ -74,7 +70,7 @@ public:
 
 	virtual void ConnectAllInputsAndOutputs() override;
 
-	virtual bool IsQubitSlotEmpty(int32 QubitSlotIndex) override;
+	//virtual bool IsQubitSlotEmpty(int32 QubitSlotIndex) override;
 
 	//virtual void TransferQubit(class AQubit* QubitToTransfer, int32 QubitSlotIndex);
 
