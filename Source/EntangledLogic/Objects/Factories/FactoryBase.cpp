@@ -4,6 +4,7 @@
 #include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
+#include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
 #include "EntangledLogic/Core/Framework/SortBySlotIndex.h"
 #include "EntangledLogic/UI/Factory/FactoryInfoUI.h"
 #include "EntangledLogic/UI/Factory/FactoryDevUI.h"
@@ -45,7 +46,17 @@ void AFactoryBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Qubits.SetNum(NUM_QUBIT_SLOTS);
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		UFactorySubsystem* FactorySubsystem = World->GetSubsystem<UFactorySubsystem>();
+		if (FactorySubsystem)
+		{
+			FactorySubsystem->OnFactoryTick.AddUObject(this, &AFactoryBase::OnFactoryTick);
+		}
+	}
+
+	//Qubits.SetNum(NUM_QUBIT_SLOTS);
 	// Get Attached Inputs and Outputs and add them to the array
 	GetComponents<UFactoryInputComponent>(InputComponents);
 	GetComponents<UFactoryOutputComponent>(OutputComponents);
@@ -118,6 +129,47 @@ void AFactoryBase::UpdateQubitDisplay()
 	
 }
 
+void AFactoryBase::OutputQubits()
+{
+	//Get output factory and send qubits
+	int32 SlotNumber = 0;
+	for (UFactoryOutputComponent* CurrentOutputComponent : OutputComponents)
+	{
+		if (CurrentOutputComponent->OutputSlot && Qubits[SlotNumber] != nullptr)
+		{
+			AActor* CurrentActor = CurrentOutputComponent->OutputSlot;
+			if (CurrentActor)
+			{
+				//UE_LOG(LogTemp, Display, TEXT("Found Actor to send Qubit: %s"), *CurrentActor->GetActorNameOrLabel());
+				IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(CurrentOutputComponent->OutputSlot);
+				if (IOInterface)
+				{
+					// Need a way to get the slot index from other actor and then use it here
+					UFactoryInputComponent* ConnectedInputComponent = IOInterface->GetConnectedInputComponent(CurrentOutputComponent);
+					if (ConnectedInputComponent)
+					{
+						int32 InputSlotIndex = ConnectedInputComponent->SlotIndex;
+						//UE_LOG(LogTemp, Display, TEXT("The input comp of %s has a slot index of %d"), *ConnectedInputComponent->GetOwner()->GetActorNameOrLabel(), InputSlotIndex);
+						if (IOInterface->IsQubitSlotEmpty(InputSlotIndex))
+						{
+							IOInterface->TransferQubit(Qubits[SlotNumber], InputSlotIndex);
+							Qubits[SlotNumber] = nullptr;
+							UpdateQubitDisplay();
+						}
+					}
+				}
+			}
+
+		}
+		SlotNumber++;
+	}
+}
+
+void AFactoryBase::OnFactoryTick()
+{
+	//UE_LOG(LogTemp, Display, TEXT("Running On Facory tick in Actor: %s"), *GetActorNameOrLabel());
+}
+
 // Factory Interaction Interface
 void AFactoryBase::BeginHover(EPlacementMode PlacementMode)
 {
@@ -170,6 +222,7 @@ void AFactoryBase::Interact(EPlacementMode PlacementMode)
 		case EPlacementMode::Disabled:
 			//UE_LOG(LogTemp, Display, TEXT("Selecting Actor %s"), *GetActorNameOrLabel());
 			FactoryDisplayWindow->ToggleVisibility();
+			UpdateQubitDisplay();
 
 			// Open selected pop up UI
 			break;
@@ -223,15 +276,30 @@ TArray<UFactoryOutputComponent*> AFactoryBase::GetOutputComponents()
 
 void AFactoryBase::ConnectAllInputsAndOutputs()
 {
-	UE_LOG(LogTemp, Display, TEXT("ConnectAllInputsAndOutputs Running in %s"), *GetActorNameOrLabel());
+	//UE_LOG(LogTemp, Display, TEXT("ConnectAllInputsAndOutputs Running in %s"), *GetActorNameOrLabel());
+}
+
+bool AFactoryBase::IsQubitSlotEmpty(int32 QubitSlotIndex)
+{
+	if (Qubits[QubitSlotIndex] == nullptr)
+	{
+		return true;
+	}
+	return false;
+}
+
+void AFactoryBase::TransferQubit(AQubit* QubitToTransfer, int32 QubitSlotIndex)
+{
+	Qubits[QubitSlotIndex] = QubitToTransfer;
+	UpdateQubitDisplay();
 }
 
 void AFactoryBase::ConnectAllInputs()
 {
-	UE_LOG(LogTemp, Display, TEXT("ConnectAllInputs Running in %s"), *GetActorNameOrLabel());
+	//UE_LOG(LogTemp, Display, TEXT("ConnectAllInputs Running in %s"), *GetActorNameOrLabel());
 }
 
 void AFactoryBase::ConnectAllOutputs()
 {
-	UE_LOG(LogTemp, Display, TEXT("ConnectAllOutputs Running in %s"), *GetActorNameOrLabel());
+	//UE_LOG(LogTemp, Display, TEXT("ConnectAllOutputs Running in %s"), *GetActorNameOrLabel());
 }

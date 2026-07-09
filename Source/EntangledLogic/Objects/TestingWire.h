@@ -26,16 +26,21 @@ public:
 	// Input Output Interface
 	virtual void ConnectAllInputsAndOutputs() override;
 
+	virtual void DisconnectAllInputsAndOutputs() override;
+
+	virtual bool IsQubitSlotEmpty(int32 QubitSlotIndex) override;
+
+	virtual void TransferQubit(class AQubit* QubitToTransfer, int32 QubitSlotIndex) override;
+
 	virtual void ConnectAllInputs() override;
 
 	virtual void ConnectAllOutputs() override;
 
-	// Linked list pointers
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing")
-	ATestingWire* PreviousWire;
+	UFUNCTION()
+	ATestingWire* GetInputWire(); // Returns null if the input is not a wire.
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing")
-	ATestingWire* NextWire;
+	UFUNCTION()
+	ATestingWire* GetOutputWire();  // Returns null if the output is not a wire.
 
 	// Which segment/path does this wire currently belong to?
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Testing")
