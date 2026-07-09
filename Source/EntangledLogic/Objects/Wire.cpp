@@ -22,8 +22,6 @@ AWire::AWire()
 	// Create Grid Placement and attach to mesh
 	GridPlacementComponent = CreateDefaultSubobject<UGridPlacementComponent>(TEXT("GridPlacementComponent"));
 	GridPlacementComponent->SetupAttachment(WireMesh);
-
-
 }
 
 // Called when the game starts or when spawned
@@ -38,6 +36,7 @@ void AWire::BeginPlay()
 	// Sort arrays by input / output slot
 	InputComponents.Sort(SortBySlotIndex<UFactoryInputComponent>);
 	OutputComponents.Sort(SortBySlotIndex<UFactoryOutputComponent>);
+
 }
 
 // Called every frame
@@ -152,16 +151,16 @@ TArray<UFactoryOutputComponent*> AWire::GetOutputComponents()
 
 void AWire::ConnectAllInputsAndOutputs()
 {
-	UE_LOG(LogTemp, Display, TEXT("ConnectAllInputsAndOutputs Running in %s"), *GetActorNameOrLabel());
+	//UE_LOG(LogTemp, Display, TEXT("ConnectAllInputsAndOutputs Running in %s"), *GetActorNameOrLabel());
 }
 
 void AWire::ConnectAllInputs()
 {
-	UE_LOG(LogTemp, Display, TEXT("ConnectAllInputs Running in %s"), *GetActorNameOrLabel());
+	//UE_LOG(LogTemp, Display, TEXT("ConnectAllInputs Running in %s"), *GetActorNameOrLabel());
 }
 
 void AWire::ConnectAllOutputs()
 {
-	UE_LOG(LogTemp, Display, TEXT("ConnectAllOutputs Running in %s"), *GetActorNameOrLabel());
+	//UE_LOG(LogTemp, Display, TEXT("ConnectAllOutputs Running in %s"), *GetActorNameOrLabel());
 }
 

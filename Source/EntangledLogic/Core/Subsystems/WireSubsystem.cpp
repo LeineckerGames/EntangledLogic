@@ -12,8 +12,8 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 {
 	if (!NewWire) return;
 
-	ATestingWire* Prev = NewWire->PreviousWire;
-	ATestingWire* Next = NewWire->NextWire;
+	ATestingWire* Prev = NewWire->GetInputWire();
+	ATestingWire* Next = NewWire->GetOutputWire();
 
 	// Scenario 1: Merging two separate paths
 	if (Prev && Prev->AssignedSegment && Next && Next->AssignedSegment && Prev->AssignedSegment != Next->AssignedSegment)
@@ -29,7 +29,7 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 		while (CurrentWire)
 		{
 			CurrentWire->AssignedSegment = FirstSegment;
-			CurrentWire = CurrentWire->NextWire;
+			CurrentWire = CurrentWire->GetOutputWire();
 		}
 
 		// Rebuild the spline 
@@ -66,12 +66,14 @@ void UWireSubsystem::RemoveWireFromPath(ATestingWire* RemovedWire)
 	if (!RemovedWire || !RemovedWire->AssignedSegment) return;
 
 	AWireSegment* OldSegment = RemovedWire->AssignedSegment;
-    ATestingWire* Prev = RemovedWire->PreviousWire;
-    ATestingWire* Next = RemovedWire->NextWire;
+    ATestingWire* Prev = RemovedWire->GetInputWire();
+    ATestingWire* Next = RemovedWire->GetOutputWire();
 
+	/* // Below code is not necessary when the pointers are being disconnected elsewhere 
     // Disconnect pointers
-    if (Prev) Prev->NextWire = nullptr;
-    if (Next) Next->PreviousWire = nullptr;
+    if (Prev) Prev->NextWire = nullptr; // alternatively Prev->SetOutputWire(nullptr) // need to make the Set function
+    if (Next) Next->PreviousWire = nullptr; // alternatively Next->SetInputWire(nullptr) // need to make the Set function
+	*/
 
     // Remove the old segment completely (in a full game, we'd transfer items first)
     ActiveSegments.Remove(OldSegment);
@@ -83,9 +85,9 @@ void UWireSubsystem::RemoveWireFromPath(ATestingWire* RemovedWire)
     {
         // Re-add the previous part, tracing backwards to find its new start
         ATestingWire* StartWire = Prev;
-        while (StartWire->PreviousWire)
+        while (StartWire->GetInputWire())
         {
-            StartWire = StartWire->PreviousWire;
+            StartWire = StartWire->GetInputWire();
             StartWire->AssignedSegment = nullptr; // wipe old segment data
         }
         CreateNewSegment(StartWire);
@@ -115,7 +117,7 @@ AWireSegment* UWireSubsystem::CreateNewSegment(ATestingWire* StartWire)
 		while (CurrentWire)
 		{
 			CurrentWire->AssignedSegment = NewSegment;
-			CurrentWire = CurrentWire->NextWire;
+			CurrentWire = CurrentWire->GetOutputWire();
 		}
 	}
 

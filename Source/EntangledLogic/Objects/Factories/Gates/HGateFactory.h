@@ -13,9 +13,17 @@ class ENTANGLEDLOGIC_API AHGateFactory : public AFactoryBase
 
 	int32 GetNumQubitSlots() override { return NUM_QUBIT_SLOTS; };
 
+public:
+
+	AHGateFactory();
+
 protected:
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	virtual void OnFactoryTick() override;
+
+	virtual void OnQubitProcessed() override;
 
 public:
 

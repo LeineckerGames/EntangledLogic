@@ -6,6 +6,8 @@
 #include "EntangledLogic/Core/Framework/PersistantStats.h"
 #include "FactorySubsystem.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnFactoryTick)
+
 enum class EUnlockables : uint8;
 UCLASS()
 class ENTANGLEDLOGIC_API UFactorySubsystem : public UWorldSubsystem, public FTickableGameObject, public ISavableInterface
@@ -39,6 +41,8 @@ public:
 	TMap<EUnlockables, bool> GetUnlockablesMap() const;
 
 	FPersistantStats PersistantStats;
+
+	FOnFactoryTick OnFactoryTick;
 
 	bool CheckIfUnlocked(EUnlockables UnlockToCheck);
 

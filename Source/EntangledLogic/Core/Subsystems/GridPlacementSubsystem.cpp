@@ -159,7 +159,18 @@ FGridCoordinate UGridPlacementSubsystem::GridPositionToCoordinates(FVector GridL
 
 void UGridPlacementSubsystem::MoveSelectedFactoryOnGrid(FVector Location)
 {
+	if (!IsValid(SelectedFactory))
+	{
+		return;
+	}
+
 	UGridPlacementComponent* GridPlacementComponent = SelectedFactory->GetComponentByClass<UGridPlacementComponent>();
+	
+	if (!IsValid(GridPlacementComponent))
+	{
+		return;
+	}
+	
 	// Might want to change this not to run every frame
 	bool CollisonPass = CollisionCheck(GridComponentToCoordinates(GridPlacementComponent), GridPlacementComponent->GetFactoryShape());
 	GridPlacementComponent->UpdateCollisionMaterialParam(!CollisonPass);
@@ -167,10 +178,7 @@ void UGridPlacementSubsystem::MoveSelectedFactoryOnGrid(FVector Location)
 	FVector PlacementOffset = GridPlacementComponent->GetPlacementOffset();
 	FVector GridLocation = GetWorldGridLocation(Location, PlacementOffset);
 
-	if (!IsValid(SelectedFactory))
-	{
-		return;
-	}
+	
 
 	SelectedFactory->SetActorLocation(GridLocation);
 }
@@ -215,6 +223,13 @@ void UGridPlacementSubsystem::PickupFactory(AActor* FactoryToPickup)
 	SelectedFactoryClass = FactoryToPickup->GetClass();
 	FactoryCreationRotator = FactoryToPickup->GetActorRotation();
 	SetPlacementMode(EPlacementMode::Placing);
+
+	// Update Input Outputs
+	IInputOutputInterface* SelectedFactoryInputOutputInterface = Cast<IInputOutputInterface>(SelectedFactory);
+	if (SelectedFactoryInputOutputInterface)
+	{
+		SelectedFactoryInputOutputInterface->DisconnectAllInputsAndOutputs();
+	}
 }
 
 void UGridPlacementSubsystem::DeselectSelectedActor()
@@ -349,22 +364,37 @@ void UGridPlacementSubsystem::OnLeftClick()
 	{
 		PlaceSelectedActor();
 	}
-	ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
-	APlayerCameraController* PlayerCameraController = Cast<APlayerCameraController>(TopDownPlayerController->GetPawn());
-	IFactoryInteractionInterface* CurrentInteraction = PlayerCameraController->GetIFactoryInteractionFromMouse();
-	if (CurrentInteraction)
+	
+	if (UWorld* World = GetWorld())
 	{
-		CurrentInteraction->Interact(PlacementMode);
+		ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(World->GetFirstPlayerController());
+		if (TopDownPlayerController && TopDownPlayerController->GetPawn())
+		{
+			APlayerCameraController* PlayerCameraController = Cast<APlayerCameraController>(TopDownPlayerController->GetPawn());
+			if (PlayerCameraController)
+			{
+				IFactoryInteractionInterface* CurrentInteraction = PlayerCameraController->GetIFactoryInteractionFromMouse();
+				if (CurrentInteraction)
+				{
+					CurrentInteraction->Interact(PlacementMode);
+				}
+			}
+		}
 	}
 }
 
 void UGridPlacementSubsystem::AddGridPlacementIMC()
 {
-	// Add IMC to Player Controller
-	ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(GetWorld()->GetFirstPlayerController());
-	TopDownPlayerController->AddMappingContext(TopDownPlayerController->GridControls, 1);
-	UpdateControlUI();
-	//UE_LOG(LogTemp, Display, TEXT("Added Grid Mapping Context"));
+	// Add IMC to Player Controller safely
+	if (UWorld* World = GetWorld())
+	{
+		ATopDownPlayerController* TopDownPlayerController = Cast<ATopDownPlayerController>(World->GetFirstPlayerController());
+		if (TopDownPlayerController)
+		{
+			TopDownPlayerController->AddMappingContext(TopDownPlayerController->GridControls, 1);
+			UpdateControlUI();
+		}
+	}
 }
 
 void UGridPlacementSubsystem::UpdateControlUI()
@@ -398,6 +428,17 @@ TArray<FGridCoordinate> UGridPlacementSubsystem::GetGridPositionsFromInputOutput
 		PlaneLocations.Add(GridPos);
 	}
 	return PlaneLocations;
+}
+
+FGridCoordinate UGridPlacementSubsystem::GetGridPositionsFromInputOutputPlanes(UStaticMeshComponent* MeshesToConvert)
+{
+	FTransform MeshTransform = MeshesToConvert->GetComponentTransform();
+	FVector WorldLocation = MeshTransform.GetLocation();
+	//UE_LOG(LogTemp, Display, TEXT("CurrentMesh World Location, X: %f Y: %f Z: %f "), WorldLocation.X, WorldLocation.Y, WorldLocation.Z);
+	FVector GridLocation = GetGridLocation(WorldLocation, FVector::ZeroVector);
+	//UE_LOG(LogTemp, Display, TEXT("CurrentMesh Grid Location, X: %f Y: %f Z: %f "), GridLocation.X, GridLocation.Y, GridLocation.Z);
+	FGridCoordinate GridPos = GridPositionToCoordinates(GridLocation);
+	return GridPos;
 }
 
 // Array of Input Component

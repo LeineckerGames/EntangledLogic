@@ -41,7 +41,11 @@ void UGlobalAudioSubsystem::StartBackgroundAmbience()
 
 void UGlobalAudioSubsystem::TriggerMusic()
 {
-	BackgroundMusicAudioComponent->SetTriggerParameter(FName("PlayMusic"));
+	// This should fix that random crash Tim is having
+	if (BackgroundMusicAudioComponent)
+	{
+		BackgroundMusicAudioComponent->SetTriggerParameter(FName("PlayMusic"));
+	}
 }
 
 void UGlobalAudioSubsystem::StartMusicTimer()
@@ -81,12 +85,18 @@ void UGlobalAudioSubsystem::OnMetaSoundOutputChanged(FName OutputName, const FMe
 
 void UGlobalAudioSubsystem::SetPauseWet()
 {
-	BackgroundMusicAudioComponent->SetFloatParameter(FName("PausedDryWet"), 1.0f);
+	if (BackgroundMusicAudioComponent)
+	{
+		BackgroundMusicAudioComponent->SetFloatParameter(FName("PausedDryWet"), 1.0f);
+	}
 }
 
 void UGlobalAudioSubsystem::SetPauseDry()
 {
-	BackgroundMusicAudioComponent->SetFloatParameter(FName("PausedDryWet"), 0.0f);
+	if (BackgroundMusicAudioComponent)
+	{
+		BackgroundMusicAudioComponent->SetFloatParameter(FName("PausedDryWet"), 0.0f);
+	}
 }
 
 void UGlobalAudioSubsystem::SetBackgroundMusic(USoundBase* BackgroundMusicToSet)
