@@ -40,7 +40,7 @@ protected:
 
 	EPlacementMode PlacementMode = EPlacementMode::Disabled;
 
-	void DeleteSelectedFactory() const;
+	void DeleteSelectedFactory();
 
 	void AddGridPlacementIMC();
 

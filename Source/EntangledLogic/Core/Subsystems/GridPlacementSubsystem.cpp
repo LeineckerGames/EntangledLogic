@@ -322,13 +322,14 @@ TArray<FGridCoordinate> UGridPlacementSubsystem::GridComponentToCoordinates(UGri
 	return GridLocations;
 }
 
-void UGridPlacementSubsystem::DeleteSelectedFactory() const
+void UGridPlacementSubsystem::DeleteSelectedFactory()
 {
 	// If a factory is currently selected, delete it before selecting new one
-	if (SelectedFactory)
+	if (IsValid(SelectedFactory))
 	{
 		SelectedFactory->Destroy();
 	}
+	SelectedFactory = nullptr;
 }
 
 void UGridPlacementSubsystem::SetPlacementMode(EPlacementMode PlacementModeToSet)
