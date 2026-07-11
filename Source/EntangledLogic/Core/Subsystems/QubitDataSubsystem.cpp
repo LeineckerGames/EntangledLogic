@@ -95,6 +95,20 @@ bool UQubitDataSubsystem::CombineState(AQubit& qubitA, AQubit& qubitB)
 	return true;
 }
 
+// Destroys this qubit and all qubits entangled with it
+// Todo: convert pointers outside of state structs into weak object pointers?
+void UQubitDataSubsystem::DeleteQubit(AQubit& qubit)
+{
+	if (&qubit)
+	{
+		for (AQubit* q : qubit.State->qubits)
+		{
+			// q = NULL;
+			if (q) q->Destroy();
+		}
+	}
+}
+
 qpp::ket UQubitDataSubsystem::GetStateAsVector(ENamedState state)
 {
 	switch (state)

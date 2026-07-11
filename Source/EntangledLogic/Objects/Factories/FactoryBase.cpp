@@ -93,6 +93,40 @@ void AFactoryBase::BeginPlay()
 	
 }
 
+void AFactoryBase::StartProcessingQubits()
+{
+	// Check if all qubits are in the machine
+	int32 ValidQubitCount = 0;
+	int32 QubitCount = 0;
+	for (AQubit* CurrentQubit : Qubits)
+	{
+		if (CurrentQubit)
+		{
+			ValidQubitCount++;
+		}
+		QubitCount++;
+	}
+
+	if (ValidQubitCount == QubitCount)
+	{
+		if (IsQubitProcessed == false)
+		{
+			UWorld* World = GetWorld();
+			if (World)
+			{
+				FTimerHandle TimerHandle;
+				World->GetTimerManager().SetTimer(TimerHandle, this, &AFactoryBase::OnQubitProcessed, ProcesssingTime);
+			}
+		}
+	}
+}
+
+void AFactoryBase::OnQubitProcessed()
+{
+	IsQubitProcessed = true;
+	// Modify Qubit in child Gate class
+}
+
 // Called every frame
 void AFactoryBase::Tick(float DeltaTime)
 {
@@ -129,13 +163,16 @@ void AFactoryBase::UpdateQubitDisplay()
 	
 }
 
-void AFactoryBase::OutputQubits()
+// Returns true if succesfull
+bool AFactoryBase::OutputQubits()
 {
 	//Get output factory and send qubits
 	int32 SlotNumber = 0;
+	int32 ValidQubitCount = 0;
+	int32 QubitCount = 0;
 	for (UFactoryOutputComponent* CurrentOutputComponent : OutputComponents)
 	{
-		if (CurrentOutputComponent->OutputSlot)
+		if (CurrentOutputComponent->OutputSlot && Qubits[SlotNumber] != nullptr)
 		{
 			AActor* CurrentActor = CurrentOutputComponent->OutputSlot;
 			if (CurrentActor)
@@ -148,6 +185,7 @@ void AFactoryBase::OutputQubits()
 					UFactoryInputComponent* ConnectedInputComponent = IOInterface->GetConnectedInputComponent(CurrentOutputComponent);
 					if (ConnectedInputComponent)
 					{
+						QubitCount++;
 						int32 InputSlotIndex = ConnectedInputComponent->SlotIndex;
 						//UE_LOG(LogTemp, Display, TEXT("The input comp of %s has a slot index of %d"), *ConnectedInputComponent->GetOwner()->GetActorNameOrLabel(), InputSlotIndex);
 						if (IOInterface->IsQubitSlotEmpty(InputSlotIndex))
@@ -155,14 +193,21 @@ void AFactoryBase::OutputQubits()
 							IOInterface->TransferQubit(Qubits[SlotNumber], InputSlotIndex);
 							Qubits[SlotNumber] = nullptr;
 							UpdateQubitDisplay();
+							ValidQubitCount++;
 						}
 					}
 				}
 			}
-
 		}
 		SlotNumber++;
 	}
+
+	// Makes sure all qubits succeded
+	if (QubitCount != 0 && ValidQubitCount == QubitCount)
+	{
+		return true;
+	}
+	return false;
 }
 
 void AFactoryBase::OnFactoryTick()
@@ -291,6 +336,7 @@ bool AFactoryBase::IsQubitSlotEmpty(int32 QubitSlotIndex)
 void AFactoryBase::TransferQubit(AQubit* QubitToTransfer, int32 QubitSlotIndex)
 {
 	Qubits[QubitSlotIndex] = QubitToTransfer;
+	StartProcessingQubits();
 	UpdateQubitDisplay();
 }
 

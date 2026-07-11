@@ -3,6 +3,8 @@
 #include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "EntangledLogic/Interfaces/InputOutputInterface.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
+#include "EntangledLogic/Core/Subsystems/QubitDataSubsystem.h"
+#include "EntangledLogic/Core/Framework/QuantumGatesEnum.h"
 #include "Components/SceneCaptureComponent2D.h"
 
 ACNOTGateFactory::ACNOTGateFactory()
@@ -72,7 +74,29 @@ void ACNOTGateFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void ACNOTGateFactory::OnFactoryTick()
 {
 	Super::OnFactoryTick();
-	OutputQubits();
+	if (IsQubitProcessed)
+	{
+		if (OutputQubits())
+		{
+			IsQubitProcessed = false;
+		}
+	}
+}
+
+void ACNOTGateFactory::OnQubitProcessed()
+{
+	Super::OnQubitProcessed();
+	UWorld* world = GetWorld();
+	if (world)
+	{
+		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
+		if (QubitSubsystem)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Applying the CNOT Gate on the qubit"));
+			QubitSubsystem->ApplyControlled(*Qubits[0], *Qubits[1], EQuantumGate::X_Gate);
+			UpdateQubitDisplay();
+		}
+	}
 }
 
 // Input Output Interface

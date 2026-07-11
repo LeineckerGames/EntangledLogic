@@ -7,6 +7,7 @@
 
 // Forward declaration
 class ATestingWire;
+class AQubit;
 
 USTRUCT(BlueprintType)
 struct FWireItemData
@@ -14,12 +15,15 @@ struct FWireItemData
 	GENERATED_BODY()
 
 	// The distance between this item and the item directly in front of it 
-	// Defaulted to 20.0f (0.2 meters)
+	// Defaulted to 25.0f (0.25 meters)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float GapToNextItem = 20.0f;
+	float GapToNextItem = 25.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* ItemMesh = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	AQubit* QubitData = nullptr;
 };
 
 UCLASS()
@@ -33,8 +37,14 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	bool IsQubitAtEndOfSpline() const;
+
 public:
 	virtual void Tick(float DeltaTime) override;
+
+	void OnFactoryTick();
+
+	void OutputQubits();
 
 	// Initializes the spline path from a linked list of wires
 	UFUNCTION(BlueprintCallable, Category = "Wire Segment")
@@ -42,11 +52,11 @@ public:
 
 	// Attempt to push an item onto the start of the queue
 	UFUNCTION(BlueprintCallable, Category = "Wire Segment")
-	bool AddItemToWire(UStaticMesh* MeshToUse);
+	bool AddItemToWire(AQubit* QubitData);
 
 	// Removes the front-most item from the queue
 	UFUNCTION(BlueprintCallable, Category = "Wire Segment")
-	void RemoveFrontItem();
+	AQubit* RemoveFrontItem();
 
 	// Called when an item reaches the end of the wire segment path
 	UFUNCTION(BlueprintCallable, Category = "Wire Segment")
@@ -77,7 +87,7 @@ public:
 	float HeadGap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
-	float ItemSize = 20.0f;
+	float ItemSize = 25.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	float MovementSpeed = 100.0f;
@@ -92,6 +102,6 @@ public:
 	UStaticMesh* TestingItemMesh;
 
 	UFUNCTION()
-	void AddTestingItemToWire();
+	void AddTestingItemToWire(AQubit* QubitData);
 
 };

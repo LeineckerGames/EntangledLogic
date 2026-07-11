@@ -28,6 +28,8 @@ public:
 
 	bool CombineState(AQubit& qubitA, AQubit& qubitB);
 
+	void DeleteQubit(AQubit& qubit);
+
 private:
 	qpp::ket GetStateAsVector(ENamedState state);
 

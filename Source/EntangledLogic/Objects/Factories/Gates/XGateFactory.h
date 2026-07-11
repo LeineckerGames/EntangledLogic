@@ -23,6 +23,8 @@ protected:
 
 	virtual void OnFactoryTick() override;
 
+	virtual void OnQubitProcessed() override;
+
 public:
 
 	// Input Output Interface

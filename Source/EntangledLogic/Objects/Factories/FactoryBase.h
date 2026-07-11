@@ -45,7 +45,15 @@ protected:
 
 	class UUserWidget* FactoryWidget;
 
-	void OutputQubits();
+	float ProcesssingTime = 1.0f;
+
+	bool OutputQubits();
+
+	void StartProcessingQubits();
+
+	virtual void OnQubitProcessed();
+
+	bool IsQubitProcessed = false;
 
 public:	
 	// Called every frame

@@ -28,6 +28,8 @@ public:
 
 	virtual void DisconnectAllInputsAndOutputs() override;
 
+	virtual bool IsQubitSlotEmpty(int32 QubitSlotIndex) override;
+
 	virtual void TransferQubit(class AQubit* QubitToTransfer, int32 QubitSlotIndex) override;
 
 	virtual void ConnectAllInputs() override;
