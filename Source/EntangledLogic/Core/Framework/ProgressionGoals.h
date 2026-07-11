@@ -2,6 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "QppPlugin.h"
+#include "Eigen/Dense"
+#include <complex>
 #include "ProgressionGoals.generated.h"
 
 
@@ -14,12 +17,65 @@ enum class EProgressionGoals : uint8
 };
 
 USTRUCT(BlueprintType)
+struct FComplexNumber
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	double RealNumber;
+
+	UPROPERTY(EditAnywhere)
+	double ImaginaryNumber;
+};
+
+USTRUCT(BlueprintType)
+struct FKetWrapper
+{
+	GENERATED_BODY()
+	//std::complex
+
+	// Array size should match this QubitsInSystem^2
+	// I dont think theres an easy way to force this in editor
+	UPROPERTY(EditAnywhere, Category = "Dimension Size")
+	int32 QubitsInSystem;
+
+	UPROPERTY(EditAnywhere, Category = "Vector Values")
+	TArray<FComplexNumber> ComplexNumArr;
+
+	qpp::ket ConvertToKet()
+	{
+		// Create Ket with the right dimension
+		qpp::ket NewKet(QubitsInSystem);
+
+		// Convert and Add the complex number to each slot in the vector
+		int32 Count = 0;
+		for (FComplexNumber UnrealComplexNumber : ComplexNumArr)
+		{
+			std::complex<double> ComplexNumber(UnrealComplexNumber.RealNumber, UnrealComplexNumber.ImaginaryNumber);
+			NewKet[Count] = ComplexNumber;
+			Count++;
+		}
+
+		std::ostringstream oss1;
+
+		// push qpp's display to the stream
+		oss1 << qpp::disp(NewKet) << '\n';
+		FString KetInformationString = FString(oss1.str().c_str());
+		UE_LOG(LogTemp, Display, TEXT("Converted the Complex Number Arr to : %s"), *KetInformationString);
+		return NewKet;
+	}
+
+};
+
+USTRUCT(BlueprintType)
 struct FProgressionGoalsData
 {
 	GENERATED_BODY()
 
-	// Qpp::Ket AcceptedState
+	UPROPERTY(EditAnywhere)
+	FKetWrapper AcceptedState;
 
+	UPROPERTY(EditAnywhere)
 	int32 RequiredStatesAmount;
 };
 
@@ -29,4 +85,8 @@ class ENTANGLEDLOGIC_API UProgressionGoals : public UDataAsset
 {
 	GENERATED_BODY()
 	
+public:
+	UPROPERTY(EditAnywhere)
+	TMap<EProgressionGoals, FProgressionGoalsData> ProgressionGoals;
+
 };

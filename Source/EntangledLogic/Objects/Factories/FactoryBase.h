@@ -49,7 +49,7 @@ protected:
 
 	bool OutputQubits();
 
-	void StartProcessingQubits();
+	virtual void StartProcessingQubits();
 
 	virtual void OnQubitProcessed();
 

@@ -81,7 +81,7 @@ void ATierOneProgressionFactory::OnFactoryTick()
 	}
 }
 
-void AFactoryBase::StartProcessingQubits()
+void ATierOneProgressionFactory::StartProcessingQubits()
 {
 
 }

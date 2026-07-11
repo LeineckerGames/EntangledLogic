@@ -22,6 +22,9 @@ protected:
 
 	FTimerManager TimerManager;
 
+	UPROPERTY()
+	class UProgressionGoals* ProgressionGoalsData;
+
 	TMap<EUnlockables, bool> UnlockablesMap;
 
 public:

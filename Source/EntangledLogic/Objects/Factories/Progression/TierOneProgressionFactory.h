@@ -22,6 +22,8 @@ protected:
 
 	virtual void OnFactoryTick() override;
 
+	virtual void StartProcessingQubits() override;
+
 public:
 
 	// Input Output Interface
