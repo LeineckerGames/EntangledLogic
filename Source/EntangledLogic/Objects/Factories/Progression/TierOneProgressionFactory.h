@@ -24,6 +24,8 @@ protected:
 
 	virtual void StartProcessingQubits() override;
 
+	void UpdateProgressionUI();
+
 public:
 
 	// Input Output Interface

@@ -30,20 +30,23 @@ void UFactorySubsystem::OnWorldBeginPlay(UWorld& InWorld)
 		World->GetTimerManager().SetTimer(TimerHandle, this, &UFactorySubsystem::SetTickTrue, 2, true);
 	}
 
-
 }
 
-void UFactorySubsystem::TestProgressionLog()
+void UFactorySubsystem::SetCurrentGoalAcceptedStatesCount(int32 ValueToSet)
 {
-	if (ProgressionGoalsData)
+	PersistantStats.CurrentGoalAcceptedStatesCount = ValueToSet;
+}
+
+void UFactorySubsystem::SetCurrentProgressionGoal(EProgressionGoals ProgressionGoalToSet)
+{
+	FProgressionGoalsData* NewProgressionGoal = ProgressionGoalsData->ProgressionGoals.Find(ProgressionGoalToSet);
+	if (NewProgressionGoal)
 	{
-		UE_LOG(LogTemp, Display, TEXT("ProgressionGoalsData"))
-			FProgressionGoalsData* KetOneStateData = ProgressionGoalsData->ProgressionGoals.Find(EProgressionGoals::Superpositon_State);
-		if (KetOneStateData)
-		{
-			UE_LOG(LogTemp, Display, TEXT("KetOneStateData"))
-				KetOneStateData->AcceptedState.ConvertToKet();
-		}
+		PersistantStats.CurrentProgressionGoal = ProgressionGoalToSet;
+		PersistantStats.CurrentGoalAcceptedStatesCount = 0;
+		CurrentGoalRequiredStatesCount = NewProgressionGoal->RequiredStatesAmount;
+		CurrentRequiredState = NewProgressionGoal->AcceptedState.ConvertToKet();
+		CurrentRequiredStateString = NewProgressionGoal->AcceptedState.ConvertKetToString(CurrentRequiredState);
 	}
 }
 

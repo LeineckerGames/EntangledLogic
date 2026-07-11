@@ -28,8 +28,6 @@ public:
 
 	class UProgressionGoals* ProgressionGoalsData;
 
-	void TestProgressionLog();
-
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 
 	virtual void Tick(float DeltaTime) override;
@@ -45,6 +43,16 @@ public:
 	TMap<EUnlockables, bool> GetUnlockablesMap() const;
 
 	FPersistantStats PersistantStats;
+
+	void SetCurrentGoalAcceptedStatesCount(int32 ValueToSet);
+
+	void SetCurrentProgressionGoal(EProgressionGoals ProgressionGoalToSet);
+
+	int32 CurrentGoalRequiredStatesCount;
+
+	qpp::ket CurrentRequiredState;
+	
+	FString CurrentRequiredStateString;
 
 	FOnFactoryTick OnFactoryTick;
 

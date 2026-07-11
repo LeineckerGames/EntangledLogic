@@ -1,6 +1,12 @@
 #include "TierOneProgressionFactory.h"
+#include "Components/WidgetComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
+#include "EntangledLogic/Objects/Qubits/Qubit.h"
 #include "EntangledLogic/Interfaces/InputOutputInterface.h"
+#include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
+#include "EntangledLogic/Core/Subsystems/QubitDataSubsystem.h"
+#include "EntangledLogic/Core/Framework/QubitDataStructs.h"
+#include "EntangledLogic/UI/Factory/FactoryProgressionUI.h"
 
 ATierOneProgressionFactory::ATierOneProgressionFactory()
 {
@@ -70,20 +76,46 @@ void ATierOneProgressionFactory::EndPlay(const EEndPlayReason::Type EndPlayReaso
 void ATierOneProgressionFactory::OnFactoryTick()
 {
 	Super::OnFactoryTick();
-	if (IsQubitProcessed)
+	UFactorySubsystem* FactorySubsytem = GetWorld()->GetSubsystem<UFactorySubsystem>();
+	UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
+	if (FactorySubsytem && QubitSubsystem)
 	{
-		bool IsSuccess = OutputQubits();
-		if (IsSuccess)
+		int32 Count = 0;
+		for (AQubit* CurrentQubit : Qubits)
 		{
-			UE_LOG(LogTemp, Display, TEXT("Outputting Qubits, IsQubitProcessed = false"))
-				IsQubitProcessed = false;
+			if (CurrentQubit != nullptr)
+			{
+				bool IsQubitEqual = CurrentQubit->State->StateVector.isApprox(FactorySubsytem->CurrentRequiredState, 0.0001);
+				//UE_LOG(LogTemp, Display, TEXT("IsQubitEqual for qubit #%d = %d"), Count, IsQubitEqual);
+				if (IsQubitEqual)
+				{
+					FactorySubsytem->SetCurrentGoalAcceptedStatesCount(FactorySubsytem->PersistantStats.CurrentGoalAcceptedStatesCount + 1);
+					// "Delete" Qubit
+					//QubitSubsystem->DeleteQubit(*CurrentQubit);
+					CurrentQubit = nullptr;
+				}
+			}
+			Count++;
 		}
+		UpdateProgressionUI();
 	}
 }
 
 void ATierOneProgressionFactory::StartProcessingQubits()
 {
+	
+}
 
+void ATierOneProgressionFactory::UpdateProgressionUI()
+{
+	if (FactoryWidget) 
+	{
+		UFactoryProgressionUI* FactoryProgressionUI = Cast<UFactoryProgressionUI>(FactoryWidget);
+		if (FactoryProgressionUI)
+		{
+			FactoryProgressionUI->UpdateProgressionUI();
+		}
+	}
 }
 
 // Input Output Interface

@@ -87,7 +87,7 @@ void APlayerCameraController::BeginPlay()
 	if (FactorySubsytem && ProgressionGoalsDataAsset)
 	{
 		FactorySubsytem->ProgressionGoalsData = ProgressionGoalsDataAsset;
-		FactorySubsytem->TestProgressionLog();
+		FactorySubsytem->SetCurrentProgressionGoal(EProgressionGoals::Ket_One_State);
 	}
 }
 

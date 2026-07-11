@@ -66,6 +66,18 @@ struct FKetWrapper
 		return NewKet;
 	}
 
+	FString ConvertKetToString(qpp::ket KetToConvert)
+	{
+		// open string stream
+		std::ostringstream oss1;
+
+		// push qpp's display to the stream
+		oss1 << qpp::disp(KetToConvert) << '\n';
+
+		// string from stream
+		return FString(oss1.str().c_str());
+	}
+
 };
 
 USTRUCT(BlueprintType)
