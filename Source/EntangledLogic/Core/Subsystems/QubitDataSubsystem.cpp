@@ -14,6 +14,7 @@ AQubit* UQubitDataSubsystem::NewQubit(ENamedState namedState)
 	{
 		q->State->StateVector = GetStateAsVector(namedState);
 		q->State->qubits.Add(q);
+		q->UpdateMeshData();
 	}
 
 	return q;
@@ -28,6 +29,7 @@ AQubit* UQubitDataSubsystem::NewQubit()
 void UQubitDataSubsystem::SetState(AQubit& qubit, ENamedState namedState)
 {
 	qubit.State->StateVector = GetStateAsVector(namedState);
+	qubit.UpdateMeshData();
 }
 
 void UQubitDataSubsystem::Apply(AQubit& qubit, EQuantumGate gate)
@@ -38,6 +40,8 @@ void UQubitDataSubsystem::Apply(AQubit& qubit, EQuantumGate gate)
 	qubit.State->StateVector = apply(qubit.State->StateVector, gateMatrix, { LongEntPos });
 	// if aliasing becomes an issue, try this instead:
 	// state->X = qpp::apply(state->X.eval(), gateMatrix, { LongEntPos });
+
+	qubit.UpdateMeshData();
 }
 
 void UQubitDataSubsystem::ApplyControlled(AQubit& control, AQubit& target, EQuantumGate gate)
@@ -66,6 +70,9 @@ void UQubitDataSubsystem::ApplyControlled(AQubit& control, AQubit& target, EQuan
 		target.State->qubits.RemoveSingle(&control);
 		target.EntanglementPosition = 0;
 	}
+
+	control.UpdateMeshData();
+	target.UpdateMeshData();
 }
 
 // take two qubits and combine their states into one common state
@@ -107,6 +114,17 @@ void UQubitDataSubsystem::DeleteQubit(AQubit& qubit)
 			if (q) q->Destroy();
 		}
 	}
+}
+
+// curently only works for unentangled qubits
+FVector UQubitDataSubsystem::GetBlochVector(AQubit& qubit)
+{
+	if (qubit.State->qubits.Num() == 1) {
+		cmat rho = qpp::prj(qubit.State->StateVector);
+		std::vector<double> x = qpp::rho2bloch(rho);
+		return FVector(x[0], x[1], x[2]);
+	}
+	return FVector(0, 0, 1);
 }
 
 qpp::ket UQubitDataSubsystem::GetStateAsVector(ENamedState state)

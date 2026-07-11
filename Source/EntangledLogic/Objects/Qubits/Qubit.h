@@ -15,6 +15,12 @@ public:
 	class TSharedRef<FQubitData> State = MakeShared<FQubitData>();
 	int32 EntanglementPosition;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class USceneComponent* DefaultRoot;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UStaticMeshComponent* QubitMesh;
+
 	// Sets default values for this actor's properties
 	AQubit();
 
@@ -28,4 +34,5 @@ public:
 
 	class FString GetString();
 
+	void UpdateMeshData();
 };

@@ -30,6 +30,8 @@ public:
 
 	void DeleteQubit(AQubit& qubit);
 
+	FVector GetBlochVector(AQubit& qubit);
+
 private:
 	qpp::ket GetStateAsVector(ENamedState state);
 
