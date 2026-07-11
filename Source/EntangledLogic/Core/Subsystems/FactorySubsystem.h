@@ -22,12 +22,13 @@ protected:
 
 	FTimerManager TimerManager;
 
-	UPROPERTY()
-	class UProgressionGoals* ProgressionGoalsData;
-
 	TMap<EUnlockables, bool> UnlockablesMap;
 
 public:
+
+	class UProgressionGoals* ProgressionGoalsData;
+
+	void TestProgressionLog();
 
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 

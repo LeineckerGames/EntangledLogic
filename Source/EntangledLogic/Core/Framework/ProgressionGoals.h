@@ -44,15 +44,16 @@ struct FKetWrapper
 
 	qpp::ket ConvertToKet()
 	{
+		int32 KetDimension = FMath::Pow(2.0f, QubitsInSystem);
 		// Create Ket with the right dimension
-		qpp::ket NewKet(QubitsInSystem);
+		qpp::ket NewKet(KetDimension);
 
 		// Convert and Add the complex number to each slot in the vector
 		int32 Count = 0;
 		for (FComplexNumber UnrealComplexNumber : ComplexNumArr)
 		{
 			std::complex<double> ComplexNumber(UnrealComplexNumber.RealNumber, UnrealComplexNumber.ImaginaryNumber);
-			NewKet[Count] = ComplexNumber;
+			NewKet(Count) = ComplexNumber;
 			Count++;
 		}
 

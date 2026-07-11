@@ -30,23 +30,21 @@ void UFactorySubsystem::OnWorldBeginPlay(UWorld& InWorld)
 		World->GetTimerManager().SetTimer(TimerHandle, this, &UFactorySubsystem::SetTickTrue, 2, true);
 	}
 
-	//const UFactorySettings* FactorySettings = GetDefault<UFactorySettings>();
-	//if (FactorySettings)
-	//{
-	//	ProgressionGoalsData = FactorySettings->ProgressionGoalsDataAsset;
-	//}
-	//
-	//if (ProgressionGoalsData)
-	//{
-	//	UE_LOG(LogTemp, Display, TEXT("ProgressionGoalsData"))
-	//	FProgressionGoalsData* KetOneStateData = ProgressionGoalsData->ProgressionGoals.Find(EProgressionGoals::Ket_One_State);
-	//	if (KetOneStateData)
-	//	{
-	//		UE_LOG(LogTemp, Display, TEXT("KetOneStateData"))
-	//		KetOneStateData->AcceptedState.ConvertToKet();
-	//	}
-	//}
 
+}
+
+void UFactorySubsystem::TestProgressionLog()
+{
+	if (ProgressionGoalsData)
+	{
+		UE_LOG(LogTemp, Display, TEXT("ProgressionGoalsData"))
+			FProgressionGoalsData* KetOneStateData = ProgressionGoalsData->ProgressionGoals.Find(EProgressionGoals::Superpositon_State);
+		if (KetOneStateData)
+		{
+			UE_LOG(LogTemp, Display, TEXT("KetOneStateData"))
+				KetOneStateData->AcceptedState.ConvertToKet();
+		}
+	}
 }
 
 bool UFactorySubsystem::GetTickPaused() const
