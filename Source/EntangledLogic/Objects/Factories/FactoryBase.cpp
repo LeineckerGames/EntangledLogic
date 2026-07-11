@@ -139,12 +139,15 @@ void AFactoryBase::Tick(float DeltaTime)
 
 void AFactoryBase::RotateUIToCamera()
 {
-	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
-	FRotator RotationTowardCamera = UKismetMathLibrary::FindLookAtRotation(
-		FactoryDisplayWindow->GetComponentLocation() ,
-		CameraManager->GetTransformComponent()->GetComponentLocation());
-	//FRotator RotationTowardCamera = UKismetMathLibrary::NegateRotator(CameraManager->GetCameraRotation());
-	FactoryDisplayWindow->SetWorldRotation(RotationTowardCamera);
+	if (!FactoryDisplayWindow->ComponentHasTag(FName("DontRotate")))
+	{
+		APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+		FRotator RotationTowardCamera = UKismetMathLibrary::FindLookAtRotation(
+			FactoryDisplayWindow->GetComponentLocation(),
+			CameraManager->GetTransformComponent()->GetComponentLocation());
+			//FRotator RotationTowardCamera = UKismetMathLibrary::NegateRotator(CameraManager->GetCameraRotation());
+			FactoryDisplayWindow->SetWorldRotation(RotationTowardCamera);
+	}
 }
 
 // set the linked qubits of each QubitDisplaySlot
