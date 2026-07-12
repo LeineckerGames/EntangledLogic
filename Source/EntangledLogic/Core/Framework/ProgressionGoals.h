@@ -8,12 +8,15 @@
 #include "ProgressionGoals.generated.h"
 
 
+enum class EUnlockables : uint8;
+
 UENUM()
 enum class EProgressionGoals : uint8
 {
 	Ket_One_State,
 	Negative_Ket_One_State,
-	Superpositon_State
+	Superpositon_State,
+	Completed
 };
 
 USTRUCT(BlueprintType)
@@ -90,6 +93,13 @@ struct FProgressionGoalsData
 
 	UPROPERTY(EditAnywhere)
 	int32 RequiredStatesAmount;
+
+	UPROPERTY(EditAnywhere)
+	EProgressionGoals NextProgressionGoal;
+
+	UPROPERTY(EditAnywhere)
+	TArray<EUnlockables> UnlockablesOnCompletion;
+
 };
 
 

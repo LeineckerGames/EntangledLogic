@@ -29,6 +29,10 @@ void UFactoryDevUI::NativeConstruct()
     {
         ClearFactoriesButton->OnClicked.AddDynamic(this, &UFactoryDevUI::ClearFactories);
     }
+    if (UnlockAllButton)
+    {
+        UnlockAllButton->OnClicked.AddDynamic(this, &UFactoryDevUI::UnlockAll);
+    }
     if (TickPauseButton)
     {
         TickPauseButton->OnClicked.AddDynamic(this, &UFactoryDevUI::ToggleFactoryTick);
@@ -116,9 +120,12 @@ void UFactoryDevUI::SetHeaderText(FString FactoryHeader)
 	UIBase->SetHeaderText(FactoryHeader);
 }
 
-void UFactoryDevUI::UnlockRealQuantumGnome()
+void UFactoryDevUI::UnlockAll()
 {
-    // temp using this to test the progression
     UFactorySubsystem* FactorySubsystem = GetWorld()->GetSubsystem<UFactorySubsystem>();
-    FactorySubsystem->UnlockProgression(EUnlockables::Factory_QuantumGnome);
+    int32 LastEnumValue = static_cast<int32>(EUnlockables::UnlockAll);
+    for (int32 i = 0; i < LastEnumValue; i++)
+    {
+        FactorySubsystem->UnlockProgression(static_cast<EUnlockables>(i));
+    }
 }

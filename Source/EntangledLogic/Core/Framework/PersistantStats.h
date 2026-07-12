@@ -12,7 +12,7 @@ struct FPersistantStats
 	int32 GnomesMurdered;
 	
 	UPROPERTY()
-	EProgressionGoals CurrentProgressionGoal = EProgressionGoals::Ket_One_State;
+	EProgressionGoals CurrentProgressionGoal;
 
 	UPROPERTY()
 	int32 CurrentGoalAcceptedStatesCount = 0;

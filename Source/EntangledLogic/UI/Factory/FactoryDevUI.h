@@ -26,6 +26,9 @@ protected:
 	class UButton* ClearFactoriesButton;
 
 	UPROPERTY(meta = (BindWidget))
+	class UButton* UnlockAllButton;
+
+	UPROPERTY(meta = (BindWidget))
 	class UButton* TickPauseButton;
 
 	UPROPERTY(meta = (BindWidget))
@@ -58,7 +61,7 @@ protected:
 	void NextFactoryTick();
 
 	UFUNCTION()
-	void UnlockRealQuantumGnome();
+	void UnlockAll();
 
 
 public:

@@ -35,6 +35,18 @@ void UFactorySubsystem::OnWorldBeginPlay(UWorld& InWorld)
 void UFactorySubsystem::SetCurrentGoalAcceptedStatesCount(int32 ValueToSet)
 {
 	PersistantStats.CurrentGoalAcceptedStatesCount = ValueToSet;
+	if (PersistantStats.CurrentGoalAcceptedStatesCount >= CurrentGoalRequiredStatesCount)
+	{
+		FProgressionGoalsData* CurrentProgressionGoal = ProgressionGoalsData->ProgressionGoals.Find(PersistantStats.CurrentProgressionGoal);
+		if (CurrentProgressionGoal)
+		{
+			SetCurrentProgressionGoal(CurrentProgressionGoal->NextProgressionGoal);
+			for (EUnlockables CurrentUnlock : CurrentProgressionGoal->UnlockablesOnCompletion)
+			{
+				UnlockProgression(CurrentUnlock);
+			}
+		}
+	}
 }
 
 void UFactorySubsystem::SetCurrentProgressionGoal(EProgressionGoals ProgressionGoalToSet)
