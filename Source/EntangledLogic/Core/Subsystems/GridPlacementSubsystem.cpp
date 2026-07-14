@@ -235,6 +235,15 @@ void UGridPlacementSubsystem::PickupFactory(AActor* FactoryToPickup)
 void UGridPlacementSubsystem::DeselectSelectedActor()
 {
 	//UE_LOG(LogTemp, Display, TEXT("Deselecting Actor"));
+	if (SelectedFactory)
+	{
+		UGridPlacementComponent* SelectedFactoryGPC = SelectedFactory->GetComponentByClass<UGridPlacementComponent>();
+		if (SelectedFactoryGPC)
+		{
+			SelectedFactoryGPC->PlayDeselectSFX();
+		}
+	}
+
 	DeleteSelectedFactory();
 	SelectedFactoryClass = nullptr;
 	SetPlacementMode(EPlacementMode::Disabled);

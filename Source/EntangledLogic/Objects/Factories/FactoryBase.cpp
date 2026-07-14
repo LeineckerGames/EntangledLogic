@@ -90,7 +90,7 @@ void AFactoryBase::BeginPlay()
 	{
 		FactoryDevWidget->SetHeaderText("Dev Menu");
 	}
-	
+
 }
 
 void AFactoryBase::StartProcessingQubits()
@@ -275,7 +275,10 @@ void AFactoryBase::Interact(EPlacementMode PlacementMode)
 			// Open selected pop up UI
 			break;
 		case EPlacementMode::Placing:
-
+			if (PlaceSFX)
+			{
+				UGameplayStatics::PlaySound2D(GetWorld(), PlaceSFX);
+			}
 			break;
 		case EPlacementMode::Editing:
 		{
@@ -293,6 +296,10 @@ void AFactoryBase::Interact(EPlacementMode PlacementMode)
 			TArray<FGridCoordinate> GridLocations = GridPlacement->GridComponentToCoordinates(GridPlacementComponent);
 			GridPlacement->SetPlacedPositionMap(GridLocations, GridPlacementComponent->GetFactoryShape(), nullptr);
 			Destroy();
+			if (DeleteSFX)
+			{
+				UGameplayStatics::PlaySound2D(GetWorld(), DeleteSFX);
+			}
 		} break;
 	}
 }

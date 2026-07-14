@@ -1,4 +1,5 @@
 #include "GridPlacementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 
 UGridPlacementComponent::UGridPlacementComponent()
@@ -130,6 +131,14 @@ void UGridPlacementComponent::EnableInteractionOutline()
 void UGridPlacementComponent::DisableOutline()
 {
 	UpdateRenderCustomDepth(ActorsAttachedMeshes, false);
+}
+
+void UGridPlacementComponent::PlayDeselectSFX()
+{
+	if (CancelSFX)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), CancelSFX);
+	}
 }
 
 // Getters

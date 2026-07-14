@@ -55,6 +55,12 @@ protected:
 
 	bool IsQubitProcessed = false;
 
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	class USoundBase* PlaceSFX;
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	class USoundBase* DeleteSFX;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
