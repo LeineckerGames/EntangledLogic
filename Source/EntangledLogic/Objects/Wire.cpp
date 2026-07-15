@@ -1,6 +1,7 @@
 #include "Wire.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
+#include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
 #include "EntangledLogic/Core/Framework/SortBySlotIndex.h"
 
 
@@ -36,6 +37,12 @@ void AWire::BeginPlay()
 	// Sort arrays by input / output slot
 	InputComponents.Sort(SortBySlotIndex<UFactoryInputComponent>);
 	OutputComponents.Sort(SortBySlotIndex<UFactoryOutputComponent>);
+
+	USavingLoadingSubsystem* SavingLoadingSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<USavingLoadingSubsystem>();
+	if (SavingLoadingSubsystem)
+	{
+		SavingLoadingSubsystem->OnLoadFinished.AddUObject(this, &AWire::OnLoadCompleted);
+	}
 
 }
 
@@ -122,6 +129,12 @@ void AWire::Interact(EPlacementMode PlacementMode)
 		Destroy();
 	} break;
 	}
+}
+
+void AWire::OnLoadCompleted()
+{
+	ConnectAllInputs();
+	ConnectAllOutputs();
 }
 
 // Input Output Interface

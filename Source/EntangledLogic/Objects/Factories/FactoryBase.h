@@ -53,6 +53,8 @@ protected:
 
 	virtual void OnQubitProcessed();
 
+	void OnLoadCompleted();
+
 	bool IsQubitProcessed = false;
 
 	UPROPERTY(EditAnywhere, Category = "SFX")

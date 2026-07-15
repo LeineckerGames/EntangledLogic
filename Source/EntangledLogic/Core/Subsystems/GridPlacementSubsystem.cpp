@@ -506,6 +506,13 @@ AActor* UGridPlacementSubsystem::CreateFactoryFromSaveData(FFactorySaveData Fact
 	// Might want to add nulls checks for each SaveData
 	AActor* NewFactory = SpawnActorToPlaceFromClass(FactorySaveData.FactoryClass, FactorySaveData.FactoryTransform);
 
+	IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(NewFactory);
+	if (IOInterface)
+	{
+		IOInterface->SetAllInputOutputsVisibility(false);
+		IOInterface->ConnectAllInputsAndOutputs();
+	}
+
 	// Remove Collision Overaly on spawn
 	UGridPlacementComponent* FactoryGPC = NewFactory->GetComponentByClass<UGridPlacementComponent>();
 	FactoryGPC->RemoveOverlayMaterial();

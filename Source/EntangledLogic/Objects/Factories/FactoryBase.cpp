@@ -5,6 +5,7 @@
 #include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
+#include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
 #include "EntangledLogic/Core/Framework/SortBySlotIndex.h"
 #include "EntangledLogic/UI/Factory/FactoryInfoUI.h"
 #include "EntangledLogic/UI/Factory/FactoryDevUI.h"
@@ -53,6 +54,12 @@ void AFactoryBase::BeginPlay()
 		if (FactorySubsystem)
 		{
 			FactorySubsystem->OnFactoryTick.AddUObject(this, &AFactoryBase::OnFactoryTick);
+		}
+
+		USavingLoadingSubsystem* SavingLoadingSubsystem = World->GetGameInstance()->GetSubsystem<USavingLoadingSubsystem>();
+		if (SavingLoadingSubsystem)
+		{
+			SavingLoadingSubsystem->OnLoadFinished.AddUObject(this, &AFactoryBase::OnLoadCompleted);
 		}
 	}
 
@@ -302,6 +309,12 @@ void AFactoryBase::Interact(EPlacementMode PlacementMode)
 			}
 		} break;
 	}
+}
+
+void AFactoryBase::OnLoadCompleted()
+{
+	ConnectAllInputs();
+	ConnectAllOutputs();
 }
 
 // Input Output Interface

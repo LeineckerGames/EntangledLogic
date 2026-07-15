@@ -168,11 +168,13 @@ void UFactorySubsystem::SaveData(UFactorySaveGame* SaveGame)
 {
 	UE_LOG(LogTemp, Display, TEXT("Saving PersistantStats Data"));
 	SaveGame->PersistantStats = PersistantStats;
+	SaveGame->UnlockablesMap = UnlockablesMap;
 }
 
 void UFactorySubsystem::LoadData(UFactorySaveGame* SaveGame)
 {
 	UE_LOG(LogTemp, Display, TEXT("Loading PersistantStats Data"));
 	PersistantStats = SaveGame->PersistantStats;
-
+	UnlockablesMap = SaveGame->UnlockablesMap;
+	RepopulateFactorySelectionWidget();
 }
