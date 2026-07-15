@@ -110,8 +110,8 @@ void UQubitDataSubsystem::DeleteQubit(AQubit& qubit)
 	{
 		for (AQubit* q : qubit.State->qubits)
 		{
-			// q = NULL;
 			if (q) q->Destroy();
+			q = NULL;
 		}
 	}
 }

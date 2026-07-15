@@ -19,6 +19,7 @@ public:
 
 	static constexpr int32 NUM_QUBIT_SLOTS = 0;
 
+	UPROPERTY()
 	TArray<AQubit*> Qubits;
 
 protected:

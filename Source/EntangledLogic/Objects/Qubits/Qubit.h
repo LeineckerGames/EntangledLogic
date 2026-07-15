@@ -12,6 +12,7 @@ class ENTANGLEDLOGIC_API AQubit : public AActor
 	GENERATED_BODY()
 	
 public:
+	
 	class TSharedRef<FQubitData> State = MakeShared<FQubitData>();
 	int32 EntanglementPosition;
 
