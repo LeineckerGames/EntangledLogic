@@ -63,7 +63,7 @@ void AFactoryBase::BeginPlay()
 		}
 	}
 
-	//Qubits.SetNum(NUM_QUBIT_SLOTS);
+	Qubits.SetNum(GetNumQubitSlots());
 	// Get Attached Inputs and Outputs and add them to the array
 	GetComponents<UFactoryInputComponent>(InputComponents);
 	GetComponents<UFactoryOutputComponent>(OutputComponents);
