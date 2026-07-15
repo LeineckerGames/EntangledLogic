@@ -49,11 +49,19 @@ protected:
 
 	bool OutputQubits();
 
-	void StartProcessingQubits();
+	virtual void StartProcessingQubits();
 
 	virtual void OnQubitProcessed();
 
+	void OnLoadCompleted();
+
 	bool IsQubitProcessed = false;
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	class USoundBase* PlaceSFX;
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	class USoundBase* DeleteSFX;
 
 public:	
 	// Called every frame

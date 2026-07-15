@@ -5,6 +5,7 @@
 #include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
+#include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
 #include "EntangledLogic/Core/Framework/SortBySlotIndex.h"
 #include "EntangledLogic/UI/Factory/FactoryInfoUI.h"
 #include "EntangledLogic/UI/Factory/FactoryDevUI.h"
@@ -54,6 +55,12 @@ void AFactoryBase::BeginPlay()
 		{
 			FactorySubsystem->OnFactoryTick.AddUObject(this, &AFactoryBase::OnFactoryTick);
 		}
+
+		USavingLoadingSubsystem* SavingLoadingSubsystem = World->GetGameInstance()->GetSubsystem<USavingLoadingSubsystem>();
+		if (SavingLoadingSubsystem)
+		{
+			SavingLoadingSubsystem->OnLoadFinished.AddUObject(this, &AFactoryBase::OnLoadCompleted);
+		}
 	}
 
 	Qubits.SetNum(GetNumQubitSlots());
@@ -90,7 +97,7 @@ void AFactoryBase::BeginPlay()
 	{
 		FactoryDevWidget->SetHeaderText("Dev Menu");
 	}
-	
+
 }
 
 void AFactoryBase::StartProcessingQubits()
@@ -139,12 +146,15 @@ void AFactoryBase::Tick(float DeltaTime)
 
 void AFactoryBase::RotateUIToCamera()
 {
-	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
-	FRotator RotationTowardCamera = UKismetMathLibrary::FindLookAtRotation(
-		FactoryDisplayWindow->GetComponentLocation() ,
-		CameraManager->GetTransformComponent()->GetComponentLocation());
-	//FRotator RotationTowardCamera = UKismetMathLibrary::NegateRotator(CameraManager->GetCameraRotation());
-	FactoryDisplayWindow->SetWorldRotation(RotationTowardCamera);
+	if (!FactoryDisplayWindow->ComponentHasTag(FName("DontRotate")))
+	{
+		APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+		FRotator RotationTowardCamera = UKismetMathLibrary::FindLookAtRotation(
+			FactoryDisplayWindow->GetComponentLocation(),
+			CameraManager->GetTransformComponent()->GetComponentLocation());
+			//FRotator RotationTowardCamera = UKismetMathLibrary::NegateRotator(CameraManager->GetCameraRotation());
+			FactoryDisplayWindow->SetWorldRotation(RotationTowardCamera);
+	}
 }
 
 // set the linked qubits of each QubitDisplaySlot
@@ -272,7 +282,10 @@ void AFactoryBase::Interact(EPlacementMode PlacementMode)
 			// Open selected pop up UI
 			break;
 		case EPlacementMode::Placing:
-
+			if (PlaceSFX)
+			{
+				UGameplayStatics::PlaySound2D(GetWorld(), PlaceSFX);
+			}
 			break;
 		case EPlacementMode::Editing:
 		{
@@ -290,8 +303,18 @@ void AFactoryBase::Interact(EPlacementMode PlacementMode)
 			TArray<FGridCoordinate> GridLocations = GridPlacement->GridComponentToCoordinates(GridPlacementComponent);
 			GridPlacement->SetPlacedPositionMap(GridLocations, GridPlacementComponent->GetFactoryShape(), nullptr);
 			Destroy();
+			if (DeleteSFX)
+			{
+				UGameplayStatics::PlaySound2D(GetWorld(), DeleteSFX);
+			}
 		} break;
 	}
+}
+
+void AFactoryBase::OnLoadCompleted()
+{
+	ConnectAllInputs();
+	ConnectAllOutputs();
 }
 
 // Input Output Interface

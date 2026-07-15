@@ -1,6 +1,8 @@
 #include "FactorySubsystem.h"
 #include "EntangledLogic/Core/Framework/UnlockablesEnum.h"
 #include "EntangledLogic/Core/Framework/FactorySaveGame.h"
+#include "EntangledLogic/Core/DevSettings/FactorySettings.h"
+#include "EntangledLogic/Core/Framework/ProgressionGoals.h"
 #include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
 #include "EntangledLogic/Core/Subsystems/GlobalAudioSubsystem.h"
 #include "EntangledLogic/UI/PlayerHUD.h"
@@ -27,7 +29,37 @@ void UFactorySubsystem::OnWorldBeginPlay(UWorld& InWorld)
 		FTimerHandle TimerHandle;
 		World->GetTimerManager().SetTimer(TimerHandle, this, &UFactorySubsystem::SetTickTrue, 2, true);
 	}
-	
+
+}
+
+void UFactorySubsystem::SetCurrentGoalAcceptedStatesCount(int32 ValueToSet)
+{
+	PersistantStats.CurrentGoalAcceptedStatesCount = ValueToSet;
+	if (PersistantStats.CurrentGoalAcceptedStatesCount >= CurrentGoalRequiredStatesCount)
+	{
+		FProgressionGoalsData* CurrentProgressionGoal = ProgressionGoalsData->ProgressionGoals.Find(PersistantStats.CurrentProgressionGoal);
+		if (CurrentProgressionGoal)
+		{
+			SetCurrentProgressionGoal(CurrentProgressionGoal->NextProgressionGoal);
+			for (EUnlockables CurrentUnlock : CurrentProgressionGoal->UnlockablesOnCompletion)
+			{
+				UnlockProgression(CurrentUnlock);
+			}
+		}
+	}
+}
+
+void UFactorySubsystem::SetCurrentProgressionGoal(EProgressionGoals ProgressionGoalToSet)
+{
+	FProgressionGoalsData* NewProgressionGoal = ProgressionGoalsData->ProgressionGoals.Find(ProgressionGoalToSet);
+	if (NewProgressionGoal)
+	{
+		PersistantStats.CurrentProgressionGoal = ProgressionGoalToSet;
+		PersistantStats.CurrentGoalAcceptedStatesCount = 0;
+		CurrentGoalRequiredStatesCount = NewProgressionGoal->RequiredStatesAmount;
+		CurrentRequiredState = NewProgressionGoal->AcceptedState.ConvertToKet();
+		CurrentRequiredStateString = NewProgressionGoal->AcceptedState.ConvertKetToString(CurrentRequiredState);
+	}
 }
 
 bool UFactorySubsystem::GetTickPaused() const
@@ -136,11 +168,13 @@ void UFactorySubsystem::SaveData(UFactorySaveGame* SaveGame)
 {
 	UE_LOG(LogTemp, Display, TEXT("Saving PersistantStats Data"));
 	SaveGame->PersistantStats = PersistantStats;
+	SaveGame->UnlockablesMap = UnlockablesMap;
 }
 
 void UFactorySubsystem::LoadData(UFactorySaveGame* SaveGame)
 {
 	UE_LOG(LogTemp, Display, TEXT("Loading PersistantStats Data"));
 	PersistantStats = SaveGame->PersistantStats;
-
+	UnlockablesMap = SaveGame->UnlockablesMap;
+	RepopulateFactorySelectionWidget();
 }

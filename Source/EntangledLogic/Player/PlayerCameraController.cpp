@@ -10,8 +10,10 @@
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
+#include "EntangledLogic/Core/Framework/ProgressionGoals.h"
 #include "EntangledLogic/UI/PlayerHUD.h"
 #include "EntangledLogic/Core/Subsystems/GlobalAudioSubsystem.h"
+#include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -70,14 +72,22 @@ void APlayerCameraController::BeginPlay()
 
 
 	UE_LOG(LogTemp, Display, TEXT("Before Background ambience"));
+	
 	// Starts music
-
 	UGlobalAudioSubsystem* GlobalAudio = GetWorld()->GetGameInstance()->GetSubsystem<UGlobalAudioSubsystem>();
 	if (GlobalAudio)
 	{
 		GlobalAudio->SetBackgroundMusic(BackgroundMusic);
 		UE_LOG(LogTemp, Display, TEXT("Starting Background ambience"));
 		GlobalAudio->StartBackgroundAmbience();
+	}
+
+	// Loading progression data here bc the UDevSettings will not work at all.
+	UFactorySubsystem* FactorySubsytem = GetWorld()->GetSubsystem<UFactorySubsystem>();
+	if (FactorySubsytem && ProgressionGoalsDataAsset)
+	{
+		FactorySubsytem->ProgressionGoalsData = ProgressionGoalsDataAsset;
+		FactorySubsytem->SetCurrentProgressionGoal(EProgressionGoals::Ket_One_State);
 	}
 }
 

@@ -27,5 +27,8 @@ public:
 	FPersistantStats PersistantStats;
 
 	UPROPERTY()
+	TMap<EUnlockables, bool> UnlockablesMap;
+
+	UPROPERTY()
 	TArray<FFactorySaveData> SavedFactories;
 };
