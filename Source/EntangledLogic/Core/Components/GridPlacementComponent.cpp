@@ -79,19 +79,26 @@ void UGridPlacementComponent::UpdateOverlayMaterial(TArray<UMeshComponent*> Mesh
 
 void UGridPlacementComponent::UpdateRenderCustomDepth(TArray<UMeshComponent*> MeshesToUpdate, bool value)
 {
-		for (UMeshComponent* Mesh : MeshesToUpdate)
-		{
-			Mesh->SetRenderCustomDepth(value);
-		}
+	for (UMeshComponent* Mesh : MeshesToUpdate)
+	{
+		Mesh->SetRenderCustomDepth(value);
+	}
 }
 
-// 1 for Delete, 2 For Edit, 3 for rainbow
+// 1 for Delete, 2 For Edit, 3 for rainbow (should make this an enum)
 void UGridPlacementComponent::UpdateCustomDepthStencilValue(TArray<UMeshComponent*> MeshesToUpdate, int32 value)
 {
-		for (UMeshComponent* Mesh : MeshesToUpdate)
-		{
-			Mesh->SetCustomDepthStencilValue(value);
-		}
+	// Disables the interact outline if GPC is tagged
+	if (ComponentHasTag(FName("DontShowInteractOutline")) && value == 3)
+	{
+		UpdateRenderCustomDepth(MeshesToUpdate, false);
+		return;
+	}
+
+	for (UMeshComponent* Mesh : MeshesToUpdate)
+	{
+		Mesh->SetCustomDepthStencilValue(value);
+	}
 }
 
 void UGridPlacementComponent::RemoveOverlayMaterial()
