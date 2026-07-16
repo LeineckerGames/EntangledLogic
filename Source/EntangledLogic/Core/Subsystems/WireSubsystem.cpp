@@ -33,7 +33,7 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 		}
 
 		// Rebuild the spline 
-		FirstSegment->InitializeSegment(FirstSegment->FirstWire);
+		FirstSegment->InitializeSegment(FirstSegment->StartWire);
 
 		// Remove the old second segment
 		ActiveSegments.Remove(SecondSegment);
@@ -43,15 +43,15 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 	else if (Prev && Prev->AssignedSegment)
 	{
 		NewWire->AssignedSegment = Prev->AssignedSegment;
-		Prev->AssignedSegment->InitializeSegment(Prev->AssignedSegment->FirstWire);
+		Prev->AssignedSegment->AddWireToEndOfSegment(NewWire);
 	}
-	// Scenario 3: Extending the beginning of a path
+	// Scenario 3: Extending the start of a path
 	else if (Next && Next->AssignedSegment)
 	{
 		NewWire->AssignedSegment = Next->AssignedSegment;
 		
 		// The new wire is now the start of this segment
-		Next->AssignedSegment->InitializeSegment(NewWire);
+		Next->AssignedSegment->AddWireToStartOfSegment(NewWire);
 	}
 	// Scenario 4: A brand new, standalone wire
 	else
@@ -65,7 +65,7 @@ void UWireSubsystem::RemoveWireFromPath(ATestingWire* RemovedWire)
 {
 	if (!RemovedWire || !RemovedWire->AssignedSegment) return;
 
-	AWireSegment* OldSegment = RemovedWire->AssignedSegment;
+	//AWireSegment* OldSegment = RemovedWire->AssignedSegment;
     ATestingWire* Prev = RemovedWire->GetInputWire();
     ATestingWire* Next = RemovedWire->GetOutputWire();
 
@@ -75,11 +75,60 @@ void UWireSubsystem::RemoveWireFromPath(ATestingWire* RemovedWire)
     if (Next) Next->PreviousWire = nullptr; // alternatively Next->SetInputWire(nullptr) // need to make the Set function
 	*/
 
-    // Remove the old segment completely (in a full game, we'd transfer items first)
+	/*
+	// Remove the old segment completely (in a full game, we'd transfer items first)
     ActiveSegments.Remove(OldSegment);
     OldSegment->Destroy();
-    RemovedWire->AssignedSegment = nullptr;
+	*/
 
+	// Scenario 1: Splitting into two separate paths
+	if (Prev && Prev->AssignedSegment && Next && Next->AssignedSegment)
+	{
+		/*
+		AWireSegment* FirstSegment = Prev->AssignedSegment;
+		AWireSegment* SecondSegment = Next->AssignedSegment;
+
+		// Merge SecondSegment into FirstSegment
+		RemovedWire->AssignedSegment = FirstSegment;
+
+		// Update all wires in the second segment to point to the first
+		ATestingWire* CurrentWire = Next;
+		while (CurrentWire)
+		{
+			CurrentWire->AssignedSegment = FirstSegment;
+			CurrentWire = CurrentWire->GetOutputWire();
+		}
+
+		// Rebuild the spline 
+		FirstSegment->InitializeSegment(FirstSegment->StartWire);
+
+		// Remove the old second segment
+		ActiveSegments.Remove(SecondSegment);
+		SecondSegment->Destroy();
+		*/
+	}
+	// Scenario 2: Removing the end of a path
+	else if (Prev && Prev->AssignedSegment)
+	{
+		RemovedWire->AssignedSegment->RemoveWireFromEndOfSegment(RemovedWire);
+		RemovedWire->AssignedSegment = nullptr;
+	}
+	// Scenario 3: Removing the start of a path
+	else if (Next && Next->AssignedSegment)
+	{
+		Next->AssignedSegment->RemoveWireFromStartOfSegment(RemovedWire);
+		RemovedWire->AssignedSegment = nullptr;
+	}
+	// Scenario 4: A standalone wire
+	else
+	{
+		/*
+		AWireSegment* NewSegment = CreateNewSegment(RemovedWire);
+		RemovedWire->AssignedSegment = NewSegment;
+		*/
+	}
+
+	/*
     // Recalculate the separated pieces
     if (Prev)
     {
@@ -98,6 +147,7 @@ void UWireSubsystem::RemoveWireFromPath(ATestingWire* RemovedWire)
         Next->AssignedSegment = nullptr;
         CreateNewSegment(Next);
     }
+	*/
 }
 
 AWireSegment* UWireSubsystem::CreateNewSegment(ATestingWire* StartWire)
