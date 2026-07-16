@@ -4,6 +4,7 @@
 #include "Engine/DeveloperSettings.h"
 #include "Engine/StaticMesh.h"
 #include "EntangledLogic/Core/Framework/ProgressionGoals.h"
+#include "EntangledLogic/Objects/Qubits/Qubit.h"
 #include "FactorySettings.generated.h"
 
 /**
@@ -22,4 +23,7 @@ public:
 
 	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Progression Data")
 	//UProgressionGoals* ProgressionGoalsDataAsset;
+
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Qubit Settings")
+	TSubclassOf<AQubit> QubitClass;
 };
