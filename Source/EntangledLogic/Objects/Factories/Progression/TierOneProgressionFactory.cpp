@@ -80,22 +80,21 @@ void ATierOneProgressionFactory::OnFactoryTick()
 	UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
 	if (FactorySubsytem && QubitSubsystem)
 	{
-		int32 Count = 0;
-		for (AQubit* CurrentQubit : Qubits)
+		for (int i = 0; i < NUM_QUBIT_SLOTS; i++)
 		{
-			if (CurrentQubit != nullptr)
+			if (Qubits[i] != nullptr)
 			{
-				bool IsQubitEqual = CurrentQubit->State->StateVector.isApprox(FactorySubsytem->CurrentRequiredState, 0.0001);
-				//UE_LOG(LogTemp, Display, TEXT("IsQubitEqual for qubit #%d = %d"), Count, IsQubitEqual);
+				bool IsQubitEqual = Qubits[i]->State->StateVector.isApprox(FactorySubsytem->CurrentRequiredState, 0.0001);
+				//UE_LOG(LogTemp, Display, TEXT("IsQubitEqual for qubit #%d = %d"), i, IsQubitEqual);
 				if (IsQubitEqual)
 				{
+					//UE_LOG(LogTemp, Display, TEXT("Adding aceceptd states"));
 					FactorySubsytem->SetCurrentGoalAcceptedStatesCount(FactorySubsytem->PersistantStats.CurrentGoalAcceptedStatesCount + 1);
-					// "Delete" Qubit
-					//QubitSubsystem->DeleteQubit(*CurrentQubit);
-					CurrentQubit = nullptr;
 				}
 			}
-			Count++;
+			// Delete Qubit
+			QubitSubsystem->DeleteQubit(*Qubits[i]);
+			Qubits[i] = nullptr;
 		}
 		UpdateProgressionUI();
 	}
