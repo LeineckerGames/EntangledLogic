@@ -16,9 +16,16 @@ class ENTANGLEDLOGIC_API UQubitDataSubsystem : public UWorldSubsystem
 	GENERATED_BODY()
 	
 public:
+	UPROPERTY()
+	TSubclassOf<AQubit> QubitClass;
+
 	AQubit* NewQubit();
 
 	AQubit* NewQubit(ENamedState namedState);
+
+	AQubit* SpawnQubit(FVector SpawnLocation);
+
+	AQubit* SpawnQubit(FVector SpawnLocation, ENamedState namedState);
 
 	void SetState(AQubit& qubit, ENamedState namedState);
 

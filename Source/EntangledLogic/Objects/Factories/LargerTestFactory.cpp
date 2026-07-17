@@ -12,10 +12,26 @@ void ALargerTestFactory::BeginPlay()
 		UQubitDataSubsystem* QubitSubsystem = World->GetSubsystem<UQubitDataSubsystem>();
 		if (QubitSubsystem)
 		{
-			Qubits[0] = QubitSubsystem->NewQubit();
-			Qubits[0]->SetActorRelativeLocation(FVector(0, 0, 80));
+			FVector SpawnLocation = GetActorLocation() + FVector(0, 0, 80);
+			Qubits[0] = QubitSubsystem->SpawnQubit(SpawnLocation);
 			Qubits[0]->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, true));
 			UpdateQubitDisplay();
+		}
+	}
+}
+
+void ALargerTestFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (Qubits[0])
+	{
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			UQubitDataSubsystem* QubitSubsystem = World->GetSubsystem<UQubitDataSubsystem>();
+			if (QubitSubsystem)
+			{
+				QubitSubsystem->DeleteQubit(*Qubits[0]);
+			}
 		}
 	}
 }

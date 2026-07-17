@@ -2,11 +2,13 @@
 #include "EntangledLogic/Core/Framework/QuantumGatesEnum.h"
 #include "EntangledLogic/Core/Framework/QubitDataStructs.h"
 #include "EntangledLogic/Objects/Qubits/Qubit.h"
+#include "EntangledLogic/Core/DevSettings/FactorySettings.h"
 
 using namespace qpp;
 
 const int32 MAX_ENTANGLEMENT = 2;
 
+// Create a qubit actor without spawning it in the world
 AQubit* UQubitDataSubsystem::NewQubit(ENamedState namedState)
 {
 	AQubit* q = NewObject<AQubit>();
@@ -23,6 +25,33 @@ AQubit* UQubitDataSubsystem::NewQubit(ENamedState namedState)
 AQubit* UQubitDataSubsystem::NewQubit()
 {
 	return NewQubit(ENamedState::Zero);
+}
+
+// Spawn a new qubit actor at the specified world location 
+AQubit* UQubitDataSubsystem::SpawnQubit(FVector SpawnLocation, ENamedState namedState)
+{
+	AQubit* q = NULL;
+
+	const UFactorySettings* Settings = GetDefault<UFactorySettings>();
+	if (Settings && Settings->QubitClass)
+	{
+		FRotator SpawnRotation = FRotator::ZeroRotator;
+		FActorSpawnParameters SpawnParams;
+		q = GetWorld()->SpawnActor<AQubit>(Settings->QubitClass, SpawnLocation, SpawnRotation, SpawnParams);
+		if (q)
+		{
+			q->State->StateVector = GetStateAsVector(namedState);
+			q->State->qubits.Add(q);
+			q->UpdateMeshData();
+		}
+	}
+	return q;
+}
+
+// Spawn a new |0> qubit actor at the specified world location
+AQubit* UQubitDataSubsystem::SpawnQubit(FVector SpawnLocation)
+{
+	return SpawnQubit(SpawnLocation, ENamedState::Zero);
 }
 
 // can desync entanglement groups, use only for initialization
