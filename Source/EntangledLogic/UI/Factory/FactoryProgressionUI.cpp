@@ -7,7 +7,7 @@ void UFactoryProgressionUI::UpdateProgressionUI()
 	UFactorySubsystem* FactorySubsytem = GetWorld()->GetSubsystem<UFactorySubsystem>();
 	if (FactorySubsytem)
 	{
-		if (FactorySubsytem->PersistantStats.CurrentProgressionGoals.Num() > 1)
+		if (FactorySubsytem->PersistantStats.CurrentProgressionGoals.Num() > 0)
 		{
 			// Set ProgressionCountText
 			FString GoalCountString = FString::Printf(TEXT("%d / %d"), FactorySubsytem->PersistantStats.CurrentProgressionGoals[0].ProgressionGoalCount
@@ -15,7 +15,8 @@ void UFactoryProgressionUI::UpdateProgressionUI()
 			ProgressionCountText->SetText(FText::FromString(GoalCountString));
 
 			// Set State Info
-			QubitStateGoalText->SetText(FText::FromString(FactorySubsytem->PersistantStats.CurrentProgressionGoals[0].ProgressionGoalsData.AcceptedStateString));
+			QubitStateGoalText->SetText(FText::FromString(FactorySubsytem->PersistantStats.CurrentProgressionGoals[0].ProgressionGoalsData.AcceptedState.ConvertKetToString(
+				FactorySubsytem->PersistantStats.CurrentProgressionGoals[0].ProgressionGoalsData.AcceptedState.ConvertToKet())));
 		}
 	}
 	

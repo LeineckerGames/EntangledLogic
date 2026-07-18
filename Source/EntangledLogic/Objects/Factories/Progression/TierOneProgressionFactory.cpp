@@ -86,13 +86,14 @@ void ATierOneProgressionFactory::OnFactoryTick()
 			if (Qubits[i] != nullptr)
 			{
 				int32 NumOfProgressionGoals = FactorySubsytem->PersistantStats.CurrentProgressionGoals.Num();
+				UE_LOG(LogTemp, Display, TEXT("NumOfProgressionGoals = %d"), NumOfProgressionGoals);
 				for (int j = 0; j < NumOfProgressionGoals; j++)
 				{
 					bool IsQubitEqual = Qubits[i]->State->StateVector.isApprox(FactorySubsytem->PersistantStats.CurrentProgressionGoals[j].GetRequiredKet(), 0.0001);
-					//UE_LOG(LogTemp, Display, TEXT("IsQubitEqual for qubit #%d = %d"), i, IsQubitEqual);
+					UE_LOG(LogTemp, Display, TEXT("IsQubitEqual for qubit #%d = %d"), i, IsQubitEqual);
 					if (IsQubitEqual)
 					{
-						//UE_LOG(LogTemp, Display, TEXT("Adding aceceptd states"));
+						UE_LOG(LogTemp, Display, TEXT("Adding aceceptd states"));
 						FactorySubsytem->SetProgressionGoalCount(FactorySubsytem->PersistantStats.CurrentProgressionGoals[j],
 							FactorySubsytem->PersistantStats.CurrentProgressionGoals[j].ProgressionGoalCount + 1);
 					}

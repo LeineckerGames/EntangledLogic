@@ -44,7 +44,7 @@ public:
 
 	FPersistantStats PersistantStats;
 
-	void SetProgressionGoalCount(FProgressionGoal ProgressionGoal, int32 ValueToSet);
+	void SetProgressionGoalCount(FProgressionGoal &ProgressionGoal, int32 ValueToSet);
 
 	void AddProgressionGoal(EProgressionGoals ProgressionGoalToAdd);
 

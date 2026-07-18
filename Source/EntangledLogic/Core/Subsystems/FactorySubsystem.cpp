@@ -32,7 +32,7 @@ void UFactorySubsystem::OnWorldBeginPlay(UWorld& InWorld)
 
 }
 
-void UFactorySubsystem::SetProgressionGoalCount(FProgressionGoal ProgressionGoal, int32 ValueToSet)
+void UFactorySubsystem::SetProgressionGoalCount(FProgressionGoal &ProgressionGoal, int32 ValueToSet)
 {
 	ProgressionGoal.ProgressionGoalCount = ValueToSet;
 	if (ProgressionGoal.ProgressionGoalCount >= ProgressionGoal.ProgressionGoalsData.RequiredStatesAmount)
@@ -40,6 +40,7 @@ void UFactorySubsystem::SetProgressionGoalCount(FProgressionGoal ProgressionGoal
 		FProgressionGoalsData* NextProgressionGoal = ProgressionGoalsDataAsset->ProgressionGoals.Find(ProgressionGoal.ProgressionGoalsData.NextProgressionGoal);
 		if (NextProgressionGoal)
 		{
+			FProgressionGoal GoalToRemove = ProgressionGoal;
 			// Add Next Goal and Unlocks
 			AddProgressionGoal(ProgressionGoal.ProgressionGoalsData.NextProgressionGoal);
 			for (EUnlockables CurrentUnlock : ProgressionGoal.ProgressionGoalsData.UnlockablesOnCompletion)
@@ -48,7 +49,7 @@ void UFactorySubsystem::SetProgressionGoalCount(FProgressionGoal ProgressionGoal
 			}
 
 			// Remove old goal
-			PersistantStats.CurrentProgressionGoals.Remove(ProgressionGoal);
+			PersistantStats.CurrentProgressionGoals.Remove(GoalToRemove);
 		}
 	}
 }
@@ -62,6 +63,7 @@ void UFactorySubsystem::AddProgressionGoal(EProgressionGoals ProgressionGoalToAd
 		NewProgressionGoal.ProgressionGoalsData = *ProgressionGoalData;
 		NewProgressionGoal.ProgressionGoal = ProgressionGoalToAdd;
 		PersistantStats.CurrentProgressionGoals.Add(NewProgressionGoal);
+		UE_LOG(LogTemp, Display, TEXT("Added Progression Num() = %d"), PersistantStats.CurrentProgressionGoals.Num())
 	}
 }
 
