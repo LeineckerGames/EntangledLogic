@@ -6,6 +6,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerControlsUI.h"
+#include "GoalTracker.h"
 
 APlayerHUD::APlayerHUD()
 {
@@ -32,11 +33,18 @@ void APlayerHUD::BeginPlay()
 	}
 
 	// If Widget Class is set in editor Create it and add to screen
-	if (FactorySelectionWidgetClass)
+	if (PlayerControlsUIClass)
 	{
 		PlayerControlsUIWidget = CreateWidget<UPlayerControlsUI>(GetWorld(), PlayerControlsUIClass);
 		PlayerControlsUIWidget->AddToViewport();
 		//PlayerControlsUIWidget->UpdatePlayerControlsUI();
+	}
+
+	// If Widget Class is set in editor Create it and add to screen
+	if (GoalTrackerClass)
+	{
+		GoalTrackerWidget = CreateWidget<UGoalTracker>(GetWorld(), GoalTrackerClass);
+		GoalTrackerWidget->AddToViewport();
 	}
 
 	// Init Pause and add to viewport

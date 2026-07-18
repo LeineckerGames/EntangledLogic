@@ -1,5 +1,6 @@
 #include "EntangledLogic/Objects/Qubits/Qubit.h"
 #include "EntangledLogic/Core/Framework/QubitDataStructs.h"
+#include "EntangledLogic/Core/Subsystems/QubitDataSubsystem.h"
 #include "Templates/SharedPointer.h"
 #include "QppPlugin.h"
 
@@ -8,14 +9,22 @@ AQubit::AQubit()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	// Create Root Component
+	//DefaultRoot = CreateDefaultSubobject<USceneComponent>("DefaultRootComponent");
+	//SetRootComponent(DefaultRoot);
+
+	// Create Mesh and attach to root
+	QubitMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("QubitMesh"));
+	SetRootComponent(QubitMesh);
+	//QubitMesh->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
 void AQubit::BeginPlay()
 {
 	Super::BeginPlay();
-	State = MakeShared<FQubitData>();
-	
+	//State = MakeShared<FQubitData>();
 }
 
 // Called every frame
@@ -35,4 +44,18 @@ FString AQubit::GetString()
 
 	// string from stream
 	return FString(oss1.str().c_str());
+}
+
+void AQubit::UpdateMeshData()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		UQubitDataSubsystem* QubitSubsystem = World->GetSubsystem<UQubitDataSubsystem>();
+		if (QubitSubsystem)
+		{
+			FVector BlochVector = QubitSubsystem->GetBlochVector(*this);
+			QubitMesh->SetCustomPrimitiveDataVector3(0, BlochVector);
+		}
+	}
 }

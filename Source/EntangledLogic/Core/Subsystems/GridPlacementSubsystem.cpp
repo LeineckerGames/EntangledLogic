@@ -235,6 +235,15 @@ void UGridPlacementSubsystem::PickupFactory(AActor* FactoryToPickup)
 void UGridPlacementSubsystem::DeselectSelectedActor()
 {
 	//UE_LOG(LogTemp, Display, TEXT("Deselecting Actor"));
+	if (IsValid(SelectedFactory))
+	{
+		UGridPlacementComponent* SelectedFactoryGPC = SelectedFactory->GetComponentByClass<UGridPlacementComponent>();
+		if (SelectedFactoryGPC)
+		{
+			SelectedFactoryGPC->PlayDeselectSFX();
+		}
+	}
+
 	DeleteSelectedFactory();
 	SelectedFactoryClass = nullptr;
 	SetPlacementMode(EPlacementMode::Disabled);
@@ -322,12 +331,13 @@ TArray<FGridCoordinate> UGridPlacementSubsystem::GridComponentToCoordinates(UGri
 	return GridLocations;
 }
 
-void UGridPlacementSubsystem::DeleteSelectedFactory() const
+void UGridPlacementSubsystem::DeleteSelectedFactory()
 {
 	// If a factory is currently selected, delete it before selecting new one
 	if (SelectedFactory)
 	{
 		SelectedFactory->Destroy();
+		SelectedFactory = nullptr;
 	}
 }
 
@@ -496,6 +506,13 @@ AActor* UGridPlacementSubsystem::CreateFactoryFromSaveData(FFactorySaveData Fact
 {
 	// Might want to add nulls checks for each SaveData
 	AActor* NewFactory = SpawnActorToPlaceFromClass(FactorySaveData.FactoryClass, FactorySaveData.FactoryTransform);
+
+	IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(NewFactory);
+	if (IOInterface)
+	{
+		IOInterface->SetAllInputOutputsVisibility(false);
+		IOInterface->ConnectAllInputsAndOutputs();
+	}
 
 	// Remove Collision Overaly on spawn
 	UGridPlacementComponent* FactoryGPC = NewFactory->GetComponentByClass<UGridPlacementComponent>();

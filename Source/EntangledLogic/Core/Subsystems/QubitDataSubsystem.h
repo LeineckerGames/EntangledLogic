@@ -16,9 +16,16 @@ class ENTANGLEDLOGIC_API UQubitDataSubsystem : public UWorldSubsystem
 	GENERATED_BODY()
 	
 public:
+	UPROPERTY()
+	TSubclassOf<AQubit> QubitClass;
+
 	AQubit* NewQubit();
 
 	AQubit* NewQubit(ENamedState namedState);
+
+	AQubit* SpawnQubit(FVector SpawnLocation);
+
+	AQubit* SpawnQubit(FVector SpawnLocation, ENamedState namedState);
 
 	void SetState(AQubit& qubit, ENamedState namedState);
 
@@ -29,6 +36,8 @@ public:
 	bool CombineState(AQubit& qubitA, AQubit& qubitB);
 
 	void DeleteQubit(AQubit& qubit);
+
+	FVector GetBlochVector(AQubit& qubit);
 
 private:
 	qpp::ket GetStateAsVector(ENamedState state);

@@ -19,6 +19,7 @@ public:
 
 	static constexpr int32 NUM_QUBIT_SLOTS = 0;
 
+	UPROPERTY()
 	TArray<AQubit*> Qubits;
 
 protected:
@@ -53,7 +54,15 @@ protected:
 
 	virtual void OnQubitProcessed();
 
+	void OnLoadCompleted();
+
 	bool IsQubitProcessed = false;
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	class USoundBase* PlaceSFX;
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	class USoundBase* DeleteSFX;
 
 public:	
 	// Called every frame

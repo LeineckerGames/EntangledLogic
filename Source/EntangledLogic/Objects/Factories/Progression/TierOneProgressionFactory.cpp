@@ -99,7 +99,9 @@ void ATierOneProgressionFactory::OnFactoryTick()
 					
 				}
 			}
-			Count++;
+			// Delete Qubit
+			QubitSubsystem->DeleteQubit(*Qubits[i]);
+			Qubits[i] = nullptr;
 		}
 		UpdateProgressionUI();
 	}

@@ -23,4 +23,7 @@ public:
 
 	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Progression Data")
 	//UProgressionGoals* ProgressionGoalsDataAsset;
+
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Qubit Settings")
+	TSubclassOf<AQubit> QubitClass;
 };
