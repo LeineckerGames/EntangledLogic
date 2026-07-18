@@ -64,7 +64,7 @@ protected:
 	class USoundBase* BackgroundMusic;
 
 	UPROPERTY(EditAnywhere, Category = "Progression Data")
-	class UProgressionGoals* ProgressionGoalsDataAsset;
+	class UProgressionGoalsDataAsset* ProgressionGoalsDataAsset;
 
 public:	
 	// Called every frame

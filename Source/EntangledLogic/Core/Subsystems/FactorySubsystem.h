@@ -26,7 +26,7 @@ protected:
 
 public:
 
-	class UProgressionGoals* ProgressionGoalsData;
+	class UProgressionGoalsDataAsset* ProgressionGoalsDataAsset;
 
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 
@@ -44,15 +44,9 @@ public:
 
 	FPersistantStats PersistantStats;
 
-	void SetCurrentGoalAcceptedStatesCount(int32 ValueToSet);
+	void SetProgressionGoalCount(FProgressionGoal ProgressionGoal, int32 ValueToSet);
 
-	void SetCurrentProgressionGoal(EProgressionGoals ProgressionGoalToSet);
-
-	int32 CurrentGoalRequiredStatesCount;
-
-	qpp::ket CurrentRequiredState;
-	
-	FString CurrentRequiredStateString;
+	void AddProgressionGoal(EProgressionGoals ProgressionGoalToAdd);
 
 	FOnFactoryTick OnFactoryTick;
 

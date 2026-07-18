@@ -10,7 +10,7 @@
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
-#include "EntangledLogic/Core/Framework/ProgressionGoals.h"
+#include "EntangledLogic/Core/Framework/ProgressionGoalsDataAsset.h"
 #include "EntangledLogic/UI/PlayerHUD.h"
 #include "EntangledLogic/Core/Subsystems/GlobalAudioSubsystem.h"
 #include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
@@ -86,8 +86,8 @@ void APlayerCameraController::BeginPlay()
 	UFactorySubsystem* FactorySubsytem = GetWorld()->GetSubsystem<UFactorySubsystem>();
 	if (FactorySubsytem && ProgressionGoalsDataAsset)
 	{
-		FactorySubsytem->ProgressionGoalsData = ProgressionGoalsDataAsset;
-		FactorySubsytem->SetCurrentProgressionGoal(EProgressionGoals::Ket_One_State);
+		FactorySubsytem->ProgressionGoalsDataAsset = ProgressionGoalsDataAsset;
+		FactorySubsytem->AddProgressionGoal(EProgressionGoals::Ket_One_State);
 	}
 }
 

@@ -1,12 +1,9 @@
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Engine/DataAsset.h"
 #include "QppPlugin.h"
 #include "Eigen/Dense"
 #include <complex>
-#include "ProgressionGoals.generated.h"
-
+#include "ProgressionGoalsDataStructs.generated.h"
 
 enum class EUnlockables : uint8;
 
@@ -91,6 +88,9 @@ struct FProgressionGoalsData
 	UPROPERTY(EditAnywhere)
 	FKetWrapper AcceptedState;
 
+	UPROPERTY(VisibleAnywhere)
+	FString AcceptedStateString = "EMPTY";
+
 	UPROPERTY(EditAnywhere)
 	int32 RequiredStatesAmount;
 
@@ -102,14 +102,28 @@ struct FProgressionGoalsData
 
 };
 
-
-UCLASS()
-class ENTANGLEDLOGIC_API UProgressionGoals : public UDataAsset
+USTRUCT(BlueprintType)
+struct FProgressionGoal
 {
 	GENERATED_BODY()
-	
-public:
+
 	UPROPERTY(EditAnywhere)
-	TMap<EProgressionGoals, FProgressionGoalsData> ProgressionGoals;
+	EProgressionGoals ProgressionGoal;
+
+	UPROPERTY(EditAnywhere)
+	FProgressionGoalsData ProgressionGoalsData;
+
+	UPROPERTY(EditAnywhere)
+	int32 ProgressionGoalCount = 0;
+
+	qpp::ket GetRequiredKet()
+	{
+		return ProgressionGoalsData.AcceptedState.ConvertToKet();
+	}
+
+	bool operator==(const FProgressionGoal& Other) const
+	{
+		return this->ProgressionGoal == Other.ProgressionGoal;
+	}
 
 };

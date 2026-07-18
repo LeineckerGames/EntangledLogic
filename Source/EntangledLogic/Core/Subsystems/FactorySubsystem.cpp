@@ -2,7 +2,7 @@
 #include "EntangledLogic/Core/Framework/UnlockablesEnum.h"
 #include "EntangledLogic/Core/Framework/FactorySaveGame.h"
 #include "EntangledLogic/Core/DevSettings/FactorySettings.h"
-#include "EntangledLogic/Core/Framework/ProgressionGoals.h"
+#include "EntangledLogic/Core/Framework/ProgressionGoalsDataAsset.h"
 #include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
 #include "EntangledLogic/Core/Subsystems/GlobalAudioSubsystem.h"
 #include "EntangledLogic/UI/PlayerHUD.h"
@@ -32,33 +32,36 @@ void UFactorySubsystem::OnWorldBeginPlay(UWorld& InWorld)
 
 }
 
-void UFactorySubsystem::SetCurrentGoalAcceptedStatesCount(int32 ValueToSet)
+void UFactorySubsystem::SetProgressionGoalCount(FProgressionGoal ProgressionGoal, int32 ValueToSet)
 {
-	PersistantStats.CurrentGoalAcceptedStatesCount = ValueToSet;
-	if (PersistantStats.CurrentGoalAcceptedStatesCount >= CurrentGoalRequiredStatesCount)
+	ProgressionGoal.ProgressionGoalCount = ValueToSet;
+	if (ProgressionGoal.ProgressionGoalCount >= ProgressionGoal.ProgressionGoalsData.RequiredStatesAmount)
 	{
-		FProgressionGoalsData* CurrentProgressionGoal = ProgressionGoalsData->ProgressionGoals.Find(PersistantStats.CurrentProgressionGoal);
-		if (CurrentProgressionGoal)
+		FProgressionGoalsData* NextProgressionGoal = ProgressionGoalsDataAsset->ProgressionGoals.Find(ProgressionGoal.ProgressionGoalsData.NextProgressionGoal);
+		if (NextProgressionGoal)
 		{
-			SetCurrentProgressionGoal(CurrentProgressionGoal->NextProgressionGoal);
-			for (EUnlockables CurrentUnlock : CurrentProgressionGoal->UnlockablesOnCompletion)
+			// Add Next Goal and Unlocks
+			AddProgressionGoal(ProgressionGoal.ProgressionGoalsData.NextProgressionGoal);
+			for (EUnlockables CurrentUnlock : ProgressionGoal.ProgressionGoalsData.UnlockablesOnCompletion)
 			{
 				UnlockProgression(CurrentUnlock);
 			}
+
+			// Remove old goal
+			PersistantStats.CurrentProgressionGoals.Remove(ProgressionGoal);
 		}
 	}
 }
 
-void UFactorySubsystem::SetCurrentProgressionGoal(EProgressionGoals ProgressionGoalToSet)
+void UFactorySubsystem::AddProgressionGoal(EProgressionGoals ProgressionGoalToAdd)
 {
-	FProgressionGoalsData* NewProgressionGoal = ProgressionGoalsData->ProgressionGoals.Find(ProgressionGoalToSet);
-	if (NewProgressionGoal)
+	FProgressionGoalsData* ProgressionGoalData = ProgressionGoalsDataAsset->ProgressionGoals.Find(ProgressionGoalToAdd);
+	if (ProgressionGoalData)
 	{
-		PersistantStats.CurrentProgressionGoal = ProgressionGoalToSet;
-		PersistantStats.CurrentGoalAcceptedStatesCount = 0;
-		CurrentGoalRequiredStatesCount = NewProgressionGoal->RequiredStatesAmount;
-		CurrentRequiredState = NewProgressionGoal->AcceptedState.ConvertToKet();
-		CurrentRequiredStateString = NewProgressionGoal->AcceptedState.ConvertKetToString(CurrentRequiredState);
+		FProgressionGoal NewProgressionGoal;
+		NewProgressionGoal.ProgressionGoalsData = *ProgressionGoalData;
+		NewProgressionGoal.ProgressionGoal = ProgressionGoalToAdd;
+		PersistantStats.CurrentProgressionGoals.Add(NewProgressionGoal);
 	}
 }
 

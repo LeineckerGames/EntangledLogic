@@ -81,18 +81,22 @@ void ATierOneProgressionFactory::OnFactoryTick()
 	if (FactorySubsytem && QubitSubsystem)
 	{
 		int32 Count = 0;
-		for (AQubit* CurrentQubit : Qubits)
+		for (int i = 0; i < NUM_QUBIT_SLOTS; i++)
 		{
-			if (CurrentQubit != nullptr)
+			if (Qubits[i] != nullptr)
 			{
-				bool IsQubitEqual = CurrentQubit->State->StateVector.isApprox(FactorySubsytem->CurrentRequiredState, 0.0001);
-				//UE_LOG(LogTemp, Display, TEXT("IsQubitEqual for qubit #%d = %d"), Count, IsQubitEqual);
-				if (IsQubitEqual)
+				int32 NumOfProgressionGoals = FactorySubsytem->PersistantStats.CurrentProgressionGoals.Num();
+				for (int j = 0; j < NumOfProgressionGoals; j++)
 				{
-					FactorySubsytem->SetCurrentGoalAcceptedStatesCount(FactorySubsytem->PersistantStats.CurrentGoalAcceptedStatesCount + 1);
-					// "Delete" Qubit
-					//QubitSubsystem->DeleteQubit(*CurrentQubit);
-					CurrentQubit = nullptr;
+					bool IsQubitEqual = Qubits[i]->State->StateVector.isApprox(FactorySubsytem->PersistantStats.CurrentProgressionGoals[j].GetRequiredKet(), 0.0001);
+					//UE_LOG(LogTemp, Display, TEXT("IsQubitEqual for qubit #%d = %d"), i, IsQubitEqual);
+					if (IsQubitEqual)
+					{
+						//UE_LOG(LogTemp, Display, TEXT("Adding aceceptd states"));
+						FactorySubsytem->SetProgressionGoalCount(FactorySubsytem->PersistantStats.CurrentProgressionGoals[j],
+							FactorySubsytem->PersistantStats.CurrentProgressionGoals[j].ProgressionGoalCount + 1);
+					}
+					
 				}
 			}
 			Count++;

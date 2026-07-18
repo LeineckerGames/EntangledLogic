@@ -3,7 +3,8 @@
 #include "CoreMinimal.h"
 #include "Engine/DeveloperSettings.h"
 #include "Engine/StaticMesh.h"
-#include "EntangledLogic/Core/Framework/ProgressionGoals.h"
+#include "EntangledLogic/Core/Framework/ProgressionGoalsDataAsset.h"
+#include "EntangledLogic/Objects/Qubits/Qubit.h"
 #include "FactorySettings.generated.h"
 
 /**
