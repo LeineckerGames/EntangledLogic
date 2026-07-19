@@ -8,8 +8,15 @@
 
 ATestingWire::ATestingWire()
 {
-	// A basic TestingWire doesn't need to tick anymore as segment handles motion
+	// A basic TestingWire doesn't need to tick as segment handles motion
 	PrimaryActorTick.bCanEverTick = false;
+
+	PointsRoot = CreateDefaultSubobject<USceneComponent>(TEXT("PointsRoot"));
+	PointsRoot->SetupAttachment(DefaultRoot);
+
+	// Minimum required point
+	DefaultPoint = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultPoint"));
+	DefaultPoint->SetupAttachment(PointsRoot);
 }
 
 void ATestingWire::BeginPlay()
@@ -134,4 +141,14 @@ ATestingWire* ATestingWire::GetInputWire()
 ATestingWire* ATestingWire::GetOutputWire()
 {
 	return Cast<ATestingWire>(OutputComponents[0]->OutputSlot);
+}
+
+FVector ATestingWire::GetPointAtIndex(int32 i)
+{
+	TArray<USceneComponent*> PointsArray;
+	PointsRoot->GetChildrenComponents(true, PointsArray);
+
+	if (i >= PointsArray.Num()) return FVector(); // Index out of bounds
+	
+	return PointsArray[i]->GetComponentLocation();	
 }

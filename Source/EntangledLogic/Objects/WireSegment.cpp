@@ -108,8 +108,7 @@ void AWireSegment::InitializeSegment(ATestingWire* NewStartWire)
 	while (CurrentWire != nullptr)
 	{
 		// Add spline points at each wire's world location
-		SplineComponent->AddSplinePoint(CurrentWire->GetActorLocation() + SplineOffset, ESplineCoordinateSpace::World, false);
-
+		SplineComponent->AddSplinePoint(CurrentWire->GetPointAtIndex(0), ESplineCoordinateSpace::World, false);
 		// Making it linear so it flows cleanly block-to-block, adjust as needed
 		SplineComponent->SetSplinePointType(PointIndex, ESplinePointType::Linear);
 
@@ -125,7 +124,7 @@ void AWireSegment::AddWireToEndOfSegment(ATestingWire* WireToAdd)
 {
 	if (!WireToAdd) return;
 
-	SplineComponent->AddSplinePoint(WireToAdd->GetActorLocation() + SplineOffset, ESplineCoordinateSpace::World, false);
+	SplineComponent->AddSplinePoint(WireToAdd->GetPointAtIndex(0), ESplineCoordinateSpace::World, false);
 
 	EndWire = WireToAdd;
 
@@ -139,7 +138,7 @@ void AWireSegment::AddWireToStartOfSegment(ATestingWire* WireToAdd) {
 
 	if (!WireToAdd) return;
 
-	SplineComponent->AddSplinePointAtIndex(WireToAdd->GetActorLocation() + SplineOffset, 0, ESplineCoordinateSpace::World);
+	SplineComponent->AddSplinePointAtIndex(WireToAdd->GetPointAtIndex(0), 0, ESplineCoordinateSpace::World);
 
 	StartWire = WireToAdd;
 
@@ -205,13 +204,26 @@ void AWireSegment::RemoveWireFromStartOfSegment(ATestingWire* WireToRemove)
 	{
 		if (CurrentWire == WireToRemove) 
 		{
-			DistanceFromEndOfSegment += ItemsOnWire[CurrentQubitIndex + 1].GapToNextItem;
+			if (ItemsOnWire.IsValidIndex(CurrentQubitIndex + 1))
+			{
+				DistanceFromEndOfSegment += ItemsOnWire[CurrentQubitIndex + 1].GapToNextItem;
+			}
+			else 
+			{
+				break;
+			}
 			RemoveQubitAtIndex(CurrentQubitIndex);
-			// CurrentQubitIndex++;
 		}
 		else {
-			DistanceFromEndOfSegment += ItemsOnWire[CurrentQubitIndex].GapToNextItem;
-			CurrentQubitIndex++;
+			if (ItemsOnWire.IsValidIndex(CurrentQubitIndex))
+			{
+				DistanceFromEndOfSegment += ItemsOnWire[CurrentQubitIndex].GapToNextItem;
+				CurrentQubitIndex++;
+			}
+			else
+			{
+				break;
+			}
 		}	
 
 		CurrentWireIndex = (int)(DistanceFromEndOfSegment / SingleWireLength);
@@ -248,6 +260,86 @@ void AWireSegment::RemoveWireFromStartOfSegment(ATestingWire* WireToRemove)
 	StartWire = WireToRemove->GetOutputWire();
 
 	SplineComponent->UpdateSpline();
+}
+
+/*
+TArray<float> AWireSegment::GetInputKeysSandwichingWire(ATestingWire* WireToRemove)
+{
+	TArray<float> ret = TArray<float>();
+
+	SplineComponent->FindInputKeyClosestToWorldLocation(WireToRemove->GetPointAtIndex(0));
+
+	return TArray<FSplinePoint>();
+}
+*/
+ 
+TArray<FWireItemData> AWireSegment::RemoveWireFromMiddleOfSegment(ATestingWire* WireToRemove)
+{
+	if (!WireToRemove) return TArray<FWireItemData>();
+
+	UE_LOG(LogTemp, Display, TEXT("RemoveWireFromMiddleOfSegment()"));
+
+	TArray<FWireItemData> ret = TArray<FWireItemData>(); // Return all qubits that are before the wire to remove. These qubits will go on the new segment.
+
+	float InputKey = SplineComponent->FindInputKeyClosestToWorldLocation(WireToRemove->GetPointAtIndex(0));
+
+	float FirstDistance = SplineComponent->GetSplineLength() - SplineComponent->GetDistanceAlongSplineAtSplineInputKey(InputKey);
+	float SecondDistance = SplineComponent->GetSplineLength() - SplineComponent->GetDistanceAlongSplineAtSplineInputKey(InputKey - 1);
+
+	// Save to an array all qubits that are before the deletion wire
+	float DistanceFromEndOfSegment = HeadGap;
+	int CurrentQubitIndex = 0;
+
+	while (DistanceFromEndOfSegment <= FirstDistance)
+	{
+		if (ItemsOnWire.IsValidIndex(CurrentQubitIndex + 1))
+		{
+			DistanceFromEndOfSegment += ItemsOnWire[CurrentQubitIndex + 1].GapToNextItem;
+			ret.Add(ItemsOnWire[CurrentQubitIndex]); // Collect all qubits that appear before the wire to delete
+
+			if (CurrentQubitIndex == 0) ret[0].GapToNextItem = HeadGap; // Temporarily store HeadGap into this spot to retrieve it later when making the segment.
+		
+			CurrentQubitIndex++;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	// Delete all qubits that on the deletion wire or before the deletion wire
+	DistanceFromEndOfSegment = HeadGap;
+	CurrentQubitIndex = 0;
+
+	while (DistanceFromEndOfSegment <= SecondDistance)
+	{
+		if (ItemsOnWire.IsValidIndex(CurrentQubitIndex + 1))
+		{
+			DistanceFromEndOfSegment += ItemsOnWire[CurrentQubitIndex + 1].GapToNextItem;
+		}
+		else
+		{
+			break;
+		}
+		RemoveQubitAtIndex(CurrentQubitIndex);
+	}
+	HeadGap = DistanceFromEndOfSegment - SecondDistance;
+	
+	// Remove this middle wire tile from the spline, as well as all to the right of it (towards the end of the spline)
+	int i = 0;
+	int count = SplineComponent->GetNumberOfSplinePoints() - InputKey;
+	while (i < count)
+	{
+		SplineComponent->RemoveSplinePoint(SplineComponent->GetNumberOfSplinePoints() - 1);
+		i++;
+	}
+
+	// Set the previous wire as the new ending wire
+	StartWire = WireToRemove->GetOutputWire();
+
+	SplineComponent->UpdateSpline();
+	
+	return ret;
 }
 
 void AWireSegment::Tick(float DeltaTime)
@@ -495,4 +587,5 @@ AQubit* AWireSegment::RemoveQubitAtIndex(int32 Index)
 
 	return RemovedQubit;
 }
+
 

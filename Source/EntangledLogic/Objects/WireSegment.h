@@ -24,6 +24,9 @@ struct FWireItemData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	AQubit* QubitData = nullptr;
+
+	// Add UpdateMaterial function
+	// Material instance
 };
 
 UCLASS()
@@ -124,6 +127,13 @@ public:
 	void RemoveWireFromStartOfSegment(ATestingWire* WireToRemove);
 
 	UFUNCTION()
+	TArray<FWireItemData> RemoveWireFromMiddleOfSegment(ATestingWire* WireToRemove);
+
+	UFUNCTION()
 	AQubit* RemoveQubitAtIndex(int32 Index);
 
+	/*
+	UFUNCTION()
+	TArray<float> GetInputKeysSandwichingWire(ATestingWire* WireToRemove);
+	*/
 };
