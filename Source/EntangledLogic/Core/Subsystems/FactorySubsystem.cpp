@@ -34,19 +34,24 @@ void UFactorySubsystem::OnWorldBeginPlay(UWorld& InWorld)
 
 void UFactorySubsystem::SetProgressionGoalCount(FProgressionGoal &ProgressionGoal, int32 ValueToSet)
 {
+	UE_LOG(LogTemp, Display, TEXT("Setting Progression Goal %s to value %d"), *UEnum::GetValueAsString(ProgressionGoal.ProgressionGoal), ValueToSet)
 	ProgressionGoal.ProgressionGoalCount = ValueToSet;
 	if (ProgressionGoal.ProgressionGoalCount >= ProgressionGoal.ProgressionGoalsData.RequiredStatesAmount)
 	{
+		// Add all the unlocks
+		for (EUnlockables CurrentUnlock : ProgressionGoal.ProgressionGoalsData.UnlockablesOnCompletion)
+		{
+			UnlockProgression(CurrentUnlock);
+		}
+
+		// Add next progression
 		FProgressionGoalsData* NextProgressionGoal = ProgressionGoalsDataAsset->ProgressionGoals.Find(ProgressionGoal.ProgressionGoalsData.NextProgressionGoal);
 		if (NextProgressionGoal)
 		{
+			UE_LOG(LogTemp, Display, TEXT("Unlocking Next Progression Goal"))
 			FProgressionGoal GoalToRemove = ProgressionGoal;
 			// Add Next Goal and Unlocks
 			AddProgressionGoal(ProgressionGoal.ProgressionGoalsData.NextProgressionGoal);
-			for (EUnlockables CurrentUnlock : ProgressionGoal.ProgressionGoalsData.UnlockablesOnCompletion)
-			{
-				UnlockProgression(CurrentUnlock);
-			}
 
 			// Remove old goal
 			PersistantStats.CurrentProgressionGoals.Remove(GoalToRemove);

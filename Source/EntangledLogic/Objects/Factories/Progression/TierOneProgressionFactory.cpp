@@ -93,7 +93,6 @@ void ATierOneProgressionFactory::OnFactoryTick()
 					UE_LOG(LogTemp, Display, TEXT("IsQubitEqual for qubit #%d = %d"), i, IsQubitEqual);
 					if (IsQubitEqual)
 					{
-						UE_LOG(LogTemp, Display, TEXT("Adding aceceptd states"));
 						FactorySubsytem->SetProgressionGoalCount(FactorySubsytem->PersistantStats.CurrentProgressionGoals[j],
 							FactorySubsytem->PersistantStats.CurrentProgressionGoals[j].ProgressionGoalCount + 1);
 					}

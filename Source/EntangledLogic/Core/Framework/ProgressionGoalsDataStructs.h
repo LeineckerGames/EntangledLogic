@@ -10,10 +10,12 @@ enum class EUnlockables : uint8;
 UENUM()
 enum class EProgressionGoals : uint8
 {
-	Ket_One_State,
-	Negative_Ket_One_State,
-	Superpositon_State,
-	Completed
+	MAIN_Ket_One_State,
+	MAIN_Negative_Ket_One_State,
+	MAIN_Superpositon_State,
+	MAIN_Completed,
+	SIDE_Ket_Zero_State,
+	SIDE_Completed
 };
 
 USTRUCT(BlueprintType)
