@@ -24,6 +24,9 @@ struct FWireItemData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	AQubit* QubitData = nullptr;
+
+	// Add UpdateMaterial function
+	// Material instance
 };
 
 UCLASS()
@@ -74,10 +77,10 @@ public:
 
 	// Subsystem Data
 	UPROPERTY(BlueprintReadOnly, Category = "Wire Segment")
-	ATestingWire* FirstWire;
+	ATestingWire* StartWire;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Wire Segment")
-	ATestingWire* LastWire;
+	ATestingWire* EndWire;
 
 	// Queue Data
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
@@ -88,6 +91,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	float ItemSize = 25.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
+	float SingleWireLength = 100.0f; // A single wire tile is this many cm across.
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
+	FVector SplineOffset = FVector(0.0f, 0.0f, 20.0f);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	float MovementSpeed = 100.0f;
@@ -104,4 +113,27 @@ public:
 	UFUNCTION()
 	void AddTestingItemToWire(AQubit* QubitData);
 
+	UFUNCTION()
+	void AddWireToEndOfSegment(ATestingWire* WireToAdd);
+
+	UFUNCTION()
+	void AddWireToStartOfSegment(ATestingWire* WireToAdd);
+
+	UFUNCTION()
+	void RemoveWireFromEndOfSegment(ATestingWire* WireToRemove);
+
+	// Remove the wire at the start of the segment (first spline point).
+	UFUNCTION()
+	void RemoveWireFromStartOfSegment(ATestingWire* WireToRemove);
+
+	UFUNCTION()
+	TArray<FWireItemData> RemoveWireFromMiddleOfSegment(ATestingWire* WireToRemove);
+
+	UFUNCTION()
+	AQubit* RemoveQubitAtIndex(int32 Index);
+
+	/*
+	UFUNCTION()
+	TArray<float> GetInputKeysSandwichingWire(ATestingWire* WireToRemove);
+	*/
 };
