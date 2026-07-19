@@ -36,6 +36,10 @@ public:
 
 	void RepopulateFactorySelectionWidget();
 
+	void RepopulateGoalTrackerWidget();
+
+	void UpdateGoalTrackerWidget();
+
 	void UpdatePlayerControlsUI();
 
 	void UpdatePlayerControlsUI(EPlacementMode PlacementMode);

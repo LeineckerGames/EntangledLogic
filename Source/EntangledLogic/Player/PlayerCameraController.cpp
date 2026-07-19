@@ -83,13 +83,14 @@ void APlayerCameraController::BeginPlay()
 	}
 
 	// Loading progression data here bc the UDevSettings will not work at all.
-	UFactorySubsystem* FactorySubsytem = GetWorld()->GetSubsystem<UFactorySubsystem>();
-	if (FactorySubsytem && ProgressionGoalsDataAsset)
+	UFactorySubsystem* FactorySubsystem = GetWorld()->GetSubsystem<UFactorySubsystem>();
+	if (FactorySubsystem && ProgressionGoalsDataAsset)
 	{
 		UE_LOG(LogTemp, Display, TEXT("Running progression start"))
-		FactorySubsytem->ProgressionGoalsDataAsset = ProgressionGoalsDataAsset;
-		FactorySubsytem->AddProgressionGoal(EProgressionGoals::MAIN_Ket_One_State);
-		FactorySubsytem->AddProgressionGoal(EProgressionGoals::SIDE_Ket_Zero_State);
+		FactorySubsystem->ProgressionGoalsDataAsset = ProgressionGoalsDataAsset;
+		FactorySubsystem->AddProgressionGoal(EProgressionGoals::MAIN_Ket_One_State);
+		FactorySubsystem->AddProgressionGoal(EProgressionGoals::SIDE_Ket_Zero_State);
+		FactorySubsystem->RepopulateWidgets();
 	}
 }
 

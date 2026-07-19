@@ -41,11 +41,18 @@ public:
 	UFUNCTION()
 	void ToggleState();
 
+	UFUNCTION()
 	void UpdateState();
 
+	UFUNCTION()
 	void Expand();
 
+	UFUNCTION()
 	void Collapse();
 
+	UFUNCTION()
 	void PopulateGoals();
+
+	UFUNCTION()
+	void UpdateGoals();
 };

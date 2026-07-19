@@ -13,7 +13,6 @@ void UGoalTracker::NativeConstruct()
 
 void UGoalTracker::ToggleState()
 {
-	UE_LOG(LogTemp, Display, TEXT("Toggling Goal Tracker state"));
 	if (State == EGoalTrackerState::Collapsed)
 		State = EGoalTrackerState::Expanded;
 	else State = EGoalTrackerState::Collapsed;
@@ -22,13 +21,12 @@ void UGoalTracker::ToggleState()
 
 void UGoalTracker::UpdateState()
 {
-	UE_LOG(LogTemp, Display, TEXT("Updataing Goal Tracker state"));
 	(State == EGoalTrackerState::Collapsed) ? Collapse() : Expand();
 }
 
 void UGoalTracker::Expand()
 {
-	UE_LOG(LogTemp, Display, TEXT("Expanding Goal Tracker"));
+	UpdateGoals();
 	TitleSwitcher->SetActiveWidgetIndex(1);
 	ButtonSwitcher->SetActiveWidgetIndex(1);
 	GoalScrollBox->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
@@ -36,11 +34,9 @@ void UGoalTracker::Expand()
 
 void UGoalTracker::Collapse()
 {
-	UE_LOG(LogTemp, Display, TEXT("Collapsing Goal Tracker"));
 	TitleSwitcher->SetActiveWidgetIndex(0);
 	ButtonSwitcher->SetActiveWidgetIndex(0);
 	GoalScrollBox->SetVisibility(ESlateVisibility::Collapsed);
-
 }
 
 void UGoalTracker::PopulateGoals()
@@ -50,11 +46,21 @@ void UGoalTracker::PopulateGoals()
 	{
 		GoalScrollBox->ClearChildren();
 
-		for (FProgressionGoal goal : FactorySubsystem->PersistantStats.CurrentProgressionGoals)
+		for (FProgressionGoal Goal : FactorySubsystem->PersistantStats.CurrentProgressionGoals)
 		{
-			UGoalTrackerEntry* entry = CreateWidget<UGoalTrackerEntry>(this, GoalEntryClass);
-			entry->Goal = goal.ProgressionGoal;
-			entry->UpdateDisplay();
+			UGoalTrackerEntry* Entry = CreateWidget<UGoalTrackerEntry>(this, GoalEntryClass);
+			Entry->Goal = Goal.ProgressionGoal;
+			Entry->UpdateDisplay();
+			GoalScrollBox->AddChild(Entry);
 		}
+	}
+}
+
+void UGoalTracker::UpdateGoals()
+{
+	for (auto Child : GoalScrollBox->GetAllChildren())
+	{
+		UGoalTrackerEntry* Entry = Cast<UGoalTrackerEntry>(Child);
+		if (Entry) Entry->UpdateDisplay();
 	}
 }

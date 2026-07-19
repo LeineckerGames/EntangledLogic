@@ -34,9 +34,13 @@ void UFactorySubsystem::OnWorldBeginPlay(UWorld& InWorld)
 
 void UFactorySubsystem::SetProgressionGoalCount(FProgressionGoal &ProgressionGoal, int32 ValueToSet)
 {
-	UE_LOG(LogTemp, Display, TEXT("Setting Progression Goal %s to value %d"), *UEnum::GetValueAsString(ProgressionGoal.ProgressionGoal), ValueToSet)
-	ProgressionGoal.ProgressionGoalCount = ValueToSet;
-	if (ProgressionGoal.ProgressionGoalCount >= ProgressionGoal.ProgressionGoalsData.RequiredStatesAmount)
+	int32 requirement = ProgressionGoal.ProgressionGoalsData.RequiredStatesAmount;
+	ProgressionGoal.ProgressionGoalCount = ValueToSet >= requirement? requirement : ValueToSet;
+	UE_LOG(LogTemp, Display, TEXT("Setting Progression Goal %s to value %d"),
+								  *UEnum::GetValueAsString(ProgressionGoal.ProgressionGoal),
+								  ProgressionGoal.ProgressionGoalCount)
+
+	if (ProgressionGoal.ProgressionGoalCount >= requirement)
 	{
 		// Add all the unlocks
 		for (EUnlockables CurrentUnlock : ProgressionGoal.ProgressionGoalsData.UnlockablesOnCompletion)
@@ -56,6 +60,12 @@ void UFactorySubsystem::SetProgressionGoalCount(FProgressionGoal &ProgressionGoa
 			// Remove old goal
 			PersistantStats.CurrentProgressionGoals.Remove(GoalToRemove);
 		}
+
+		RepopulateWidgets();
+	}
+	else
+	{
+		UpdateWidgets();
 	}
 }
 
@@ -101,10 +111,11 @@ bool UFactorySubsystem::CheckIfUnlocked(EUnlockables UnlockToCheck)
 void UFactorySubsystem::UnlockProgression(EUnlockables ProgressionToUnlock)
 {
 	UnlockablesMap.Emplace(ProgressionToUnlock, true);
-	RepopulateFactorySelectionWidget();
+	// RepopulateWidgets();
 }
 
-void UFactorySubsystem::RepopulateFactorySelectionWidget()
+// Refresh widgets, clearing and repopulating dynamic containers
+void UFactorySubsystem::RepopulateWidgets()
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -116,6 +127,25 @@ void UFactorySubsystem::RepopulateFactorySelectionWidget()
 			if (PlayerHUD)
 			{
 				PlayerHUD->RepopulateFactorySelectionWidget();
+				PlayerHUD->RepopulateGoalTrackerWidget();
+			}
+		}
+	}
+}
+
+// Refresh widget data without repopulating dynamic containers
+void UFactorySubsystem::UpdateWidgets()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		APlayerController* PlayerController = World->GetFirstPlayerController();
+		if (PlayerController)
+		{
+			APlayerHUD* PlayerHUD = Cast<APlayerHUD>(PlayerController->GetHUD());
+			if (PlayerHUD)
+			{
+				PlayerHUD->UpdateGoalTrackerWidget();
 			}
 		}
 	}
@@ -186,5 +216,5 @@ void UFactorySubsystem::LoadData(UFactorySaveGame* SaveGame)
 	UE_LOG(LogTemp, Display, TEXT("Loading PersistantStats Data"));
 	PersistantStats = SaveGame->PersistantStats;
 	UnlockablesMap = SaveGame->UnlockablesMap;
-	RepopulateFactorySelectionWidget();
+	RepopulateWidgets();
 }

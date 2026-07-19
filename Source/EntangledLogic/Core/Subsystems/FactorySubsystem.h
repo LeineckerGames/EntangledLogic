@@ -54,7 +54,9 @@ public:
 
 	void UnlockProgression(EUnlockables ProgressionToUnlock);
 
-	void RepopulateFactorySelectionWidget();
+	void RepopulateWidgets();
+
+	void UpdateWidgets();
 
 	void SetTickPaused(bool TickPausedValue);
 

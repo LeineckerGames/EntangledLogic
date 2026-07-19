@@ -45,6 +45,7 @@ void APlayerHUD::BeginPlay()
 	{
 		GoalTrackerWidget = CreateWidget<UGoalTracker>(GetWorld(), GoalTrackerClass);
 		GoalTrackerWidget->AddToViewport();
+		// GoalTrackerWidget->PopulateGoals();
 	}
 
 	// Init Pause and add to viewport
@@ -100,6 +101,22 @@ void APlayerHUD::RepopulateFactorySelectionWidget()
 	if (FactorySelectionWidget)
 	{
 		FactorySelectionWidget->PopulateInventory();
+	}
+}
+
+void APlayerHUD::RepopulateGoalTrackerWidget()
+{
+	if (GoalTrackerWidget)
+	{
+		GoalTrackerWidget->PopulateGoals();
+	}
+}
+
+void APlayerHUD::UpdateGoalTrackerWidget()
+{
+	if (GoalTrackerWidget)
+	{
+		GoalTrackerWidget->UpdateGoals();
 	}
 }
 
