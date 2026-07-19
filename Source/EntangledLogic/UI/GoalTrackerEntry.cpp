@@ -2,18 +2,52 @@
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
+#include "Components/ProgressBar.h"
+#include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
+
+void UGoalTrackerEntry::SynchronizeProperties()
+{
+	UpdateState();
+}
 
 void UGoalTrackerEntry::NativeConstruct()
 {
 	if (ExpandButton) ExpandButton->OnClicked.AddDynamic(this, &UGoalTrackerEntry::ToggleState);
 	if (PinButton) PinButton->OnClicked.AddDynamic(this, &UGoalTrackerEntry::TogglePin);
 	UpdateState();
+	UpdateDisplay();
+}
+
+void UGoalTrackerEntry::UpdateDisplay()
+{
+	UFactorySubsystem* FactorySubsystem = GetWorld()->GetSubsystem<UFactorySubsystem>();
+	if (FactorySubsystem)
+	{
+		FProgressionGoal* GoalStruct = FactorySubsystem->PersistantStats.CurrentProgressionGoals.FindByKey(Goal);
+
+		if (GoalStruct)
+		{
+			GoalTitle->SetText(FText::FromString(GoalStruct->ProgressionGoalsData.GoalTitle));
+			DescriptionText->SetText(FText::FromString(GoalStruct->ProgressionGoalsData.GoalDescription));
+
+			StateText->SetText(FText::FromString(GoalStruct->ProgressionGoalsData.AcceptedState.ConvertToString()));
+
+			int32 current = GoalStruct->ProgressionGoalCount;
+			int32 total = GoalStruct->ProgressionGoalsData.RequiredStatesAmount;
+
+			FString GoalCountString = FString::Printf(TEXT("%d / %d"), current, total);
+			ProgressText->SetText(FText::FromString(GoalCountString));
+
+			GoalProgressBar->SetPercent(((float)current) / total);
+		}
+	}
 }
 
 void UGoalTrackerEntry::TogglePin()
 {
 	if (bIsPinned) PinSwitcher->SetActiveWidgetIndex(0);
 	else PinSwitcher->SetActiveWidgetIndex(1);
+	bIsPinned = !bIsPinned;
 }
 
 void UGoalTrackerEntry::ToggleState()

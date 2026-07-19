@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "EntangledLogic/UI/GoalTrackerEntry.h"
 #include "GoalTracker.generated.h"
 
 UENUM()
@@ -29,11 +30,15 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UWidgetSwitcher* ButtonSwitcher;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGoalTrackerEntry> GoalEntryClass;
+
 	UPROPERTY(meta = (BindWidget))
 	class UScrollBox* GoalScrollBox;
 
 	virtual void NativeConstruct() override;
 
+	UFUNCTION()
 	void ToggleState();
 
 	void UpdateState();
@@ -41,4 +46,6 @@ public:
 	void Expand();
 
 	void Collapse();
+
+	void PopulateGoals();
 };

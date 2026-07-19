@@ -80,12 +80,22 @@ struct FKetWrapper
 		return FString(oss1.str().c_str());
 	}
 
+	FString ConvertToString()
+	{
+		return ConvertKetToString(ConvertToKet());
+	}
 };
 
 USTRUCT(BlueprintType)
 struct FProgressionGoalsData
 {
 	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	FString GoalTitle;
+
+	UPROPERTY(EditAnywhere)
+	FString GoalDescription;
 
 	UPROPERTY(EditAnywhere)
 	FKetWrapper AcceptedState;
@@ -126,6 +136,11 @@ struct FProgressionGoal
 	bool operator==(const FProgressionGoal& Other) const
 	{
 		return this->ProgressionGoal == Other.ProgressionGoal;
+	}
+
+	bool operator==(const EProgressionGoals& Other) const
+	{
+		return this->ProgressionGoal == Other;
 	}
 
 };
