@@ -31,28 +31,29 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 		// Merge SecondSegment into FirstSegment
 		NewWire->AssignedSegment = FirstSegment;
 
-		// MOVE TO FUNCTION CALL: GET ALL QUBITS ON SEGMENT ()
+		// TODO Move code into a function
 		TArray<FWireItemData> AllQubitsOnSecondSegment;
 
 		// Save to an array all qubits that are before the deletion wire (copied from RemoveWireFromMiddleOfSegment)
 		float DistanceFromEndOfSegment = SecondSegment->HeadGap;
 		int CurrentQubitIndex = 0;
 
-		while (true)
-		{
-			AllQubitsOnSecondSegment.Add(SecondSegment->ItemsOnWire[CurrentQubitIndex]); // Collect all qubits that appear before the wire to delete
-			if (SecondSegment->ItemsOnWire.IsValidIndex(CurrentQubitIndex + 1))
+		// Do not get qubits from the segment if there are no qubits
+		if (SecondSegment->ItemsOnWire.Num() > 0) {
+			while (true)
 			{
-				DistanceFromEndOfSegment += SecondSegment->ItemsOnWire[CurrentQubitIndex + 1].GapToNextItem;
-				
-
+				AllQubitsOnSecondSegment.Add(SecondSegment->ItemsOnWire[CurrentQubitIndex]); // Collect all qubits that appear before the wire to delete
 				if (CurrentQubitIndex == 0) AllQubitsOnSecondSegment[0].GapToNextItem = SecondSegment->HeadGap; // Temporarily store HeadGap into this spot to retrieve it later when making the segment.
 
-				CurrentQubitIndex++;
-			}
-			else
-			{
-				break;
+				if (SecondSegment->ItemsOnWire.IsValidIndex(CurrentQubitIndex + 1))
+				{
+					DistanceFromEndOfSegment += SecondSegment->ItemsOnWire[CurrentQubitIndex + 1].GapToNextItem;
+					CurrentQubitIndex++;
+				}
+				else
+				{
+					break;
+				}
 			}
 		}
 
@@ -70,7 +71,6 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 		FirstSegment->SplineComponent->UpdateSpline();
 		FirstSegment->EndWire = LastIterationWire;
 
-		//  POSSIBLE BUG?
 		FirstSegment->ActiveGapIndex = SecondSegment->ActiveGapIndex;
 		FirstSegment->bIsFrontBlocked = SecondSegment->bIsFrontBlocked;
 
@@ -83,38 +83,44 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 			OldHeadGap = FirstSegment->HeadGap;
 			FirstSegment->HeadGap = AllQubitsOnSecondSegment[0].GapToNextItem;
 			AllQubitsOnSecondSegment[0].GapToNextItem = 0;
-		}
 
-		// Copy items into the new segment. We create new mesh components rather than trying to reparent existing components
+			// Copy items into the new segment. We create new mesh components rather than trying to reparent existing components
 		// because component ownership (Outer) is tied to the actor; creating fresh components keeps ownership correct.
-		for (int32 i = AllQubitsOnSecondSegment.Num() - 1; i >= 0; --i)
-		{
-			FWireItemData NewItem = AllQubitsOnSecondSegment[i];
-
-			// Create a fresh mesh component for the new segment (do not attempt to move the original component between actors)
-			UStaticMeshComponent* NewMeshComp = NewObject<UStaticMeshComponent>(FirstSegment);
-			if (NewMeshComp)
+			for (int32 i = AllQubitsOnSecondSegment.Num() - 1; i >= 0; --i)
 			{
-				// Prefer copying the source mesh if available, otherwise fall back to the segment's testing mesh (like AddItemToWire does)
-				if (AllQubitsOnSecondSegment[i].ItemMesh && AllQubitsOnSecondSegment[i].ItemMesh->GetStaticMesh())
+				FWireItemData NewItem = AllQubitsOnSecondSegment[i];
+
+				// Create a fresh mesh component for the new segment (do not attempt to move the original component between actors)
+				UStaticMeshComponent* NewMeshComp = NewObject<UStaticMeshComponent>(FirstSegment);
+				if (NewMeshComp)
 				{
-					NewMeshComp->SetStaticMesh(AllQubitsOnSecondSegment[i].ItemMesh->GetStaticMesh());
+					// Prefer copying the source mesh if available, otherwise fall back to the segment's testing mesh (like AddItemToWire does)
+					if (AllQubitsOnSecondSegment[i].ItemMesh && AllQubitsOnSecondSegment[i].ItemMesh->GetStaticMesh())
+					{
+						NewMeshComp->SetStaticMesh(AllQubitsOnSecondSegment[i].ItemMesh->GetStaticMesh());
+					}
+
+					NewMeshComp->SetupAttachment(FirstSegment->SplineComponent);
+					NewMeshComp->RegisterComponent();
 				}
 
-				NewMeshComp->SetupAttachment(FirstSegment->SplineComponent);
-				NewMeshComp->RegisterComponent();
+				NewItem.ItemMesh = NewMeshComp;
+
+				// Ensure front-most item uses the convention GapToNextItem == 0
+				if (i == 0)
+				{
+					NewItem.GapToNextItem = 0.0f;
+				}
+
+				FirstSegment->ItemsOnWire.Insert(NewItem, 0);
 			}
-
-			NewItem.ItemMesh = NewMeshComp;
-
-			// Ensure front-most item uses the convention GapToNextItem == 0
-			if (i == 0)
-			{
-				NewItem.GapToNextItem = 0.0f;
-			}
-
-			FirstSegment->ItemsOnWire.Insert(NewItem, 0);
 		}
+		else 
+		{
+			FirstSegment->HeadGap += SecondSegment->SplineComponent->GetSplineLength() + (FirstSegment->SingleWireLength * 2);
+		}
+
+		
 
 		// Guard the index access to avoid out-of-bounds when no items were copied
 		int TargetIndex = CurrentQubitIndex + 1;
