@@ -38,12 +38,13 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 		float DistanceFromEndOfSegment = SecondSegment->HeadGap;
 		int CurrentQubitIndex = 0;
 
-		while (DistanceFromEndOfSegment <= SecondSegment->SplineComponent->GetSplineLength())
+		while (true)
 		{
+			AllQubitsOnSecondSegment.Add(SecondSegment->ItemsOnWire[CurrentQubitIndex]); // Collect all qubits that appear before the wire to delete
 			if (SecondSegment->ItemsOnWire.IsValidIndex(CurrentQubitIndex + 1))
 			{
 				DistanceFromEndOfSegment += SecondSegment->ItemsOnWire[CurrentQubitIndex + 1].GapToNextItem;
-				AllQubitsOnSecondSegment.Add(SecondSegment->ItemsOnWire[CurrentQubitIndex]); // Collect all qubits that appear before the wire to delete
+				
 
 				if (CurrentQubitIndex == 0) AllQubitsOnSecondSegment[0].GapToNextItem = SecondSegment->HeadGap; // Temporarily store HeadGap into this spot to retrieve it later when making the segment.
 
@@ -56,7 +57,7 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 		}
 
 		// Update all wires in the second segment to point to the first, and add the spline points to the first
-		ATestingWire* CurrentWire = Next;
+		ATestingWire* CurrentWire = NewWire;
 		ATestingWire* LastIterationWire = CurrentWire;
 		while (CurrentWire)
 		{
@@ -69,6 +70,7 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 		FirstSegment->SplineComponent->UpdateSpline();
 		FirstSegment->EndWire = LastIterationWire;
 
+		//  POSSIBLE BUG?
 		FirstSegment->ActiveGapIndex = SecondSegment->ActiveGapIndex;
 		FirstSegment->bIsFrontBlocked = SecondSegment->bIsFrontBlocked;
 
@@ -77,7 +79,7 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 		// the caller has stored the HeadGap in AllQubitsOnSecondSegment[0].GapToNextItem.
 		if (AllQubitsOnSecondSegment.Num() > 0)
 		{
-			UE_LOG(LogTemp, Display, TEXT("if ItemData.Num() > 0 && ItemData[0].GapToNextItem > 0.0f"));
+			UE_LOG(LogTemp, Display, TEXT("if ItemData.Num() > 0"));
 			OldHeadGap = FirstSegment->HeadGap;
 			FirstSegment->HeadGap = AllQubitsOnSecondSegment[0].GapToNextItem;
 			AllQubitsOnSecondSegment[0].GapToNextItem = 0;
@@ -98,11 +100,6 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 				{
 					NewMeshComp->SetStaticMesh(AllQubitsOnSecondSegment[i].ItemMesh->GetStaticMesh());
 				}
-				else if (FirstSegment->TestingItemMesh)
-				{
-					UE_LOG(LogTemp, Display, TEXT("Using TestingItemMesh"));
-					NewMeshComp->SetStaticMesh(FirstSegment->TestingItemMesh);
-				}
 
 				NewMeshComp->SetupAttachment(FirstSegment->SplineComponent);
 				NewMeshComp->RegisterComponent();
@@ -120,16 +117,17 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 		}
 
 		// Guard the index access to avoid out-of-bounds when no items were copied
-		int TargetIndex = CurrentQubitIndex;
+		int TargetIndex = CurrentQubitIndex + 1;
 		if (FirstSegment->ItemsOnWire.IsValidIndex(TargetIndex))
 		{
-			FirstSegment->ItemsOnWire[TargetIndex].GapToNextItem = OldHeadGap + FirstSegment->SingleWireLength + SecondSegment->SplineComponent->GetSplineLength() - DistanceFromEndOfSegment;
+			FirstSegment->ItemsOnWire[TargetIndex].GapToNextItem = OldHeadGap + (FirstSegment->SingleWireLength * 2) + (SecondSegment->SplineComponent->GetSplineLength() - DistanceFromEndOfSegment);
 		}
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("AddWireToPaths: target item index %d invalid when setting GapToNextItem"), TargetIndex);
 		}
 
+		/*
 		// Position item meshes along the spline immediately if the spline has points
 		if (FirstSegment->ItemsOnWire.Num() > 0 && FirstSegment->SplineComponent->GetNumberOfSplinePoints() > 0)
 		{
@@ -150,10 +148,13 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 				}
 			}
 		}
+		*/
 
 		// Remove the old second segment
 		ActiveSegments.Remove(SecondSegment);
 		SecondSegment->Destroy();
+
+		// Is there still residual left from the qubits from the second segment
 	}
 	// Scenario 2: Extending the end of a path
 	else if (Prev && Prev->AssignedSegment)

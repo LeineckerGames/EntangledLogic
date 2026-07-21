@@ -335,7 +335,7 @@ TArray<FWireItemData> AWireSegment::RemoveWireFromMiddleOfSegment(ATestingWire* 
 	}
 
 	// Set the previous wire as the new ending wire
-	StartWire = WireToRemove->GetOutputWire();
+	EndWire = WireToRemove->GetInputWire();
 
 	SplineComponent->UpdateSpline();
 	
@@ -361,19 +361,10 @@ void AWireSegment::Tick(float DeltaTime)
 		// Use a while loop in case multiple items exit in a single frame
 		while (HeadGap <= 0.0f && !ItemsOnWire.IsEmpty())
 		{
-			// Attempt to leave the segment
-			if (LeaveWireSegment())
-			{
-				// Successfully left! RemoveFrontItem() is assumed to have been called.
-				// The while loop will evaluate the new HeadGap of the new front item next.
-			}
-			else
-			{
-				// LeaveWireSegment failed or returned false. Stop moving and block the line.
-				HeadGap = 0.0f;
-				bIsFrontBlocked = true;
-				break;
-			}
+			// Stop moving and block the line.
+			HeadGap = 0.0f;
+			bIsFrontBlocked = true;
+			break;
 		}
 	}
 	else
