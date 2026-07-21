@@ -1,6 +1,5 @@
 #include "TopDownPlayerController.h"
 #include "EnhancedInputSubsystems.h"
-#include "UserSettings/EnhancedInputUserSettings.h"
 #include "EntangledLogic/UI/PlayerHUD.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 
@@ -17,12 +16,6 @@ void ATopDownPlayerController::BeginPlay()
 	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
 	APlayerHUD* PlayerHUD = Cast<APlayerHUD>(GetHUD());
 	PlayerHUD->UpdatePlayerControlsUI(GridPlacement->GetPlacementMode());
-
-	// SetupInputComponent runs too early so added here for Settings to remap controls
-	if (PlayerControls)
-	{
-		AddMappingContext(PlayerControls, 0);
-	}
 }
 
 void ATopDownPlayerController::SetupInputComponent()
@@ -49,10 +42,6 @@ void ATopDownPlayerController::AddMappingContext(UInputMappingContext* InputMapp
 
 			Subsystem->AddMappingContext(InputMappingContext, Priority, Options);
 			//UE_LOG(LogTemp, Display, TEXT("Player Controls mapping context added"));
-			if (UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings())
-			{
-				UserSettings->RegisterInputMappingContext(InputMappingContext);
-			}
 		}
 	}
 }

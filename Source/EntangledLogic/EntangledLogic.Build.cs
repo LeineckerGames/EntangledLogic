@@ -14,7 +14,7 @@ public class EntangledLogic : ModuleRules
 		// more ai slop
         bEnableExceptions = true;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GeometryCollectionEngine", "UMG", "RHI", "AudioModulation", "QppPlugin", "MetasoundEngine", "GameplayTags" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GeometryCollectionEngine", "UMG", "RHI", "AudioModulation", "QppPlugin", "MetasoundEngine" });
 
 		//PrivateDependencyModuleNames.AddRange(new string[] {  });
 
