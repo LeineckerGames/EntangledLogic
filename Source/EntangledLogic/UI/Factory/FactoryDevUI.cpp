@@ -127,5 +127,6 @@ void UFactoryDevUI::UnlockAll()
     for (int32 i = 0; i < LastEnumValue; i++)
     {
         FactorySubsystem->UnlockProgression(static_cast<EUnlockables>(i));
+        FactorySubsystem->RepopulateWidgets();
     }
 }

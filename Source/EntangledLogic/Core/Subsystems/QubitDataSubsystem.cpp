@@ -16,6 +16,7 @@ AQubit* UQubitDataSubsystem::NewQubit(ENamedState namedState)
 	{
 		q->State->StateVector = GetStateAsVector(namedState);
 		q->State->qubits.Add(q);
+		q->State->UpdateQubitEntanglmentSplines();
 		q->UpdateMeshData();
 	}
 
@@ -98,6 +99,8 @@ void UQubitDataSubsystem::ApplyControlled(AQubit& control, AQubit& target, EQuan
 		target.State->StateVector = rho2pure(rho2);
 		target.State->qubits.RemoveSingle(&control);
 		target.EntanglementPosition = 0;
+
+		control.State->UpdateQubitEntanglmentSplines();
 	}
 
 	control.UpdateMeshData();
@@ -125,7 +128,9 @@ bool UQubitDataSubsystem::CombineState(AQubit& qubitA, AQubit& qubitB)
 	{
 		q->EntanglementPosition += aLen;
 		q->State = qubitA.State;
+		UE_LOG(LogTemp, Display, TEXT("Adding qubit to entanglment array"))
 		qubitA.State->qubits.Add(q);
+		qubitA.State->UpdateQubitEntanglmentSplines();
 	}
 
 	return true;

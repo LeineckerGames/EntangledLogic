@@ -114,7 +114,10 @@ public:
 	UStaticMesh* TestingItemMesh;
 
 	UFUNCTION()
-	void AddTestingItemToWire(AQubit* QubitData);
+	void AddTestingItemToWire(AQubit* QubitData, bool UseNewQubitFunction);
+
+	// Using to refactor the qubits movement
+	bool AddQubitToWire(AQubit* QubitData);
 
 	UFUNCTION()
 	void AddWireToEndOfSegment(ATestingWire* WireToAdd);

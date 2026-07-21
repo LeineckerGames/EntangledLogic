@@ -42,6 +42,7 @@ void UFactorySubsystem::SetProgressionGoalCount(FProgressionGoal &ProgressionGoa
 
 	if (ProgressionGoal.ProgressionGoalCount >= requirement)
 	{
+		FProgressionGoal GoalToRemove = ProgressionGoal;
 		// Add all the unlocks
 		for (EUnlockables CurrentUnlock : ProgressionGoal.ProgressionGoalsData.UnlockablesOnCompletion)
 		{
@@ -53,13 +54,13 @@ void UFactorySubsystem::SetProgressionGoalCount(FProgressionGoal &ProgressionGoa
 		if (NextProgressionGoal)
 		{
 			UE_LOG(LogTemp, Display, TEXT("Unlocking Next Progression Goal"))
-			FProgressionGoal GoalToRemove = ProgressionGoal;
-			// Add Next Goal and Unlocks
-			AddProgressionGoal(ProgressionGoal.ProgressionGoalsData.NextProgressionGoal);
 
-			// Remove old goal
-			PersistantStats.CurrentProgressionGoals.Remove(GoalToRemove);
+			// Add Next Goal
+			AddProgressionGoal(ProgressionGoal.ProgressionGoalsData.NextProgressionGoal);
 		}
+
+		// Remove old goal
+		PersistantStats.CurrentProgressionGoals.Remove(GoalToRemove);
 
 		RepopulateWidgets();
 	}

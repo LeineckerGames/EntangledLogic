@@ -77,7 +77,7 @@ void ATestingWire::TransferQubit(AQubit* QubitToTransfer, int32 QubitSlotIndex)
 {
 	//Qubits.Enqueue(QubitToTransfer);
 	UE_LOG(LogTemp, Display, TEXT("Running AddTestingItemToWire"));
-	AssignedSegment->AddTestingItemToWire(QubitToTransfer);
+	AssignedSegment->AddTestingItemToWire(QubitToTransfer, true);
 }
 
 void ATestingWire::DisconnectAllInputsAndOutputs()

@@ -8,6 +8,14 @@
 
 class AQubit;
 
+UENUM()
+enum class QubitSplineMode : uint8
+{
+	START_MODE,
+	PROCESSING_MODE,
+	EXIT_MODE
+};
+
 UCLASS()
 class ENTANGLEDLOGIC_API AFactoryBase : public AActor, public IFactoryInteractionInterface, public IInputOutputInterface
 {
@@ -44,6 +52,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UWidgetComponent* FactoryDisplayWindow;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<class USplineComponent*> QubitSplines;
+
+	QubitSplineMode CurrentSplineMode;
+
+	TArray<float> QubitDistances;
+
 	class UUserWidget* FactoryWidget;
 
 	float ProcesssingTime = 1.0f;
@@ -51,6 +66,10 @@ protected:
 	bool OutputQubits();
 
 	virtual void StartProcessingQubits();
+
+	void EnterQubitSplineMovement(float DeltaTime);
+	
+	void ExitQubitSplineMovement(float DeltaTime);
 
 	virtual void OnQubitProcessed();
 

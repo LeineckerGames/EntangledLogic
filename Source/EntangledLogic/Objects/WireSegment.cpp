@@ -1,6 +1,7 @@
 #include "WireSegment.h"
 #include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
 #include "EntangledLogic/Core/DevSettings/FactorySettings.h"
+#include "EntangledLogic/Objects/Qubits/Qubit.h"
 #include "TestingWire.h"
 
 AWireSegment::AWireSegment()
@@ -396,7 +397,16 @@ void AWireSegment::Tick(float DeltaTime)
 		FVector Loc = SplineComponent->GetLocationAtDistanceAlongSpline(CurrentDistanceAlongSpline, ESplineCoordinateSpace::World);
 		FRotator Rot = SplineComponent->GetRotationAtDistanceAlongSpline(CurrentDistanceAlongSpline, ESplineCoordinateSpace::World);
 
-		ItemsOnWire[i].ItemMesh->SetWorldLocationAndRotation(Loc, Rot);
+		if (ItemsOnWire[i].ItemMesh)
+		{
+			ItemsOnWire[i].ItemMesh->SetWorldLocationAndRotation(Loc, Rot);
+		}
+
+		if (ItemsOnWire[i].QubitData)
+		{
+			ItemsOnWire[i].QubitData->SetActorLocationAndRotation(Loc, Rot);
+		}
+		
 	}
 }
 
@@ -451,6 +461,38 @@ bool AWireSegment::AddItemToWire(AQubit* QubitData)
 	return true;
 }
 
+bool AWireSegment::AddQubitToWire(AQubit* QubitData)
+{
+	if (Capacity > 0 && ItemsOnWire.Num() >= Capacity)
+	{
+		return false;
+	}
+
+	FWireItemData NewItem;
+
+	NewItem.QubitData = QubitData;
+
+	if (ItemsOnWire.IsEmpty())
+	{
+		HeadGap = SplineComponent->GetSplineLength();
+		NewItem.GapToNextItem = 0.0f;
+		ActiveGapIndex = 1;
+	}
+	else
+	{
+		float LastItemPos = SplineComponent->GetSplineLength() - HeadGap;
+		for (int32 i = 1; i < ItemsOnWire.Num(); i++)
+		{
+			LastItemPos -= ItemsOnWire[i].GapToNextItem;
+		}
+
+		NewItem.GapToNextItem = LastItemPos;
+	}
+
+	ItemsOnWire.Add(NewItem);
+	return true;
+}
+
 
 // Returns a nullptr if fails
 AQubit* AWireSegment::RemoveFrontItem()
@@ -463,6 +505,11 @@ AQubit* AWireSegment::RemoveFrontItem()
 	{
 		QubitToPop = ItemsOnWire[0].QubitData;
 		ItemsOnWire[0].ItemMesh->DestroyComponent();
+	}
+
+	if (ItemsOnWire[0].QubitData)
+	{
+		QubitToPop = ItemsOnWire[0].QubitData;
 	}
 
 	if (ItemsOnWire.Num() > 1)
@@ -492,8 +539,13 @@ bool AWireSegment::IsFull()
 	return Capacity > 0 && ItemsOnWire.Num() >= Capacity;
 }
 
-void AWireSegment::AddTestingItemToWire(AQubit* QubitData)
+void AWireSegment::AddTestingItemToWire(AQubit* QubitData, bool UseNewQubitFunction)
 {
+	if (UseNewQubitFunction)
+	{
+		AddQubitToWire(QubitData);
+		return;
+	}
 	AddItemToWire(QubitData);
 }
 

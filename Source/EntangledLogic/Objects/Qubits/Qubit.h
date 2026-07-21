@@ -22,6 +22,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UStaticMeshComponent* QubitMesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UStaticMesh* EntanglementSplineMesh;
+
+	UPROPERTY()
+	TArray<class USplineComponent*> EntanglementSplines;
+
 	// Sets default values for this actor's properties
 	AQubit();
 
@@ -36,4 +42,6 @@ public:
 	class FString GetString();
 
 	void UpdateMeshData();
+
+	void AttachEntanglementSplineToQubit(AQubit* QubitToAttach);
 };

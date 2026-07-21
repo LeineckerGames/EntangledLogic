@@ -1,8 +1,10 @@
 #include "FactoryBase.h"
 #include "Components/WidgetComponent.h"
+#include "Components/SplineComponent.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
+#include "EntangledLogic/Objects/Qubits/Qubit.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
 #include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
@@ -40,6 +42,7 @@ AFactoryBase::AFactoryBase()
 	// Create Grid Placement and attach to mesh
 	GridPlacementComponent = CreateDefaultSubobject<UGridPlacementComponent>(TEXT("GridPlacementComponent"));
 	GridPlacementComponent->SetupAttachment(FactoryMesh);
+
 }
 
 // Called when the game starts or when spawned
@@ -64,6 +67,10 @@ void AFactoryBase::BeginPlay()
 	}
 
 	Qubits.SetNum(GetNumQubitSlots());
+	QubitDistances.Init(0.0f, GetNumQubitSlots());
+	// This is causing a crash QubitDistances isnt being created correctly?
+	//UE_LOG(LogTemp, Display, TEXT("Qubit Distance %f"), QubitDistances[0]);
+
 	// Get Attached Inputs and Outputs and add them to the array
 	GetComponents<UFactoryInputComponent>(InputComponents);
 	GetComponents<UFactoryOutputComponent>(OutputComponents);
@@ -123,14 +130,62 @@ void AFactoryBase::StartProcessingQubits()
 			{
 				FTimerHandle TimerHandle;
 				World->GetTimerManager().SetTimer(TimerHandle, this, &AFactoryBase::OnQubitProcessed, ProcesssingTime);
+				//CurrentSplineMode = QubitSplineMode::PROCESSING_MODE;
 			}
 		}
+	}
+}
+
+void AFactoryBase::EnterQubitSplineMovement(float DeltaTime)
+{
+	
+	for (int i = 0; i < QubitSplines.Num(); i++)
+	{
+		float SplineLength = QubitSplines[i]->GetSplineLength();
+
+		QubitDistances[i] += ProcesssingTime * 100.0f * DeltaTime;
+
+		if (!(QubitDistances[i] >= SplineLength / 2))
+		{
+			FVector Loc = QubitSplines[i]->GetLocationAtDistanceAlongSpline(QubitDistances[i], ESplineCoordinateSpace::World);
+			FRotator Rot = QubitSplines[i]->GetRotationAtDistanceAlongSpline(QubitDistances[i], ESplineCoordinateSpace::World);
+
+			if (Qubits[i])
+			{
+				Qubits[i]->SetActorLocationAndRotation(Loc, Rot);
+			}
+		}
+
+	}
+		
+}
+
+void AFactoryBase::ExitQubitSplineMovement(float DeltaTime)
+{
+	for (int i = 0; i < QubitSplines.Num(); i++)
+	{
+		float SplineLength = QubitSplines[i]->GetSplineLength();
+		// Might want to add a multiplier to processing time
+		QubitDistances[i] += ProcesssingTime * DeltaTime;
+
+		if (!(QubitDistances[i] >= SplineLength))
+		{
+			FVector Loc = QubitSplines[i]->GetLocationAtDistanceAlongSpline(QubitDistances[i], ESplineCoordinateSpace::World);
+			FRotator Rot = QubitSplines[i]->GetRotationAtDistanceAlongSpline(QubitDistances[i], ESplineCoordinateSpace::World);
+
+			if (Qubits[i])
+			{
+				Qubits[i]->SetActorLocationAndRotation(Loc, Rot);
+			}
+		}
+
 	}
 }
 
 void AFactoryBase::OnQubitProcessed()
 {
 	IsQubitProcessed = true;
+	CurrentSplineMode = QubitSplineMode::EXIT_MODE;
 	// Modify Qubit in child Gate class
 }
 
@@ -141,6 +196,22 @@ void AFactoryBase::Tick(float DeltaTime)
 	if (FactoryDisplayWindow->IsVisible())
 	{
 		RotateUIToCamera();
+	}
+
+	// Update Qubit Spline Movement
+	switch (CurrentSplineMode)
+	{
+		case QubitSplineMode::START_MODE:
+			EnterQubitSplineMovement(DeltaTime);
+			break;
+
+		case QubitSplineMode::PROCESSING_MODE:
+			// Maybe add particles that spawn during this
+			break;
+
+		case QubitSplineMode::EXIT_MODE:
+			ExitQubitSplineMovement(DeltaTime);
+			break;
 	}
 }
 
@@ -202,6 +273,7 @@ bool AFactoryBase::OutputQubits()
 						{
 							IOInterface->TransferQubit(Qubits[SlotNumber], InputSlotIndex);
 							Qubits[SlotNumber] = nullptr;
+							QubitDistances[SlotNumber] = 0.0f;
 							UpdateQubitDisplay();
 							ValidQubitCount++;
 						}
@@ -359,6 +431,7 @@ bool AFactoryBase::IsQubitSlotEmpty(int32 QubitSlotIndex)
 void AFactoryBase::TransferQubit(AQubit* QubitToTransfer, int32 QubitSlotIndex)
 {
 	Qubits[QubitSlotIndex] = QubitToTransfer;
+	CurrentSplineMode = QubitSplineMode::START_MODE;
 	StartProcessingQubits();
 	UpdateQubitDisplay();
 }

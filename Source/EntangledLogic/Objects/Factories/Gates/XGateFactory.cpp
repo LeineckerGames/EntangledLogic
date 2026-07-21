@@ -1,4 +1,5 @@
 #include "XGateFactory.h"
+#include "Components/SplineComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "EntangledLogic/Interfaces/InputOutputInterface.h"
@@ -10,6 +11,10 @@
 AXGateFactory::AXGateFactory()
 {
 	Qubits.SetNum(NUM_QUBIT_SLOTS);
+	// Create Qubit movement spline
+
+	QubitSplines.Add(CreateDefaultSubobject<USplineComponent>(TEXT("QubitSpline")));
+	QubitSplines[0]->SetupAttachment(FactoryMesh);
 }
 
 // Need to add the deletion of qubits once they transfer

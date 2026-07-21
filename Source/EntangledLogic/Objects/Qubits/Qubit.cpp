@@ -2,6 +2,8 @@
 #include "EntangledLogic/Core/Framework/QubitDataStructs.h"
 #include "EntangledLogic/Core/Subsystems/QubitDataSubsystem.h"
 #include "Templates/SharedPointer.h"
+#include "Components/SplineComponent.h"
+#include "Components/SplineMeshComponent.h"
 #include "QppPlugin.h"
 
 // Sets default values
@@ -32,6 +34,40 @@ void AQubit::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AQubit::AttachEntanglementSplineToQubit(AQubit* QubitToAttach)
+{
+	USplineComponent* EntanglementSpline = Cast<USplineComponent>(AddComponentByClass(USplineComponent::StaticClass(), false, GetActorTransform(), false));
+	EntanglementSpline->AddSplinePoint(QubitToAttach->GetActorTransform().GetLocation(), ESplineCoordinateSpace::Local, true);
+
+	EntanglementSpline->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+
+	// Make Spline Mesh and setup start / end points and attach to SplineComp
+	USplineMeshComponent* EntanglementSplineMeshComponent = Cast<USplineMeshComponent>(AddComponentByClass(USplineMeshComponent::StaticClass(), false, GetActorTransform(), false));
+	EntanglementSplineMeshComponent->SetupAttachment(EntanglementSpline);
+
+	if (EntanglementSplineMesh)
+	{
+		EntanglementSplineMeshComponent->SetStaticMesh(EntanglementSplineMesh);
+	}
+
+	// Get start / end spline point info
+	FVector StartPos, StartTangent, EndPos, EndTangent;
+	EntanglementSpline->GetLocationAndTangentAtSplinePoint(0, StartPos, StartTangent, ESplineCoordinateSpace::Local);
+	EntanglementSpline->GetLocationAndTangentAtSplinePoint(1, EndPos, EndTangent, ESplineCoordinateSpace::Local);
+
+	// Apply info to spline mesh comp
+	EntanglementSplineMeshComponent->SetStartAndEnd(StartPos, StartTangent, EndPos, EndTangent, true);
+	EntanglementSplineMeshComponent->SetForwardAxis(ESplineMeshAxis::Z);
+
+	// Make visible in editor at runtime
+	EntanglementSplineMeshComponent->RegisterComponent();
+	AddInstanceComponent(EntanglementSplineMeshComponent);
+
+	AddInstanceComponent(EntanglementSpline);
+
+	EntanglementSplines.Add(EntanglementSpline);
 }
 
 FString AQubit::GetString()
