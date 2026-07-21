@@ -3,6 +3,7 @@
 #include "QppPlugin.h"
 #include "Eigen/Dense"
 #include <complex>
+#include <algorithm>
 #include "ProgressionGoalsDataStructs.generated.h"
 
 enum class EUnlockables : uint8;
@@ -59,12 +60,8 @@ struct FKetWrapper
 			Count++;
 		}
 
-		std::ostringstream oss1;
-
 		// push qpp's display to the stream
-		oss1 << qpp::disp(NewKet) << '\n';
-		FString KetInformationString = FString(oss1.str().c_str());
-		UE_LOG(LogTemp, Display, TEXT("Converted the Complex Number Arr to : %s"), *KetInformationString);
+		UE_LOG(LogTemp, Display, TEXT("Converted the Complex Number Arr to : %s"), *ConvertKetToString(NewKet));
 		return NewKet;
 	}
 
@@ -74,10 +71,15 @@ struct FKetWrapper
 		std::ostringstream oss1;
 
 		// push qpp's display to the stream
-		oss1 << qpp::disp(KetToConvert) << '\n';
+		oss1 << qpp::disp(KetToConvert);
+
+		// remove newlines
+		std::string s = oss1.str();
+		std::replace(s.begin(), s.end(), '\n', ' ');
+		//s.append("\n");
 
 		// string from stream
-		return FString(oss1.str().c_str());
+		return FString(s.c_str());
 	}
 
 	FString ConvertToString()

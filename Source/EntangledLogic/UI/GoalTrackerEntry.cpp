@@ -35,7 +35,7 @@ void UGoalTrackerEntry::UpdateDisplay()
 			int32 current = GoalStruct->ProgressionGoalCount;
 			int32 total = GoalStruct->ProgressionGoalsData.RequiredStatesAmount;
 
-			FString GoalCountString = FString::Printf(TEXT("%d / %d"), current, total);
+			FString GoalCountString = FString::Printf(TEXT("%d/%d"), current, total);
 			ProgressText->SetText(FText::FromString(GoalCountString));
 
 			GoalProgressBar->SetPercent(((float)current) / total);
