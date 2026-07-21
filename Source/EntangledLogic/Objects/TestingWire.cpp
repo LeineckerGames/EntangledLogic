@@ -17,6 +17,9 @@ ATestingWire::ATestingWire()
 	// Minimum required point
 	DefaultPoint = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultPoint"));
 	DefaultPoint->SetupAttachment(PointsRoot);
+
+	WireSpline = CreateDefaultSubobject<USplineComponent>(TEXT("WireSpline"));
+	WireSpline->SetupAttachment(DefaultRoot);
 }
 
 void ATestingWire::BeginPlay()

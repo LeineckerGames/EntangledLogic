@@ -104,7 +104,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	int Capacity = 0; // 0 implies infinite within length limits
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	int32 ActiveGapIndex = 1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	bool bIsFrontBlocked = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug", meta = (AllowPrivateAccess = "true"))

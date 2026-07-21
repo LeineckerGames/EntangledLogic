@@ -48,6 +48,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Testing")
 	AWireSegment* AssignedSegment;
 
+	
 	// The points for the spline to attach to, are attached to this component. Access them using:
 	//		TArray<USceneComponent*> PointsArray;
 	//		PointsRoot->GetChildrenComponents(true, PointsArray);
@@ -59,9 +60,14 @@ public:
 	// Minimum required point; this is default first point, attached to the PointsRoot by default
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* DefaultPoint;
+	
 
 	UFUNCTION()
 	FVector GetPointAtIndex(int32 i);
 
 
+	// Qubits follow the path defined by this spline.
+	// Splines are defined by points, as well as information on how to connect these points (e.g. tangents).
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing", meta = (AllowPrivateAccess = "true"))
+	USplineComponent* WireSpline;
 };
