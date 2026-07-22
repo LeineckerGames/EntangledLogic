@@ -83,6 +83,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "SFX")
 	class USoundBase* DeleteSFX;
 
+	UPROPERTY(EditAnywhere)
+	class UNiagaraComponent* FactoryNiagaraComponent;
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* FactoryQubitModifyFX;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

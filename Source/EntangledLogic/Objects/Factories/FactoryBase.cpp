@@ -11,6 +11,8 @@
 #include "EntangledLogic/Core/Framework/SortBySlotIndex.h"
 #include "EntangledLogic/UI/Factory/FactoryInfoUI.h"
 #include "EntangledLogic/UI/Factory/FactoryDevUI.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Camera/PlayerCameraManager.h"
@@ -42,6 +44,11 @@ AFactoryBase::AFactoryBase()
 	// Create Grid Placement and attach to mesh
 	GridPlacementComponent = CreateDefaultSubobject<UGridPlacementComponent>(TEXT("GridPlacementComponent"));
 	GridPlacementComponent->SetupAttachment(FactoryMesh);
+
+	// Create Niagara Comp and attach to mesh
+	FactoryNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("FactoryNiagaraComponent"));
+	FactoryNiagaraComponent->SetupAttachment(FactoryMesh);
+	FactoryNiagaraComponent->SetAutoActivate(false);
 
 }
 
@@ -103,6 +110,11 @@ void AFactoryBase::BeginPlay()
 	if (FactoryDevWidget)
 	{
 		FactoryDevWidget->SetHeaderText("Dev Menu");
+	}
+
+	if (FactoryQubitModifyFX)
+	{
+		FactoryNiagaraComponent->SetAsset(FactoryQubitModifyFX);
 	}
 
 }
@@ -189,6 +201,7 @@ void AFactoryBase::ExitQubitSplineMovement(float DeltaTime)
 void AFactoryBase::OnQubitProcessed()
 {
 	IsQubitProcessed = true;
+	FactoryNiagaraComponent->Activate(true);
 	// Modify Qubit in child Gate class
 }
 
