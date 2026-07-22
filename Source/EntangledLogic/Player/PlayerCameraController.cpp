@@ -48,6 +48,8 @@ void APlayerCameraController::BeginPlay()
 	Super::BeginPlay();
 	
 	TopDownPlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+	// Used for on hover events on actors
+	TopDownPlayerController->bEnableMouseOverEvents = true;
 	GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
 
 	// Creates Dynamic Grid Material instance

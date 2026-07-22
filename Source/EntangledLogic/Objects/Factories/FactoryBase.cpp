@@ -143,7 +143,7 @@ void AFactoryBase::EnterQubitSplineMovement(float DeltaTime)
 	{
 		if (Qubits[i])
 		{
-			UE_LOG(LogTemp, Display, TEXT("Moving Qubit Name = %s"), *Qubits[i]->GetActorNameOrLabel())
+			//UE_LOG(LogTemp, Display, TEXT("Moving Qubit Name = %s"), *Qubits[i]->GetActorNameOrLabel())
 
 			float SplineLength = QubitSplines[i]->GetSplineLength();
 
@@ -153,7 +153,7 @@ void AFactoryBase::EnterQubitSplineMovement(float DeltaTime)
 			{
 				FVector Loc = QubitSplines[i]->GetLocationAtDistanceAlongSpline(QubitDistances[i], ESplineCoordinateSpace::World);
 				FRotator Rot = QubitSplines[i]->GetRotationAtDistanceAlongSpline(QubitDistances[i], ESplineCoordinateSpace::World);
-				UE_LOG(LogTemp, Display, TEXT("Moving Qubit Actor In Enter Spline"));
+				//UE_LOG(LogTemp, Display, TEXT("Moving Qubit Actor In Enter Spline"));
 				Qubits[i]->SetActorLocationAndRotation(Loc, Rot);
 			}
 			else
