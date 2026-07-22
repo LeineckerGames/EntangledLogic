@@ -1,4 +1,5 @@
 #include "ZGateFactory.h"
+#include "Components/SplineComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "EntangledLogic/Interfaces/InputOutputInterface.h"
@@ -10,6 +11,10 @@
 AZGateFactory::AZGateFactory()
 {
 	Qubits.SetNum(NUM_QUBIT_SLOTS);
+
+	// Setup Qubit Animation Splines
+	QubitSplines.Add(CreateDefaultSubobject<USplineComponent>(TEXT("QubitSpline0")));
+	QubitSplines[0]->SetupAttachment(FactoryMesh);
 }
 
 void AZGateFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -70,6 +75,7 @@ void AZGateFactory::OnQubitProcessed()
 		{
 			UE_LOG(LogTemp, Display, TEXT("Applying the Z Gate on the qubit"));
 			QubitSubsystem->Apply(*Qubits[0], EQuantumGate::Z_Gate);
+			CurrentSplineMode = QubitSplineMode::EXIT_MODE;
 			UpdateQubitDisplay();
 		}
 	}

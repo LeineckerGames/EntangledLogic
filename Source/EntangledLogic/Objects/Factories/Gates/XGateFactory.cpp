@@ -11,9 +11,9 @@
 AXGateFactory::AXGateFactory()
 {
 	Qubits.SetNum(NUM_QUBIT_SLOTS);
-	// Create Qubit movement spline
 
-	QubitSplines.Add(CreateDefaultSubobject<USplineComponent>(TEXT("QubitSpline")));
+	// Create Qubit movement spline
+	QubitSplines.Add(CreateDefaultSubobject<USplineComponent>(TEXT("QubitSpline0")));
 	QubitSplines[0]->SetupAttachment(FactoryMesh);
 }
 
