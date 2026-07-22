@@ -157,7 +157,7 @@ void APlayerCameraController::ZoomCamera(const FInputActionValue& Value)
 {
 	float ZoomDirection = Value.Get<float>();
 	
-	SpringArm->TargetArmLength = FMath::Clamp(SpringArm->TargetArmLength + (ZoomDirection * ZoomSpeed), 300.0f, 5000.0f);
+	SpringArm->TargetArmLength = FMath::Clamp(SpringArm->TargetArmLength + (ZoomDirection * ZoomSpeed), 100.0f, 5000.0f);
 	ZoomSensitivityMultiplier = 1.0f + ((SpringArm->TargetArmLength - 1500.0f) / 3500.0f) * 1.5f;
 
 	// Scale Grid by multiplier as well

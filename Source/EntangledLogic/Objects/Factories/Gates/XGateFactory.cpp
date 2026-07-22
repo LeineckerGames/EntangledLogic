@@ -42,8 +42,9 @@ void AXGateFactory::OnQubitProcessed()
 		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
 		if (QubitSubsystem)
 		{
-			UE_LOG(LogTemp, Display, TEXT("Applying the X Gate on the qubit"))
+			//UE_LOG(LogTemp, Display, TEXT("Applying the X Gate on the qubit"))
 			QubitSubsystem->Apply(*Qubits[0], EQuantumGate::X_Gate);
+			CurrentSplineMode = QubitSplineMode::EXIT_MODE;
 			UpdateQubitDisplay();
 		}
 	}

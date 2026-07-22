@@ -55,7 +55,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<class USplineComponent*> QubitSplines;
 
-	QubitSplineMode CurrentSplineMode;
+	QubitSplineMode CurrentSplineMode = QubitSplineMode::START_MODE;
 
 	TArray<float> QubitDistances;
 
