@@ -3,6 +3,7 @@
 #include "Components/ScrollBox.h"
 #include "EnhancedInputSubsystems.h"
 #include "UserSettings/EnhancedInputUserSettings.h"
+#include "GameplayTagContainer.h"
 
 // NativeConstruct is called when the widget is constructed and added to the viewport
 void USettingsTabControls::NativeConstruct()
