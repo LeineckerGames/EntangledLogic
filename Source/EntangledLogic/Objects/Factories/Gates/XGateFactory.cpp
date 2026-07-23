@@ -11,9 +11,9 @@
 AXGateFactory::AXGateFactory()
 {
 	Qubits.SetNum(NUM_QUBIT_SLOTS);
-	// Create Qubit movement spline
 
-	QubitSplines.Add(CreateDefaultSubobject<USplineComponent>(TEXT("QubitSpline")));
+	// Create Qubit movement spline
+	QubitSplines.Add(CreateDefaultSubobject<USplineComponent>(TEXT("QubitSpline0")));
 	QubitSplines[0]->SetupAttachment(FactoryMesh);
 }
 
@@ -42,8 +42,9 @@ void AXGateFactory::OnQubitProcessed()
 		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
 		if (QubitSubsystem)
 		{
-			UE_LOG(LogTemp, Display, TEXT("Applying the X Gate on the qubit"))
+			//UE_LOG(LogTemp, Display, TEXT("Applying the X Gate on the qubit"))
 			QubitSubsystem->Apply(*Qubits[0], EQuantumGate::X_Gate);
+			CurrentSplineMode = QubitSplineMode::EXIT_MODE;
 			UpdateQubitDisplay();
 		}
 	}

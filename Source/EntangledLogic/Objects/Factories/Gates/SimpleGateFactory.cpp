@@ -1,4 +1,5 @@
-#include "ZGateFactory.h"
+
+#include "SimpleGateFactory.h"
 #include "Components/SplineComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
@@ -8,16 +9,47 @@
 #include "EntangledLogic/Core/Framework/QuantumGatesEnum.h"
 #include "Components/SceneCaptureComponent2D.h"
 
-AZGateFactory::AZGateFactory()
+ASimpleGateFactory::ASimpleGateFactory()
 {
-	Qubits.SetNum(NUM_QUBIT_SLOTS);
-
-	// Setup Qubit Animation Splines
+	// Create Qubit movement spline
 	QubitSplines.Add(CreateDefaultSubobject<USplineComponent>(TEXT("QubitSpline0")));
 	QubitSplines[0]->SetupAttachment(FactoryMesh);
 }
 
-void AZGateFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)
+// Need to add the deletion of qubits once they transfer
+
+void ASimpleGateFactory::OnFactoryTick()
+{
+	Super::OnFactoryTick();
+	if (IsQubitProcessed)
+	{
+		bool IsSuccess = OutputQubits();
+		if (IsSuccess)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Outputting Qubits, IsQubitProcessed = false"))
+				IsQubitProcessed = false;
+		}
+	}
+}
+
+void ASimpleGateFactory::OnQubitProcessed()
+{
+	Super::OnQubitProcessed();
+	UWorld* world = GetWorld();
+	if (world)
+	{
+		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
+		if (QubitSubsystem)
+		{
+			//UE_LOG(LogTemp, Display, TEXT("Applying the X Gate on the qubit"))
+			QubitSubsystem->Apply(*Qubits[0], Gate);
+			CurrentSplineMode = QubitSplineMode::EXIT_MODE;
+			UpdateQubitDisplay();
+		}
+	}
+}
+
+void ASimpleGateFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	if (EndPlayReason == EEndPlayReason::Destroyed)
 	{
@@ -52,37 +84,8 @@ void AZGateFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void AZGateFactory::OnFactoryTick()
-{
-	Super::OnFactoryTick();
-	if (IsQubitProcessed)
-	{
-		if (OutputQubits())
-		{
-			IsQubitProcessed = false;
-		}
-	}
-}
-
-void AZGateFactory::OnQubitProcessed()
-{
-	Super::OnQubitProcessed();
-	UWorld* world = GetWorld();
-	if (world)
-	{
-		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
-		if (QubitSubsystem)
-		{
-			UE_LOG(LogTemp, Display, TEXT("Applying the Z Gate on the qubit"));
-			QubitSubsystem->Apply(*Qubits[0], EQuantumGate::Z_Gate);
-			CurrentSplineMode = QubitSplineMode::EXIT_MODE;
-			UpdateQubitDisplay();
-		}
-	}
-}
-
 // Input Output Interface
-void AZGateFactory::ConnectAllInputsAndOutputs()
+void ASimpleGateFactory::ConnectAllInputsAndOutputs()
 {
 	Super::ConnectAllInputsAndOutputs();
 
@@ -97,7 +100,7 @@ void AZGateFactory::ConnectAllInputsAndOutputs()
 	}
 }
 
-void AZGateFactory::ConnectAllInputs()
+void ASimpleGateFactory::ConnectAllInputs()
 {
 	Super::ConnectAllInputs();
 
@@ -105,10 +108,9 @@ void AZGateFactory::ConnectAllInputs()
 	{
 		ConnectInputComponent(CurrentInputComponent, false);
 	}
-
 }
 
-void AZGateFactory::ConnectAllOutputs()
+void ASimpleGateFactory::ConnectAllOutputs()
 {
 	Super::ConnectAllOutputs();
 

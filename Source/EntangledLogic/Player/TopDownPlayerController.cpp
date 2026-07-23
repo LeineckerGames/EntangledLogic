@@ -1,6 +1,5 @@
 #include "TopDownPlayerController.h"
 #include "EnhancedInputSubsystems.h"
-#include "UserSettings/EnhancedInputUserSettings.h"
 #include "EntangledLogic/UI/PlayerHUD.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 
@@ -52,16 +51,10 @@ void ATopDownPlayerController::AddMappingContext(UInputMappingContext* InputMapp
 			Options.bForceImmediately = true;
 
 			Subsystem->AddMappingContext(InputMappingContext, Priority, Options);
-
+			//UE_LOG(LogTemp, Display, TEXT("Player Controls mapping context added"));
 			if (UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings())
 			{
-				if (!UserSettings->GetActiveKeyProfile())
-				{
-					FPlayerMappableKeyProfileCreationArgs ProfileArgs;
-					UserSettings->CreateNewKeyProfile(ProfileArgs);
-				}
 				UserSettings->RegisterInputMappingContext(InputMappingContext);
-				UserSettings->ApplySettings();
 			}
 		}
 	}

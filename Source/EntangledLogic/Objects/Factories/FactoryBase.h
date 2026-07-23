@@ -52,10 +52,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UWidgetComponent* FactoryDisplayWindow;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<class USplineComponent*> QubitSplines;
 
-	QubitSplineMode CurrentSplineMode;
+	QubitSplineMode CurrentSplineMode = QubitSplineMode::START_MODE;
 
 	TArray<float> QubitDistances;
 
@@ -82,6 +82,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "SFX")
 	class USoundBase* DeleteSFX;
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraComponent* FactoryNiagaraComponent;
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* FactoryQubitModifyFX;
 
 public:	
 	// Called every frame

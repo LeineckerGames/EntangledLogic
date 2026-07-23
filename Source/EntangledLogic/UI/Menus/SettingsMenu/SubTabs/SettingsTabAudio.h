@@ -5,8 +5,7 @@
 #include "AudioModulationStatics.h"
 #include "SettingsTabAudio.generated.h"
 
-class USoundControlBus;
-class USoundControlBusMix;
+//class USoundControlBusMix;
 class USlider;
 
 UCLASS()
@@ -18,33 +17,6 @@ protected:
     virtual void NativeConstruct() override;
 
     // Audio Settings
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
-    float MasterVolume = 0.7f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
-    float MusicVolume = 0.7f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
-    float AmbienceVolume = 0.7f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
-    float SFXVolume = 0.7f;
-
-    UPROPERTY(EditAnywhere, Category = "Audio")
-    USoundControlBusMix* ControlBusMix;
-
-    UPROPERTY(EditAnywhere, Category = "Audio")
-    USoundControlBus* MasterBus;
-
-    UPROPERTY(EditAnywhere, Category = "Audio")
-    USoundControlBus* MusicBus;
-
-    UPROPERTY(EditAnywhere, Category = "Audio")
-    USoundControlBus* AmbienceBus;
-
-    UPROPERTY(EditAnywhere, Category = "Audio")
-    USoundControlBus* SFXBus;
-
     UPROPERTY(meta = (BindWidget))
     USlider* MasterVolumeSlider;
 
@@ -52,7 +24,7 @@ protected:
     USlider* MusicVolumeSlider;
 
     UPROPERTY(meta = (BindWidget))
-    USlider* AmbienceVolumeSlider;
+    USlider* DialogVolumeSlider;
 
     UPROPERTY(meta = (BindWidget))
     USlider* SFXVolumeSlider;
@@ -65,17 +37,8 @@ protected:
     void OnMusicVolumeChanged(float Value);
 
     UFUNCTION()
-    void OnAmbienceVolumeChanged(float Value);
+    void OnDialogVolumeChanged(float Value);
 
     UFUNCTION()
     void OnSFXVolumeChanged(float Value);
-
-    UFUNCTION()
-    void SetModulationVolume(USoundControlBus* TargetBus, float Value);
-
-    UFUNCTION()
-    void SaveVolume(float Master, float Music, float Ambience, float SFX);
-
-    UFUNCTION()
-    void LoadVolume();
 };

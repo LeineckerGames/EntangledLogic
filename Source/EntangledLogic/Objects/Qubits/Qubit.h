@@ -35,13 +35,21 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	bool UpdateSplineMovement = false;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void NotifyActorBeginCursorOver() override;
+
+	virtual void NotifyActorEndCursorOver() override;
 
 	class FString GetString();
 
 	void UpdateMeshData();
 
 	void AttachEntanglementSplineToQubit(AQubit* QubitToAttach);
+
+	void UpdateEntanglementSplinePointLocation(FVector EndSplinePointLocation, int32 SplineIndex);
 };

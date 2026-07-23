@@ -192,11 +192,13 @@ qpp::cmat UQubitDataSubsystem::GetStateAsMatrix(ENamedState state)
 cmat UQubitDataSubsystem::GetGateMatrix(EQuantumGate gate)
 {
 	switch (gate) {
-	case EQuantumGate::Identity : return gt.Id();
-	case EQuantumGate::X_Gate : return gt.X;
-	case EQuantumGate::Y_Gate : return gt.Y;
-	case EQuantumGate::Z_Gate : return gt.Z;
-	case EQuantumGate::H_Gate : return gt.H;
+	case EQuantumGate::Identity: return gt.Id();
+	case EQuantumGate::X_Gate: return gt.X;
+	case EQuantumGate::Y_Gate: return gt.Y;
+	case EQuantumGate::Z_Gate: return gt.Z;
+	case EQuantumGate::H_Gate: return gt.H;
+	case EQuantumGate::S_Gate: return gt.S;
+	case EQuantumGate::T_Gate: return gt.T;
 	}
 
 	return gt.Id();
