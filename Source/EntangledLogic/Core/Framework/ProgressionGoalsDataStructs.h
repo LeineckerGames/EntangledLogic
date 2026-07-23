@@ -11,12 +11,17 @@ enum class EUnlockables : uint8;
 UENUM()
 enum class EProgressionGoals : uint8
 {
-	MAIN_Ket_One_State,
-	MAIN_Negative_Ket_One_State,
-	MAIN_Superpositon_State,
-	MAIN_Completed,
-	SIDE_Ket_Zero_State,
-	SIDE_Completed
+	Wire_Tutorial,
+	Gate_Tutorial,
+	H_Gate_Tutorial,
+	Z_Gate_Tutorial,
+	S_Gate_Tutorial_90,
+	S_Gate_Tutorial_270,
+	T_Gate_Tutorial_45,
+	T_Gate_Tutorial_135,
+	T_Gate_Tutorial_225,
+	T_Gate_Tutorial_315,
+	Gnome_Test
 };
 
 USTRUCT(BlueprintType)
@@ -109,7 +114,7 @@ struct FProgressionGoalsData
 	int32 RequiredStatesAmount;
 
 	UPROPERTY(EditAnywhere)
-	EProgressionGoals NextProgressionGoal;
+	TArray<EProgressionGoals> NextProgressionGoals;
 
 	UPROPERTY(EditAnywhere)
 	TArray<EUnlockables> UnlockablesOnCompletion;

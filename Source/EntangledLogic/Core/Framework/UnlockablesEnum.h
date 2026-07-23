@@ -13,5 +13,8 @@ enum class EUnlockables : uint8
 	Factory_QuantumGnome,
 	Dev_Testing_Factories,
 	Test_RainbowBaseGridColor,
-	UnlockAll
+	UnlockAll,
+	Factory_X_Gate,
+	Factory_S_Gate,
+	Factory_T_Gate
 };

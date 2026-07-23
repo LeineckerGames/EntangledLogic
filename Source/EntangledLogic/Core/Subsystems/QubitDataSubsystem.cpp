@@ -77,7 +77,7 @@ void UQubitDataSubsystem::Apply(AQubit& qubit, EQuantumGate gate)
 void UQubitDataSubsystem::ApplyControlled(AQubit& control, AQubit& target, EQuantumGate gate)
 {
 	// if target and control are not already entangled, create a shared state
-	CombineState(target, control);
+	if (CombineState(target, control) == false) return;
 
 	unsigned long LongEntPosT = static_cast<unsigned long>(target.EntanglementPosition);
 	unsigned long LongEntPosC = static_cast<unsigned long>(control.EntanglementPosition);
@@ -86,7 +86,7 @@ void UQubitDataSubsystem::ApplyControlled(AQubit& control, AQubit& target, EQuan
 	target.State->StateVector = applyCTRL(target.State->StateVector, gateMatrix, { LongEntPosC }, { LongEntPosT });
 
 	// check disentanglement - currently assumes at most 2-qubit entanglement
-	if (entanglement(target.State->StateVector) == 0)
+	/*if (entanglement(target.State->StateVector) == 0)
 	{
 		cmat rho1 = ptrace1(target.State->StateVector);
 		cmat rho2 = ptrace2(target.State->StateVector);
@@ -101,7 +101,7 @@ void UQubitDataSubsystem::ApplyControlled(AQubit& control, AQubit& target, EQuan
 		target.EntanglementPosition = 0;
 
 		control.State->UpdateQubitEntanglmentSplines();
-	}
+	}*/
 
 	control.UpdateMeshData();
 	target.UpdateMeshData();

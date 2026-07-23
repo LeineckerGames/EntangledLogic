@@ -81,7 +81,7 @@ void ATierOneProgressionFactory::OnFactoryTick()
 	if (FactorySubsytem && QubitSubsystem)
 	{
 		int32 Count = 0;
-		for (int i = 0; i < NUM_QUBIT_SLOTS; i++)
+		for (int i = 0; i < GetNumQubitSlots(); i++)
 		{
 			if (Qubits[i] != nullptr)
 			{

@@ -90,8 +90,7 @@ void APlayerCameraController::BeginPlay()
 	{
 		UE_LOG(LogTemp, Display, TEXT("Running progression start"))
 		FactorySubsystem->ProgressionGoalsDataAsset = ProgressionGoalsDataAsset;
-		FactorySubsystem->AddProgressionGoal(EProgressionGoals::MAIN_Ket_One_State);
-		FactorySubsystem->AddProgressionGoal(EProgressionGoals::SIDE_Ket_Zero_State);
+		FactorySubsystem->AddProgressionGoal(EProgressionGoals::Wire_Tutorial);
 		FactorySubsystem->RepopulateWidgets();
 	}
 }

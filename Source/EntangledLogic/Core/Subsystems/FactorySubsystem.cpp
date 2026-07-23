@@ -49,14 +49,14 @@ void UFactorySubsystem::SetProgressionGoalCount(FProgressionGoal &ProgressionGoa
 			UnlockProgression(CurrentUnlock);
 		}
 
-		// Add next progression
-		FProgressionGoalsData* NextProgressionGoal = ProgressionGoalsDataAsset->ProgressionGoals.Find(ProgressionGoal.ProgressionGoalsData.NextProgressionGoal);
-		if (NextProgressionGoal)
-		{
-			UE_LOG(LogTemp, Display, TEXT("Unlocking Next Progression Goal"))
-
-			// Add Next Goal
-			AddProgressionGoal(ProgressionGoal.ProgressionGoalsData.NextProgressionGoal);
+		// Add next progressions
+		for (auto NextGoal : ProgressionGoal.ProgressionGoalsData.NextProgressionGoals) {
+			FProgressionGoalsData* NextProgressionGoal = ProgressionGoalsDataAsset->ProgressionGoals.Find(NextGoal);
+			if (NextProgressionGoal)
+			{
+				UE_LOG(LogTemp, Display, TEXT("Unlocking Next Progression Goal"))
+				AddProgressionGoal(NextGoal);
+			}
 		}
 
 		// Remove old goal
