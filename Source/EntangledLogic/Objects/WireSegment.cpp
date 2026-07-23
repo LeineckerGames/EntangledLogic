@@ -108,24 +108,76 @@ void AWireSegment::InitializeSegment(ATestingWire* NewStartWire)
 	// Traverse the linked list of wires
 	while (CurrentWire != nullptr)
 	{
-		// Add spline points at each wire's world location
-		SplineComponent->AddSplinePoint(CurrentWire->GetPointAtIndex(0), ESplineCoordinateSpace::World, false);
-		// Making it linear so it flows cleanly block-to-block, adjust as needed
-		SplineComponent->SetSplinePointType(PointIndex, ESplinePointType::Linear);
+		// Take the wire's spline points and add them to the end of the wire segment
+		for (int i = 0; i < CurrentWire->WireSpline->GetNumberOfSplinePoints(); i++)
+		{
+			SplineComponent->AddSplinePoint(
+				CurrentWire->WireSpline->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::World),
+				ESplineCoordinateSpace::World,
+				false
+			);
 
+			SplineComponent->SetRotationAtSplinePoint(
+				PointIndex,
+				CurrentWire->WireSpline->GetRotationAtSplinePoint(i, ESplineCoordinateSpace::World),
+				ESplineCoordinateSpace::World
+			);
+
+			/*
+			SplineComponent->SetScaleAtSplinePoint(
+				PointIndex,
+				CurrentWire->WireSpline->GetScaleAtSplinePoint(i),
+				ESplineCoordinateSpace::World
+			);
+			*/
+
+			// Making it linear so it flows cleanly block-to-block, adjust as needed
+			SplineComponent->SetSplinePointType(PointIndex, ESplinePointType::Linear);
+			PointIndex++;
+		}
+		
 		EndWire = CurrentWire;
 		CurrentWire = CurrentWire->GetOutputWire();
-		PointIndex++;
 	}
 
 	SplineComponent->UpdateSpline();
+
+
 }
 
 void AWireSegment::AddWireToEndOfSegment(ATestingWire* WireToAdd)
 {
-	if (!WireToAdd) return;
+	if (!WireToAdd) return;	
 
-	SplineComponent->AddSplinePoint(WireToAdd->GetPointAtIndex(0), ESplineCoordinateSpace::World, false);
+	float PointIndex;
+	// Take the wire's spline points and add them to the end of the wire segment
+	for (int i = 0; i < WireToAdd->WireSpline->GetNumberOfSplinePoints(); i++)
+	{
+		SplineComponent->AddSplinePoint(
+			WireToAdd->WireSpline->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::World),
+			ESplineCoordinateSpace::World,
+			false
+		);
+
+		PointIndex = SplineComponent->GetNumberOfSplinePoints() - 1;
+
+		SplineComponent->SetRotationAtSplinePoint(
+			PointIndex,
+			WireToAdd->WireSpline->GetRotationAtSplinePoint(i, ESplineCoordinateSpace::World),
+			ESplineCoordinateSpace::World
+		);
+
+		/*
+		SplineComponent->SetScaleAtSplinePoint(
+			PointIndex,
+			CurrentWire->WireSpline->GetScaleAtSplinePoint(i),
+			ESplineCoordinateSpace::World
+		);
+		*/
+
+		// Making it linear so it flows cleanly block-to-block, adjust as needed
+		SplineComponent->SetSplinePointType(PointIndex, ESplinePointType::Linear);
+	}
 
 	EndWire = WireToAdd;
 
@@ -139,7 +191,37 @@ void AWireSegment::AddWireToStartOfSegment(ATestingWire* WireToAdd) {
 
 	if (!WireToAdd) return;
 
-	SplineComponent->AddSplinePointAtIndex(WireToAdd->GetPointAtIndex(0), 0, ESplineCoordinateSpace::World);
+	float PointIndex = 0;
+
+	// Take the wire's spline points and add them to the start of the wire segment
+	for (int i = 0; i < WireToAdd->WireSpline->GetNumberOfSplinePoints(); i++)
+	{
+		SplineComponent->AddSplinePointAtIndex(
+			WireToAdd->WireSpline->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::World),
+			PointIndex,
+			ESplineCoordinateSpace::World,
+			false
+		);
+
+		SplineComponent->SetRotationAtSplinePoint(
+			PointIndex,
+			WireToAdd->WireSpline->GetRotationAtSplinePoint(i, ESplineCoordinateSpace::World),
+			ESplineCoordinateSpace::World
+		);
+
+		/*
+		SplineComponent->SetScaleAtSplinePoint(
+			PointIndex,
+			CurrentWire->WireSpline->GetScaleAtSplinePoint(i),
+			ESplineCoordinateSpace::World
+		);
+		*/
+
+		// Making it linear so it flows cleanly block-to-block, adjust as needed
+		SplineComponent->SetSplinePointType(PointIndex, ESplinePointType::Linear);
+
+		PointIndex++;
+	}
 
 	StartWire = WireToAdd;
 
@@ -177,7 +259,11 @@ void AWireSegment::RemoveWireFromEndOfSegment(ATestingWire* WireToRemove) {
 	HeadGap -= SingleWireLength;
 
 	// Remove this ending wire tile from the spline
-	SplineComponent->RemoveSplinePoint(SplineComponent->GetNumberOfSplinePoints() - 1, false);
+	// If the wire to remove has three spline points, then chop off three spline points from the end of the wire segment
+	for (int i = 0; i < WireToRemove->WireSpline->GetNumberOfSplinePoints(); i++)
+	{
+		SplineComponent->RemoveSplinePoint(SplineComponent->GetNumberOfSplinePoints() - 1, false);
+	}
 
 	// Set the previous wire as the new ending wire
 	EndWire = WireToRemove->GetInputWire();
@@ -255,7 +341,11 @@ void AWireSegment::RemoveWireFromStartOfSegment(ATestingWire* WireToRemove)
 	*/
 
 	// Remove this starting wire tile from the spline
-	SplineComponent->RemoveSplinePoint(0, false);
+	// If the wire to remove has three spline points, then chop off three spline points from the start of the wire segment
+	for (int i = 0; i < WireToRemove->WireSpline->GetNumberOfSplinePoints(); i++)
+	{
+		SplineComponent->RemoveSplinePoint(0, false);
+	}
 
 	// Set the previous wire as the new ending wire
 	StartWire = WireToRemove->GetOutputWire();
@@ -282,10 +372,16 @@ TArray<FWireItemData> AWireSegment::RemoveWireFromMiddleOfSegment(ATestingWire* 
 
 	TArray<FWireItemData> ret = TArray<FWireItemData>(); // Return all qubits that are before the wire to remove. These qubits will go on the new segment.
 
-	float InputKey = SplineComponent->FindInputKeyClosestToWorldLocation(WireToRemove->GetPointAtIndex(0));
+	// The location that marks the beginning of the removed wire
+	FVector FirstLocation = WireToRemove->WireSpline->GetLocationAtSplinePoint(WireToRemove->WireSpline->GetNumberOfSplinePoints() - 1, ESplineCoordinateSpace::World);
+	// The location that marks the end of the removed wire
+	FVector SecondLocation = WireToRemove->WireSpline->GetLocationAtSplinePoint(0, ESplineCoordinateSpace::World);
 
-	float FirstDistance = SplineComponent->GetSplineLength() - SplineComponent->GetDistanceAlongSplineAtSplineInputKey(InputKey);
-	float SecondDistance = SplineComponent->GetSplineLength() - SplineComponent->GetDistanceAlongSplineAtSplineInputKey(InputKey - 1);
+	float FirstInputKey = SplineComponent->FindInputKeyClosestToWorldLocation(FirstLocation);
+	float SecondInputKey = SplineComponent->FindInputKeyClosestToWorldLocation(SecondLocation);
+
+	float FirstDistance = SplineComponent->GetSplineLength() - SplineComponent->GetDistanceAlongSplineAtSplineInputKey(FirstInputKey);
+	float SecondDistance = SplineComponent->GetSplineLength() - SplineComponent->GetDistanceAlongSplineAtSplineInputKey(SecondInputKey);
 
 	// Save to an array all qubits that are before the deletion wire
 	float DistanceFromEndOfSegment = HeadGap;
@@ -327,12 +423,11 @@ TArray<FWireItemData> AWireSegment::RemoveWireFromMiddleOfSegment(ATestingWire* 
 	HeadGap = DistanceFromEndOfSegment - SecondDistance;
 	
 	// Remove this middle wire tile from the spline, as well as all to the right of it (towards the end of the spline)
-	int i = 0;
-	int count = SplineComponent->GetNumberOfSplinePoints() - InputKey;
-	while (i < count)
+	int i = SplineComponent->GetNumberOfSplinePoints() - 1;
+	while (i > FirstInputKey)
 	{
-		SplineComponent->RemoveSplinePoint(SplineComponent->GetNumberOfSplinePoints() - 1);
-		i++;
+		SplineComponent->RemoveSplinePoint(i);
+		i--;
 	}
 
 	// Set the previous wire as the new ending wire

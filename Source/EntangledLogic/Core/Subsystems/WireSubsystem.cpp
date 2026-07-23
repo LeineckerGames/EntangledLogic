@@ -64,7 +64,36 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 		{
 			LastIterationWire = CurrentWire;
 			CurrentWire->AssignedSegment = FirstSegment;
-			FirstSegment->SplineComponent->AddSplinePoint(CurrentWire->GetPointAtIndex(0), ESplineCoordinateSpace::World, false);
+
+			// Take the wire's spline points and add them to the end of the wire segment
+			for (int i = 0; i < CurrentWire->WireSpline->GetNumberOfSplinePoints(); i++)
+			{
+				FirstSegment->SplineComponent->AddSplinePoint(
+					CurrentWire->WireSpline->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::World),
+					ESplineCoordinateSpace::World,
+					false
+				);
+
+				float PointIndex = FirstSegment->SplineComponent->GetNumberOfSplinePoints() - 1;
+
+				FirstSegment->SplineComponent->SetRotationAtSplinePoint(
+					PointIndex,
+					CurrentWire->WireSpline->GetRotationAtSplinePoint(i, ESplineCoordinateSpace::World),
+					ESplineCoordinateSpace::World
+				);
+
+				/*
+				SplineComponent->SetScaleAtSplinePoint(
+					PointIndex,
+					CurrentWire->WireSpline->GetScaleAtSplinePoint(i),
+					ESplineCoordinateSpace::World
+				);
+				*/
+
+				// Making it linear so it flows cleanly block-to-block, adjust as needed
+				FirstSegment->SplineComponent->SetSplinePointType(PointIndex, ESplinePointType::Linear);
+			}
+
 			CurrentWire = CurrentWire->GetOutputWire();
 		}
 
@@ -117,7 +146,7 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 		}
 		else 
 		{
-			FirstSegment->HeadGap += SecondSegment->SplineComponent->GetSplineLength() + (FirstSegment->SingleWireLength * 2);
+			FirstSegment->HeadGap += SecondSegment->SplineComponent->GetSplineLength() + (FirstSegment->SingleWireLength);
 		}
 
 		
@@ -126,7 +155,7 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 		int TargetIndex = CurrentQubitIndex + 1;
 		if (FirstSegment->ItemsOnWire.IsValidIndex(TargetIndex))
 		{
-			FirstSegment->ItemsOnWire[TargetIndex].GapToNextItem = OldHeadGap + (FirstSegment->SingleWireLength * 2) + (SecondSegment->SplineComponent->GetSplineLength() - DistanceFromEndOfSegment);
+			FirstSegment->ItemsOnWire[TargetIndex].GapToNextItem = OldHeadGap + (FirstSegment->SingleWireLength) + (SecondSegment->SplineComponent->GetSplineLength() - DistanceFromEndOfSegment);
 		}
 		else
 		{
