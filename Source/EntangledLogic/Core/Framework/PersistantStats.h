@@ -14,6 +14,9 @@ struct FPersistantStats
 	UPROPERTY()
 	TArray<FProgressionGoal> CurrentProgressionGoals;
 
+	UPROPERTY();
+	EProgressionGoals PinnedGoal;
+
 	UPROPERTY()
 	float SpeedOfItemOnWire;
 

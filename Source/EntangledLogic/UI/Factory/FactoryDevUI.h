@@ -29,6 +29,9 @@ protected:
 	class UButton* UnlockAllButton;
 
 	UPROPERTY(meta = (BindWidget))
+	class UButton* UnlockAllGoalsButton;
+
+	UPROPERTY(meta = (BindWidget))
 	class UButton* TickPauseButton;
 
 	UPROPERTY(meta = (BindWidget))
@@ -63,6 +66,8 @@ protected:
 	UFUNCTION()
 	void UnlockAll();
 
+	UFUNCTION()
+	void UnlockAllGoals();
 
 public:
 	void SetHeaderText(FString FactoryHeader);
