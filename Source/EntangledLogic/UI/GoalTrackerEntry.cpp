@@ -4,6 +4,7 @@
 #include "Components/WidgetSwitcher.h"
 #include "Components/ProgressBar.h"
 #include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
+#include "GoalTracker.h"
 
 void UGoalTrackerEntry::SynchronizeProperties()
 {
@@ -40,14 +41,24 @@ void UGoalTrackerEntry::UpdateDisplay()
 
 			GoalProgressBar->SetPercent(((float)current) / total);
 		}
+
+		if (FactorySubsystem->PersistantStats.PinnedGoal == Goal) PinSwitcher->SetActiveWidgetIndex(1);
+		else PinSwitcher->SetActiveWidgetIndex(0);
 	}
 }
 
 void UGoalTrackerEntry::TogglePin()
 {
-	if (bIsPinned) PinSwitcher->SetActiveWidgetIndex(0);
-	else PinSwitcher->SetActiveWidgetIndex(1);
-	bIsPinned = !bIsPinned;
+	UFactorySubsystem* FactorySubsystem = GetWorld()->GetSubsystem<UFactorySubsystem>();
+	if (FactorySubsystem)
+	{
+		if (FactorySubsystem->PersistantStats.PinnedGoal == Goal)
+			FactorySubsystem->PersistantStats.PinnedGoal = EProgressionGoals::NONE;
+		else
+			FactorySubsystem->PersistantStats.PinnedGoal = Goal;
+		
+		FactorySubsystem->UpdateWidgets();
+	}
 }
 
 void UGoalTrackerEntry::ToggleState()

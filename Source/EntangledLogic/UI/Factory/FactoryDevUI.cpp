@@ -6,6 +6,7 @@
 #include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
 #include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
 #include "EntangledLogic/Core/Framework/UnlockablesEnum.h"
+#include "EntangledLogic/Core/Framework/ProgressionGoalsDataAsset.h"
 
 void UFactoryDevUI::NativeConstruct()
 {
@@ -33,6 +34,10 @@ void UFactoryDevUI::NativeConstruct()
     {
         UnlockAllButton->OnClicked.AddDynamic(this, &UFactoryDevUI::UnlockAll);
     }
+	if (UnlockAllGoalsButton)
+	{
+		UnlockAllGoalsButton->OnClicked.AddDynamic(this, &UFactoryDevUI::UnlockAllGoals);
+	}
     if (TickPauseButton)
     {
         TickPauseButton->OnClicked.AddDynamic(this, &UFactoryDevUI::ToggleFactoryTick);
@@ -127,6 +132,19 @@ void UFactoryDevUI::UnlockAll()
     for (int32 i = 0; i < LastEnumValue; i++)
     {
         FactorySubsystem->UnlockProgression(static_cast<EUnlockables>(i));
-        FactorySubsystem->RepopulateWidgets();
     }
+	FactorySubsystem->RepopulateWidgets();
+}
+
+void UFactoryDevUI::UnlockAllGoals()
+{
+	UFactorySubsystem* FactorySubsystem = GetWorld()->GetSubsystem<UFactorySubsystem>();
+
+	for (auto goal : FactorySubsystem->ProgressionGoalsDataAsset->ProgressionGoals)
+	{
+		EProgressionGoals GoalToAdd = goal.Key;
+		if (!FactorySubsystem->PersistantStats.CurrentProgressionGoals.Contains(GoalToAdd))
+			FactorySubsystem->AddProgressionGoal(GoalToAdd);
+	}
+	FactorySubsystem->RepopulateWidgets();
 }

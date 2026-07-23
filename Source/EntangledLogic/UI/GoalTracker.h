@@ -36,6 +36,9 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UScrollBox* GoalScrollBox;
 
+	UPROPERTY(meta = (BindWidget))
+	UGoalTrackerEntry* PinnedGoalEntry;
+
 	virtual void NativeConstruct() override;
 
 	UFUNCTION()
@@ -55,4 +58,7 @@ public:
 
 	UFUNCTION()
 	void UpdateGoals();
+
+	UFUNCTION()
+	void UpdatePinnedGoal();
 };
