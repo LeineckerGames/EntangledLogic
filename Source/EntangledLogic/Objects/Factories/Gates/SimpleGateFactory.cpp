@@ -41,7 +41,7 @@ void ASimpleGateFactory::OnQubitProcessed()
 		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
 		if (QubitSubsystem)
 		{
-			//UE_LOG(LogTemp, Display, TEXT("Applying the X Gate on the qubit"))
+			UE_LOG(LogTemp, Display, TEXT("Applying %s on the qubit"), *UEnum::GetValueAsString(Gate))
 			QubitSubsystem->Apply(*Qubits[0], Gate);
 			CurrentSplineMode = QubitSplineMode::EXIT_MODE;
 			UpdateQubitDisplay();
