@@ -24,6 +24,12 @@ public:
     // Broadcast event for when the quit button is clicked
     FOnMainMenuQuitButtonClicked OnQuitButtonClicked;
 
+    UPROPERTY(meta = (BindWidget))
+    UWidget* CreditsPanel;
+
+    UFUNCTION()
+    void OnCloseCreditsClicked();
+
 protected:
     virtual void NativeConstruct() override;
 
@@ -148,9 +154,6 @@ protected:
     UWidget* MainMenuOptionsGroup;
 
     UPROPERTY(meta = (BindWidget))
-    UWidget* CreditsPanel;
-
-    UPROPERTY(meta = (BindWidget))
     UWidget* LoadOptionsGroup;
 
     // On click references and functions
@@ -183,9 +186,6 @@ protected:
 
     UFUNCTION()
     void OnCreditsClicked();
-
-    UFUNCTION()
-    void OnCloseCreditsClicked();
 
     UFUNCTION()
     void OnQuitGameClicked();

@@ -14,7 +14,7 @@ class ENTANGLEDLOGIC_API AMainMenuHUD : public AHUD
 
 protected:
 	virtual void BeginPlay() override;
-	/*
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<UMainMenuWidget> MainMenuWidgetClass;
 
@@ -36,5 +36,7 @@ private:
 
 	UFUNCTION()
 	void QuitToDesktop();
-	*/
+
+	UFUNCTION()
+	void EscapeButtonToggle();
 };
