@@ -63,4 +63,25 @@ void UGoalTracker::UpdateGoals()
 		UGoalTrackerEntry* Entry = Cast<UGoalTrackerEntry>(Child);
 		if (Entry) Entry->UpdateDisplay();
 	}
+	UpdatePinnedGoal();
+}
+
+void UGoalTracker::UpdatePinnedGoal()
+{
+	UFactorySubsystem* FactorySubsystem = GetWorld()->GetSubsystem<UFactorySubsystem>();
+
+	if (FactorySubsystem)
+	{
+		EProgressionGoals PinnedGoal = FactorySubsystem->PersistantStats.PinnedGoal;
+		if (PinnedGoal == EProgressionGoals::NONE)
+		{
+			PinnedGoalEntry->SetVisibility(ESlateVisibility::Collapsed);
+		}
+		else
+		{
+			PinnedGoalEntry->Goal = PinnedGoal;
+			PinnedGoalEntry->UpdateDisplay();
+			PinnedGoalEntry->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
 }

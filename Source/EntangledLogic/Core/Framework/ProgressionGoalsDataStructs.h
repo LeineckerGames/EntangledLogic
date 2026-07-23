@@ -11,6 +11,7 @@ enum class EUnlockables : uint8;
 UENUM()
 enum class EProgressionGoals : uint8
 {
+	NONE,
 	Wire_Tutorial,
 	Gate_Tutorial,
 	H_Gate_Tutorial,
@@ -89,7 +90,25 @@ struct FKetWrapper
 
 	FString ConvertToString()
 	{
-		return ConvertKetToString(ConvertToKet());
+		FString output = FString("");
+
+		for (auto& c : ComplexNumArr)
+		{
+			if (c.RealNumber && c.ImaginaryNumber)
+			{
+				output.Append(FString::Printf(TEXT("%.3g%+.3gi "), c.RealNumber, c.ImaginaryNumber));
+			}
+			else if (c.ImaginaryNumber)
+			{
+				output.Append(FString::Printf(TEXT("%.3gi "), c.ImaginaryNumber));
+			}
+			else
+			{
+				output.Append(FString::Printf(TEXT("%.3g "), c.RealNumber));
+			}
+		}
+		
+		return output.LeftChop(1);;
 	}
 };
 
