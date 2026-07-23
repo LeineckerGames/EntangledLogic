@@ -24,594 +24,110 @@ void USettingsTabControls::NativeConstruct()
     if (LeftClickKeySelector) LeftClickKeySelector->OnKeySelected.AddDynamic(this, &USettingsTabControls::OnLeftClickKeySelected);
     if (RightClickKeySelector) RightClickKeySelector->OnKeySelected.AddDynamic(this, &USettingsTabControls::OnRightClickKeySelected);
 
+    // Hide unimplemented keybindings
+	// If someone in the future implements this, just remove these lines and the keybinds will show up in the UI
+    if (RotateLeftHorizontalBox) RotateLeftHorizontalBox->SetVisibility(ESlateVisibility::Collapsed);
+    if (RotateRightHorizontalBox) RotateRightHorizontalBox->SetVisibility(ESlateVisibility::Collapsed);
+
     // Get default key bindings / Get player saved key bindings
-    /*
-    FKey RotateLeftKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("CMLeft"));
-    if (RotateLeftKey.IsValid()) RotateLeftKeySelector->SetSelectedKey(RotateLeftKey);
-    FKey RotateRightKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("CMRight"));
-    if (RotateRightKey.IsValid()) RotateRightKeySelector->SetSelectedKey(RotateRightKey);
-    */
-    FKey ZoomInKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("ZoomIn"));
-    if (ZoomInKey.IsValid()) ZoomInKeySelector->SetSelectedKey(ZoomInKey);
-    FKey ZoomOutKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("ZoomOut"));
-    if (ZoomOutKey.IsValid()) ZoomOutKeySelector->SetSelectedKey(ZoomOutKey);
-    FKey RotateGateKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("RotateFactory"));
-    if (RotateGateKey.IsValid()) RotateGateKeySelector->SetSelectedKey(RotateGateKey);
-    FKey EditingModeKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("EditingMode"));
-    if (EditingModeKey.IsValid()) DeleteModeKeySelector->SetSelectedKey(EditingModeKey);
-    FKey DeletionModeKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("DeletionMode"));
-    if (DeletionModeKey.IsValid()) EditModeKeySelector->SetSelectedKey(DeletionModeKey);
-    FKey MoveForwardKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("MoveForward"));
-    if (MoveForwardKey.IsValid()) ForwardsKeySelector->SetSelectedKey(MoveForwardKey);
-    FKey MoveBackwardKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("MoveBackward"));
-    if (MoveBackwardKey.IsValid()) BackwardsKeySelector->SetSelectedKey(MoveBackwardKey);
-    FKey MoveLeftKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("MoveLeft"));
-    if (MoveLeftKey.IsValid()) LeftKeySelector->SetSelectedKey(MoveLeftKey);
-    FKey MoveRightKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("MoveRight"));
-    if (MoveRightKey.IsValid()) RightKeySelector->SetSelectedKey(MoveRightKey);
-    FKey LMBKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("PlayerLeftClick"));
-    if (LMBKey.IsValid()) LeftClickKeySelector->SetSelectedKey(LMBKey);
-    FKey RMBKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("PlayerRightClick"));
-    if (RMBKey.IsValid()) RightClickKeySelector->SetSelectedKey(RMBKey);
+    RefreshButtonUI();
 }
 
 // Camera Rotate Left Rebind
 void USettingsTabControls::OnRotateLeftKeySelected(FInputChord SelectedKey)
 {
-    APlayerController* PC = GetOwningPlayer();
-    if (!PC) return;
-
-    // Get the Enhanced Input Local Player Subsystem
-    ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
-    if (!LocalPlayer) return;
-
-    UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-    if (!Subsystem) return;
-
-    // Get the User Settings object (Handles saving, loading, and tracking profiles)
-    UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings();
-    if (!UserSettings) return;
-
-    // Create the mapping container object with the new key
+    // Not Implemented
     FName MappingName = FName("CMLeft");
-    FMapPlayerKeyArgs Args;
-    Args.MappingName = MappingName;
-    Args.NewKey = SelectedKey.Key;
-
-    // Map the new key
-    FGameplayTagContainer FailureReason;
-    UserSettings->MapPlayerKey(Args, FailureReason);
-
-    // Check if any errors were added to the failure container
-    if (FailureReason.IsEmpty())
-    {
-        // Apply changes immediately to active mapping contexts
-        UserSettings->ApplySettings();
-
-        // Save asynchronously to local user configuration
-        UserSettings->AsyncSaveSettings();
-    }
-    else
-    {
-        // Handle failure (e.g., log why mapping failed)
-        UE_LOG(LogTemp, Warning, TEXT("Failed to map key. Reasons: %s"), *FailureReason.ToString());
-    }
+    ChangeCurrentKeyMapping(SelectedKey, MappingName);
 }
 
 // Camera Rotate Right Rebind
 void USettingsTabControls::OnRotateRightKeySelected(FInputChord SelectedKey)
 {
-    APlayerController* PC = GetOwningPlayer();
-    if (!PC) return;
-
-    // Get the Enhanced Input Local Player Subsystem
-    ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
-    if (!LocalPlayer) return;
-
-    UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-    if (!Subsystem) return;
-
-    // Get the User Settings object (Handles saving, loading, and tracking profiles)
-    UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings();
-    if (!UserSettings) return;
-
-    // Create the mapping container object with the new key
+    // Not Implemented
     FName MappingName = FName("CMLeft");
-    FMapPlayerKeyArgs Args;
-    Args.MappingName = MappingName;
-    Args.NewKey = SelectedKey.Key;
-
-    // Map the new key
-    FGameplayTagContainer FailureReason;
-    UserSettings->MapPlayerKey(Args, FailureReason);
-
-    // Check if any errors were added to the failure container
-    if (FailureReason.IsEmpty())
-    {
-        // Apply changes immediately to active mapping contexts
-        UserSettings->ApplySettings();
-
-        // Save asynchronously to local user configuration
-        UserSettings->AsyncSaveSettings();
-    }
-    else
-    {
-        // Handle failure (e.g., log why mapping failed)
-        UE_LOG(LogTemp, Warning, TEXT("Failed to map key. Reasons: %s"), *FailureReason.ToString());
-    }
+    ChangeCurrentKeyMapping(SelectedKey, MappingName);
 }
 
 // Camera Zoom In Right Rebind
 void USettingsTabControls::OnZoomInKeySelected(FInputChord SelectedKey)
 {
-    APlayerController* PC = GetOwningPlayer();
-    if (!PC) return;
-
-    // Get the Enhanced Input Local Player Subsystem
-    ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
-    if (!LocalPlayer) return;
-
-    UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-    if (!Subsystem) return;
-
-    // Get the User Settings object (Handles saving, loading, and tracking profiles)
-    UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings();
-    if (!UserSettings) return;
-
-    // Create the mapping container object with the new key
     FName MappingName = FName("ZoomIn");
-    FMapPlayerKeyArgs Args;
-    Args.MappingName = MappingName;
-    Args.NewKey = SelectedKey.Key;
-
-    // Map the new key
-    FGameplayTagContainer FailureReason;
-    UserSettings->MapPlayerKey(Args, FailureReason);
-
-    // Check if any errors were added to the failure container
-    if (FailureReason.IsEmpty())
-    {
-        // Apply changes immediately to active mapping contexts
-        UserSettings->ApplySettings();
-
-        // Save asynchronously to local user configuration
-        UserSettings->AsyncSaveSettings();
-    }
-    else
-    {
-        // Handle failure (e.g., log why mapping failed)
-        UE_LOG(LogTemp, Warning, TEXT("Failed to map key. Reasons: %s"), *FailureReason.ToString());
-    }
+    ChangeCurrentKeyMapping(SelectedKey, MappingName);
 }
 
 // Camera Zoom Out Rebind
 void USettingsTabControls::OnZoomOutKeySelected(FInputChord SelectedKey)
 {
-    APlayerController* PC = GetOwningPlayer();
-    if (!PC) return;
-
-    // Get the Enhanced Input Local Player Subsystem
-    ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
-    if (!LocalPlayer) return;
-
-    UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-    if (!Subsystem) return;
-
-    // Get the User Settings object (Handles saving, loading, and tracking profiles)
-    UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings();
-    if (!UserSettings) return;
-
-    // Create the mapping container object with the new key
     FName MappingName = FName("ZoomOut");
-    FMapPlayerKeyArgs Args;
-    Args.MappingName = MappingName;
-    Args.NewKey = SelectedKey.Key;
-
-    // Map the new key
-    FGameplayTagContainer FailureReason;
-    UserSettings->MapPlayerKey(Args, FailureReason);
-
-    // Check if any errors were added to the failure container
-    if (FailureReason.IsEmpty())
-    {
-        // Apply changes immediately to active mapping contexts
-        UserSettings->ApplySettings();
-
-        // Save asynchronously to local user configuration
-        UserSettings->AsyncSaveSettings();
-    }
-    else
-    {
-        // Handle failure (e.g., log why mapping failed)
-        UE_LOG(LogTemp, Warning, TEXT("Failed to map key. Reasons: %s"), *FailureReason.ToString());
-    }
+    ChangeCurrentKeyMapping(SelectedKey, MappingName);
 }
 
 // Gate Rotation Rebind
 void USettingsTabControls::OnRotateGateSelected(FInputChord SelectedKey)
 {
-    APlayerController* PC = GetOwningPlayer();
-    if (!PC) return;
-
-    // Get the Enhanced Input Local Player Subsystem
-    ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
-    if (!LocalPlayer) return;
-
-    UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-    if (!Subsystem) return;
-
-    // Get the User Settings object (Handles saving, loading, and tracking profiles)
-    UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings();
-    if (!UserSettings) return;
-
-    // Create the mapping container object with the new key
     FName MappingName = FName("RotateFactory");
-    FMapPlayerKeyArgs Args;
-    Args.MappingName = MappingName;
-    Args.NewKey = SelectedKey.Key;
-
-    // Map the new key
-    FGameplayTagContainer FailureReason;
-    UserSettings->MapPlayerKey(Args, FailureReason);
-
-    // Check if any errors were added to the failure container
-    if (FailureReason.IsEmpty())
-    {
-        // Apply changes immediately to active mapping contexts
-        UserSettings->ApplySettings();
-
-        // Save asynchronously to local user configuration
-        UserSettings->AsyncSaveSettings();
-    }
-    else
-    {
-        // Handle failure (e.g., log why mapping failed)
-        UE_LOG(LogTemp, Warning, TEXT("Failed to map key. Reasons: %s"), *FailureReason.ToString());
-    }
+    ChangeCurrentKeyMapping(SelectedKey, MappingName);
 }
 
 // Toggle Deletion Mode Rebind
 void USettingsTabControls::OnDeleteModeSelected(FInputChord SelectedKey)
 {
-    APlayerController* PC = GetOwningPlayer();
-    if (!PC) return;
-
-    // Get the Enhanced Input Local Player Subsystem
-    ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
-    if (!LocalPlayer) return;
-
-    UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-    if (!Subsystem) return;
-
-    // Get the User Settings object (Handles saving, loading, and tracking profiles)
-    UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings();
-    if (!UserSettings) return;
-
-    // Create the mapping container object with the new key
     FName MappingName = FName("DeletionMode");
-    FMapPlayerKeyArgs Args;
-    Args.MappingName = MappingName;
-    Args.NewKey = SelectedKey.Key;
-
-    // Map the new key
-    FGameplayTagContainer FailureReason;
-    UserSettings->MapPlayerKey(Args, FailureReason);
-
-    // Check if any errors were added to the failure container
-    if (FailureReason.IsEmpty())
-    {
-        // Apply changes immediately to active mapping contexts
-        UserSettings->ApplySettings();
-
-        // Save asynchronously to local user configuration
-        UserSettings->AsyncSaveSettings();
-    }
-    else
-    {
-        // Handle failure (e.g., log why mapping failed)
-        UE_LOG(LogTemp, Warning, TEXT("Failed to map key. Reasons: %s"), *FailureReason.ToString());
-    }
+    ChangeCurrentKeyMapping(SelectedKey, MappingName);
 }
 
 // Toggle Editing Mode Rebind
 void USettingsTabControls::OnEditModeSelected(FInputChord SelectedKey)
 {
-    APlayerController* PC = GetOwningPlayer();
-    if (!PC) return;
-
-    // Get the Enhanced Input Local Player Subsystem
-    ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
-    if (!LocalPlayer) return;
-
-    UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-    if (!Subsystem) return;
-
-    // Get the User Settings object (Handles saving, loading, and tracking profiles)
-    UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings();
-    if (!UserSettings) return;
-
-    // Create the mapping container object with the new key
     FName MappingName = FName("EditingMode");
-    FMapPlayerKeyArgs Args;
-    Args.MappingName = MappingName;
-    Args.NewKey = SelectedKey.Key;
-
-    // Map the new key
-    FGameplayTagContainer FailureReason;
-    UserSettings->MapPlayerKey(Args, FailureReason);
-
-    // Check if any errors were added to the failure container
-    if (FailureReason.IsEmpty())
-    {
-        // Apply changes immediately to active mapping contexts
-        UserSettings->ApplySettings();
-
-        // Save asynchronously to local user configuration
-        UserSettings->AsyncSaveSettings();
-    }
-    else
-    {
-        // Handle failure (e.g., log why mapping failed)
-        UE_LOG(LogTemp, Warning, TEXT("Failed to map key. Reasons: %s"), *FailureReason.ToString());
-    }
+    ChangeCurrentKeyMapping(SelectedKey, MappingName);
 }
 
 // Movement Forwards Key Rebind
 void USettingsTabControls::OnForwardsKeySelected(FInputChord SelectedKey)
 {
-    APlayerController* PC = GetOwningPlayer();
-    if (!PC) return;
-
-    // Get the Enhanced Input Local Player Subsystem
-    ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
-    if (!LocalPlayer) return;
-
-    UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-    if (!Subsystem) return;
-
-    // Get the User Settings object (Handles saving, loading, and tracking profiles)
-    UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings();
-    if (!UserSettings) return;
-
-    // Create the mapping container object with the new key
     FName MappingName = FName("MoveForward");
-    FMapPlayerKeyArgs Args;
-    Args.MappingName = MappingName;
-    Args.NewKey = SelectedKey.Key;
-
-    // Map the new key
-    FGameplayTagContainer FailureReason;
-    UserSettings->MapPlayerKey(Args, FailureReason);
-
-    // Check if any errors were added to the failure container
-    if (FailureReason.IsEmpty())
-    {
-        // Apply changes immediately to active mapping contexts
-        UserSettings->ApplySettings();
-
-        // Save asynchronously to local user configuration
-        UserSettings->AsyncSaveSettings();
-    }
-    else
-    {
-        // Handle failure (e.g., log why mapping failed)
-        UE_LOG(LogTemp, Warning, TEXT("Failed to map key. Reasons: %s"), *FailureReason.ToString());
-    }
+    ChangeCurrentKeyMapping(SelectedKey, MappingName);
 }
 
 // Movement Backwards Key Rebind
 void USettingsTabControls::OnBackwardsKeySelected(FInputChord SelectedKey)
 {
-    APlayerController* PC = GetOwningPlayer();
-    if (!PC) return;
-
-    // Get the Enhanced Input Local Player Subsystem
-    ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
-    if (!LocalPlayer) return;
-
-    UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-    if (!Subsystem) return;
-
-    // Get the User Settings object (Handles saving, loading, and tracking profiles)
-    UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings();
-    if (!UserSettings) return;
-
-    // Create the mapping container object with the new key
     FName MappingName = FName("MoveBackward");
-    FMapPlayerKeyArgs Args;
-    Args.MappingName = MappingName;
-    Args.NewKey = SelectedKey.Key;
-
-    // Map the new key
-    FGameplayTagContainer FailureReason;
-    UserSettings->MapPlayerKey(Args, FailureReason);
-
-    // Check if any errors were added to the failure container
-    if (FailureReason.IsEmpty())
-    {
-        // Apply changes immediately to active mapping contexts
-        UserSettings->ApplySettings();
-
-        // Save asynchronously to local user configuration
-        UserSettings->AsyncSaveSettings();
-    }
-    else
-    {
-        // Handle failure (e.g., log why mapping failed)
-        UE_LOG(LogTemp, Warning, TEXT("Failed to map key. Reasons: %s"), *FailureReason.ToString());
-    }
+    ChangeCurrentKeyMapping(SelectedKey, MappingName);
 }
 
 // Movement Left Key Rebind
 void USettingsTabControls::OnLeftKeySelected(FInputChord SelectedKey)
 {
-    APlayerController* PC = GetOwningPlayer();
-    if (!PC) return;
-
-    // Get the Enhanced Input Local Player Subsystem
-    ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
-    if (!LocalPlayer) return;
-
-    UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-    if (!Subsystem) return;
-
-    // Get the User Settings object (Handles saving, loading, and tracking profiles)
-    UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings();
-    if (!UserSettings) return;
-
-    // Create the mapping container object with the new key
     FName MappingName = FName("MoveLeft");
-    FMapPlayerKeyArgs Args;
-    Args.MappingName = MappingName;
-    Args.NewKey = SelectedKey.Key;
-
-    // Map the new key
-    FGameplayTagContainer FailureReason;
-    UserSettings->MapPlayerKey(Args, FailureReason);
-
-    // Check if any errors were added to the failure container
-    if (FailureReason.IsEmpty())
-    {
-        // Apply changes immediately to active mapping contexts
-        UserSettings->ApplySettings();
-
-        // Save asynchronously to local user configuration
-        UserSettings->AsyncSaveSettings();
-    }
-    else
-    {
-        // Handle failure (e.g., log why mapping failed)
-        UE_LOG(LogTemp, Warning, TEXT("Failed to map key. Reasons: %s"), *FailureReason.ToString());
-    }
+    ChangeCurrentKeyMapping(SelectedKey, MappingName);
 }
 
 // Movement Right Key Rebind
 void USettingsTabControls::OnRightKeySelected(FInputChord SelectedKey)
 {
-    APlayerController* PC = GetOwningPlayer();
-    if (!PC) return;
-
-    // Get the Enhanced Input Local Player Subsystem
-    ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
-    if (!LocalPlayer) return;
-
-    UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-    if (!Subsystem) return;
-
-    // Get the User Settings object (Handles saving, loading, and tracking profiles)
-    UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings();
-    if (!UserSettings) return;
-
-    // Create the mapping container object with the new key
     FName MappingName = FName("MoveRight");
-    FMapPlayerKeyArgs Args;
-    Args.MappingName = MappingName;
-    Args.NewKey = SelectedKey.Key;
-
-    // Map the new key
-    FGameplayTagContainer FailureReason;
-    UserSettings->MapPlayerKey(Args, FailureReason);
-
-    // Check if any errors were added to the failure container
-    if (FailureReason.IsEmpty())
-    {
-        // Apply changes immediately to active mapping contexts
-        UserSettings->ApplySettings();
-
-        // Save asynchronously to local user configuration
-        UserSettings->AsyncSaveSettings();
-    }
-    else
-    {
-        // Handle failure (e.g., log why mapping failed)
-        UE_LOG(LogTemp, Warning, TEXT("Failed to map key. Reasons: %s"), *FailureReason.ToString());
-    }
+    ChangeCurrentKeyMapping(SelectedKey, MappingName);
 }
 
 // Player Left Click Rebind
 void USettingsTabControls::OnLeftClickKeySelected(FInputChord SelectedKey)
 {
-    APlayerController* PC = GetOwningPlayer();
-    if (!PC) return;
-
-    // Get the Enhanced Input Local Player Subsystem
-    ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
-    if (!LocalPlayer) return;
-
-    UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-    if (!Subsystem) return;
-
-    // Get the User Settings object (Handles saving, loading, and tracking profiles)
-    UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings();
-    if (!UserSettings) return;
-
-    // Create the mapping container object with the new key
     FName MappingName = FName("PlayerLeftClick");
-    FMapPlayerKeyArgs Args;
-    Args.MappingName = MappingName;
-    Args.NewKey = SelectedKey.Key;
-
-    // Map the new key
-    FGameplayTagContainer FailureReason;
-    UserSettings->MapPlayerKey(Args, FailureReason);
-
-    // Check if any errors were added to the failure container
-    if (FailureReason.IsEmpty())
-    {
-        // Apply changes immediately to active mapping contexts
-        UserSettings->ApplySettings();
-
-        // Save asynchronously to local user configuration
-        UserSettings->AsyncSaveSettings();
-    }
-    else
-    {
-        // Handle failure (e.g., log why mapping failed)
-        UE_LOG(LogTemp, Warning, TEXT("Failed to map key. Reasons: %s"), *FailureReason.ToString());
-    }
+    ChangeCurrentKeyMapping(SelectedKey, MappingName);
+    FName MappingName1 = FName("GridLeftClick");
+    ChangeCurrentKeyMapping(SelectedKey, MappingName);
 }
 
 // Player Right Click Rebind
 void USettingsTabControls::OnRightClickKeySelected(FInputChord SelectedKey)
 {
-    APlayerController* PC = GetOwningPlayer();
-    if (!PC) return;
-
-    // Get the Enhanced Input Local Player Subsystem
-    ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
-    if (!LocalPlayer) return;
-
-    UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-    if (!Subsystem) return;
-
-    // Get the User Settings object (Handles saving, loading, and tracking profiles)
-    UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings();
-    if (!UserSettings) return;
-
-    // Create the mapping container object with the new key
     FName MappingName = FName("PlayerRightClick");
-    FMapPlayerKeyArgs Args;
-    Args.MappingName = MappingName;
-    Args.NewKey = SelectedKey.Key;
-
-    // Map the new key
-    FGameplayTagContainer FailureReason;
-    UserSettings->MapPlayerKey(Args, FailureReason);
-
-    // Check if any errors were added to the failure container
-    if (FailureReason.IsEmpty())
-    {
-        // Apply changes immediately to active mapping contexts
-        UserSettings->ApplySettings();
-
-        // Save asynchronously to local user configuration
-        UserSettings->AsyncSaveSettings();
-    }
-    else
-    {
-        // Handle failure (e.g., log why mapping failed)
-        UE_LOG(LogTemp, Warning, TEXT("Failed to map key. Reasons: %s"), *FailureReason.ToString());
-    }
+    ChangeCurrentKeyMapping(SelectedKey, MappingName);
+    FName MappingName1 = FName("CancelPlacement");
+    ChangeCurrentKeyMapping(SelectedKey, MappingName);
 }
 
 // Helper function to set values in the rebinds based on the current key mapping for a given action
@@ -628,23 +144,6 @@ FKey USettingsTabControls::GetCurrentKeyForMapping(APlayerController* PC, FName 
     UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings();
     if (!UserSettings) return EKeys::Invalid;
 
-    /*
-    // Configure query options
-    FPlayerMappableKeyQueryOptions QueryOptions;
-    QueryOptions.MappingToFind = MappingName;
-
-    // Get all mapped keys matching this MappingName
-    TArray<FKey> MappedKeys = UserSettings->GetMappedKeysInProfile(QueryOptions);
-
-    // Return the first valid bound key
-    for (const FKey& Key : MappedKeys)
-    {
-        if (Key.IsValid())
-        {
-            return Key;
-        }
-    }
-    */
     if (UEnhancedPlayerMappableKeyProfile* KeyProfile = UserSettings->GetActiveKeyProfile())
     {
         const TMap<FName, FKeyMappingRow>& Mappings = KeyProfile->GetPlayerMappingRows();
@@ -663,4 +162,100 @@ FKey USettingsTabControls::GetCurrentKeyForMapping(APlayerController* PC, FName 
     }
 
     return EKeys::Invalid;
+}
+
+// Helper function for changing the current key binding
+void USettingsTabControls::ChangeCurrentKeyMapping(FInputChord SelectedKey, FName MappingName)
+{
+    APlayerController* PC = GetOwningPlayer();
+    if (!PC) return;
+
+    // Get the Enhanced Input Local Player Subsystem
+    ULocalPlayer* LocalPlayer = PC->GetLocalPlayer();
+    if (!LocalPlayer) return;
+
+    UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+    if (!Subsystem) return;
+
+    // Get the User Settings object (Handles saving, loading, and tracking profiles)
+    UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings();
+    if (!UserSettings) return;
+
+    // Create the mapping container object with the new key
+    FMapPlayerKeyArgs Args;
+    Args.MappingName = MappingName;
+    Args.NewKey = SelectedKey.Key;
+    Args.Slot = EPlayerMappableKeySlot::First;
+
+    // Look through all player mapping rows in the active profile to see if SelectedKey is already used
+	UEnhancedPlayerMappableKeyProfile* ActiveProfile = UserSettings->GetActiveKeyProfile();
+    if (!ActiveProfile) return;
+
+    const FMapPlayerKeyArgs QueryArgs;
+    for (const TPair<FName, FKeyMappingRow> &RowPair : ActiveProfile->GetPlayerMappingRows())
+    {
+        const FName& ExistingMappingName = RowPair.Key;
+        const FKeyMappingRow& MappingRow = RowPair.Value;
+        if (ExistingMappingName == MappingName) continue;
+
+        for (const FPlayerKeyMapping& Mapping : MappingRow.Mappings)
+        {
+            // Check if the key matches and is not set to EKeys::Invalid
+            if (Mapping.GetCurrentKey() == SelectedKey.Key && SelectedKey.Key != EKeys::Invalid)
+            {
+                RefreshButtonUI();
+                return;
+            }
+        }
+    }
+
+    // Map the new key
+    FGameplayTagContainer FailureReason;
+    UserSettings->MapPlayerKey(Args, FailureReason);
+
+    // Check if any errors were added to the failure container
+    if (FailureReason.IsEmpty())
+    {
+        // Apply changes immediately to active mapping contexts
+        UserSettings->ApplySettings();
+
+        // Save asynchronously to local user configuration
+        UserSettings->AsyncSaveSettings();
+    }
+    else
+    {
+        // Handle failure (e.g., log why mapping failed)
+        UE_LOG(LogTemp, Warning, TEXT("Failed to map key. Reasons: %s"), *FailureReason.ToString());
+    }
+}
+
+// Helper function to refresh the button UI after a key mapping change
+void USettingsTabControls::RefreshButtonUI()
+{
+    FKey RotateLeftKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("CMLeft"));
+    if (RotateLeftKey.IsValid()) RotateLeftKeySelector->SetSelectedKey(RotateLeftKey);
+    FKey RotateRightKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("CMRight"));
+    if (RotateRightKey.IsValid()) RotateRightKeySelector->SetSelectedKey(RotateRightKey);
+    FKey ZoomInKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("ZoomIn"));
+    if (ZoomInKey.IsValid()) ZoomInKeySelector->SetSelectedKey(ZoomInKey);
+    FKey ZoomOutKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("ZoomOut"));
+    if (ZoomOutKey.IsValid()) ZoomOutKeySelector->SetSelectedKey(ZoomOutKey);
+    FKey RotateGateKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("RotateFactory"));
+    if (RotateGateKey.IsValid()) RotateGateKeySelector->SetSelectedKey(RotateGateKey);
+    FKey EditingModeKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("EditingMode"));
+    if (EditingModeKey.IsValid()) EditModeKeySelector->SetSelectedKey(EditingModeKey);
+    FKey DeletionModeKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("DeletionMode"));
+    if (DeletionModeKey.IsValid()) DeleteModeKeySelector->SetSelectedKey(DeletionModeKey);
+    FKey MoveForwardKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("MoveForward"));
+    if (MoveForwardKey.IsValid()) ForwardsKeySelector->SetSelectedKey(MoveForwardKey);
+    FKey MoveBackwardKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("MoveBackward"));
+    if (MoveBackwardKey.IsValid()) BackwardsKeySelector->SetSelectedKey(MoveBackwardKey);
+    FKey MoveLeftKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("MoveLeft"));
+    if (MoveLeftKey.IsValid()) LeftKeySelector->SetSelectedKey(MoveLeftKey);
+    FKey MoveRightKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("MoveRight"));
+    if (MoveRightKey.IsValid()) RightKeySelector->SetSelectedKey(MoveRightKey);
+    FKey LMBKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("PlayerLeftClick"));
+    if (LMBKey.IsValid()) LeftClickKeySelector->SetSelectedKey(LMBKey);
+    FKey RMBKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("PlayerRightClick"));
+    if (RMBKey.IsValid()) RightClickKeySelector->SetSelectedKey(RMBKey);
 }

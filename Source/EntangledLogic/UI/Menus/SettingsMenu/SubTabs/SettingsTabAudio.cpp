@@ -21,28 +21,32 @@ void USettingsTabAudio::NativeConstruct()
 // Master Volume
 void USettingsTabAudio::OnMasterVolumeChanged(float Value)
 {
-    SetModulationVolume(MasterBus, Value);
+	MasterVolume = Value;
+    SetModulationVolume(MasterBus, MasterVolume);
     SaveVolume(Value, MusicVolume, AmbienceVolume, SFXVolume);
 }
 
 // Music Volume
 void USettingsTabAudio::OnMusicVolumeChanged(float Value)
 {
-    SetModulationVolume(MusicBus, Value);
+    MusicVolume = Value;
+    SetModulationVolume(MusicBus, MusicVolume);
     SaveVolume(MasterVolume, Value, AmbienceVolume, SFXVolume);
 }
 
 // Ambience Volume
 void USettingsTabAudio::OnAmbienceVolumeChanged(float Value)
 {
-    SetModulationVolume(AmbienceBus, Value);
+    AmbienceVolume = Value;
+    SetModulationVolume(AmbienceBus, AmbienceVolume);
     SaveVolume(MasterVolume, MusicVolume, Value, SFXVolume);
 }
 
 // SFX Volume
 void USettingsTabAudio::OnSFXVolumeChanged(float Value)
 {
-    SetModulationVolume(SFXBus, Value);
+	SFXVolume = Value;
+    SetModulationVolume(SFXBus, SFXVolume);
     SaveVolume(MasterVolume, MusicVolume, AmbienceVolume, Value);
 }
 
@@ -106,7 +110,11 @@ void USettingsTabAudio::LoadVolume()
     }
 
     if (MasterVolumeSlider) MasterVolumeSlider->SetValue(MasterVolume);
+    SetModulationVolume(MasterBus, MasterVolume);
     if (MusicVolumeSlider) MusicVolumeSlider->SetValue(MusicVolume);
+    SetModulationVolume(MusicBus, MusicVolume);
     if (AmbienceVolumeSlider) AmbienceVolumeSlider->SetValue(AmbienceVolume);
+    SetModulationVolume(AmbienceBus, AmbienceVolume);
     if (SFXVolumeSlider) SFXVolumeSlider->SetValue(SFXVolume);
+    SetModulationVolume(SFXBus, SFXVolume);
 }

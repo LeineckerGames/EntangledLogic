@@ -20,6 +20,7 @@ protected:
     UPROPERTY(meta = (BindWidget))
     UScrollBox* ControlsContainer;
 
+    // Buttons/InputKeySelectors
     // Camera
     UPROPERTY(meta = (BindWidget))
     UInputKeySelector* RotateLeftKeySelector;
@@ -62,6 +63,13 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     UInputKeySelector* RightClickKeySelector;
+
+    // Sub-menus
+    UPROPERTY(meta = (BindWidget))
+    UWidget* RotateLeftHorizontalBox;
+
+    UPROPERTY(meta = (BindWidget))
+    UWidget* RotateRightHorizontalBox;
     
     // On change functions
     UFUNCTION()
@@ -103,6 +111,13 @@ protected:
     UFUNCTION()
     void OnRightClickKeySelected(FInputChord SelectedKey);
 
+    // Helper Functions
     UFUNCTION()
     FKey GetCurrentKeyForMapping(APlayerController* PC, FName MappingName);
+
+    UFUNCTION()
+    void ChangeCurrentKeyMapping(FInputChord SelectedKey, FName MappingName);
+
+    UFUNCTION()
+    void RefreshButtonUI();
 };

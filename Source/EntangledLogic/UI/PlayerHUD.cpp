@@ -60,7 +60,6 @@ void APlayerHUD::BeginPlay()
 			PauseMenuWidget->OnResumeButtonClicked.AddUObject(this, &APlayerHUD::ClosePauseMenu);
 			PauseMenuWidget->OnSettingsButtonClicked.AddUObject(this, &APlayerHUD::OpenSettingsMenu);
 			PauseMenuWidget->OnQuitToMainMenuButtonClicked.AddUObject(this, &APlayerHUD::QuitToMainMenu);
-
 		}
 	}
 
@@ -77,7 +76,6 @@ void APlayerHUD::BeginPlay()
 			SettingsMenuWidget->OnCloseSettingsButtonClicked.AddUObject(this, &APlayerHUD::CloseSettingsMenu);
 		}
 	}
-
 }
 
 void APlayerHUD::UpdatePlayerControlsUI()
@@ -154,9 +152,6 @@ void APlayerHUD::OpenPauseMenu()
 	if (PC)
 	{
 		PC->SetPause(true);
-		//FInputModeGameAndUI InputMode;
-		//InputMode.SetWidgetToFocus(PauseMenuWidget->TakeWidget());
-		//PC->SetInputMode(InputMode);
 	}
 }
 
@@ -172,7 +167,6 @@ void APlayerHUD::ClosePauseMenu()
 	if (PC)
 	{
 		PC->SetPause(false);
-		//PC->SetInputMode(FInputModeGameOnly());
 	}
 }
 
@@ -183,15 +177,6 @@ void APlayerHUD::OpenSettingsMenu()
 
 	// Toggle visibility
 	if (SettingsMenuWidget) SettingsMenuWidget->SetVisibility(ESlateVisibility::Visible);
-
-	// Shift UI focus to the settings menu
-	APlayerController* PC = GetOwningPlayerController();
-	//if (PC)
-	//{
-	//	FInputModeGameAndUI InputMode;
-	//	InputMode.SetWidgetToFocus(SettingsMenuWidget->TakeWidget());
-	//	PC->SetInputMode(InputMode);
-	//}
 }
 
 // Close the settings menu
@@ -199,15 +184,6 @@ void APlayerHUD::CloseSettingsMenu()
 {
 	if (SettingsMenuWidget) SettingsMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
 	if (PauseMenuWidget) PauseMenuWidget->SetVisibility(ESlateVisibility::Visible);
-
-	// Shift UI focus to the pause menu
-	//APlayerController* PC = GetOwningPlayerController();
-	//if (PC)
-	//{
-	//	FInputModeGameAndUI InputMode;
-	//	InputMode.SetWidgetToFocus(PauseMenuWidget->TakeWidget());
-	//	PC->SetInputMode(InputMode);
-	//}
 }
 
 // Quit to main menu
@@ -221,8 +197,6 @@ void APlayerHUD::QuitToMainMenu()
 	if (PC)
 	{
 		PC->SetPause(false);
-		//FInputModeUIOnly InputMode;
-		//PC->SetInputMode(InputMode);
 	}
 
 	UGameplayStatics::OpenLevel(GetWorld(), FName("L_MainMenu"));
