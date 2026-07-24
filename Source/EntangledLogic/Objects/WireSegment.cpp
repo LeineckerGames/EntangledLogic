@@ -552,7 +552,12 @@ bool AWireSegment::AddItemToWire(AQubit* QubitData)
 		NewItem.GapToNextItem = LastItemPos;
 	}
 
+	// Immediately set actor transform so it doesn't fall/appear elsewhere before the first Tick()
+	FVector WireSegmentStartLocation = StartWire->WireSpline->GetLocationAtSplineInputKey(0, ESplineCoordinateSpace::World);
+	NewItem.ItemMesh->SetWorldLocation(WireSegmentStartLocation);
+
 	ItemsOnWire.Add(NewItem);
+
 	return true;
 }
 
@@ -583,8 +588,14 @@ bool AWireSegment::AddQubitToWire(AQubit* QubitData)
 
 		NewItem.GapToNextItem = LastItemPos;
 	}
-
+	
+	// Immediately set actor transform so it doesn't fall/appear elsewhere before the first Tick()
+	FVector WireSegmentStartLocation = StartWire->WireSpline->GetLocationAtSplineInputKey(0, ESplineCoordinateSpace::World);
+	NewItem.QubitData->SetActorLocation(WireSegmentStartLocation);
+	
 	ItemsOnWire.Add(NewItem);
+
+	
 	return true;
 }
 
