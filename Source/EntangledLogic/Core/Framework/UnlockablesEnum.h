@@ -11,10 +11,10 @@ enum class EUnlockables : uint8
 	Factory_Z_Gate,
 	Factory_H_Gate,
 	Factory_S_Gate,
-	Factory_T_Gate
+	Factory_T_Gate,
 	Factory_CNOT_Gate,
 	Factory_QuantumGnome,
 	Dev_Testing_Factories,
 	Test_RainbowBaseGridColor,
-	UnlockAll,
+	UnlockAll
 };
