@@ -24,6 +24,11 @@ void UFactoryInfoUI::SetFactoryInfoText(FString FactoryInfo)
 
 void UFactoryInfoUI::SetHeaderText(FString FactoryHeader)
 {
+	SetHeaderText(FText::FromString(*FactoryHeader));
+}
+
+void UFactoryInfoUI::SetHeaderText(FText FactoryHeader)
+{
 	UIBase->SetHeaderText(FactoryHeader);
 }
 

@@ -100,8 +100,17 @@ void AFactoryBase::BeginPlay()
 	// UI for 1x1 Factories
 	if (FactoryInfoWidget)
 	{
-		FactoryInfoWidget->SetHeaderText(GetActorNameOrLabel());
-		FactoryInfoWidget->SetFactoryDescriptionText(Description);
+		if (FactoryData.DataTable != nullptr)
+		{
+			FItemData* RowData = FactoryData.DataTable->FindRow<FItemData>(FactoryData.RowName, TEXT("Context String"));
+
+			if (RowData)
+			{
+				FactoryInfoWidget->SetHeaderText(RowData->ItemTextData.Name);
+				FactoryInfoWidget->SetFactoryDescriptionText(RowData->ItemTextData.Description);
+			}
+		}
+
 		//FactoryInfoWidget->SetFactoryInfoText("he was here too");
 		FactoryInfoWidget->PopulateQubits(GetNumQubitSlots());
 	}

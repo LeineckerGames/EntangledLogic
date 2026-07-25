@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
 #include "EntangledLogic/Interfaces/InputOutputInterface.h"
+#include "EntangledLogic/Core/Framework/ItemDataStructs.h"
 #include "FactoryBase.generated.h"
 
 class AQubit;
@@ -30,8 +31,8 @@ public:
 	UPROPERTY()
 	TArray<AQubit*> Qubits;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FText Description;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (RowType = "ItemData"))
+	FDataTableRowHandle FactoryData;
 
 
 protected:

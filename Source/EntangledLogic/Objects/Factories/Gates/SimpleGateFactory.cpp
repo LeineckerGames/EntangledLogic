@@ -18,6 +18,20 @@ ASimpleGateFactory::ASimpleGateFactory()
 
 // Need to add the deletion of qubits once they transfer
 
+void ASimpleGateFactory::BeginPlay()
+{
+	Super::BeginPlay();
+	if (FactoryData.DataTable != nullptr)
+	{
+		FItemData* RowData = FactoryData.DataTable->FindRow<FItemData>(FactoryData.RowName, TEXT("Context String"));
+
+		if (RowData)
+		{
+			Gate = RowData->ItemAssetData.Gate;
+		}
+	}
+}
+
 void ASimpleGateFactory::OnFactoryTick()
 {
 	Super::OnFactoryTick();
@@ -48,6 +62,8 @@ void ASimpleGateFactory::OnQubitProcessed()
 		}
 	}
 }
+
+
 
 void ASimpleGateFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {

@@ -37,6 +37,8 @@ public:
 
 	void SetHeaderText(FString FactoryHeader);
 
+	void SetHeaderText(FText FactoryHeader);
+
 	void PopulateQubits(int32 NumQubits);
 
 	void UpdateQubit(int32 id, class AQubit &Q);
