@@ -90,7 +90,7 @@ public:
 	float HeadGap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
-	float ItemSize = 25.0f;
+	float ItemSize = 40.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	float SingleWireLength = 100.0f; // A single wire tile is this many cm across.
