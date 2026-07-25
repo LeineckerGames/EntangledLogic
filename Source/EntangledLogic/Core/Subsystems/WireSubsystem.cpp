@@ -151,15 +151,18 @@ void UWireSubsystem::AddWireToPaths(ATestingWire* NewWire)
 
 		
 
-		// Guard the index access to avoid out-of-bounds when no items were copied
-		int TargetIndex = CurrentQubitIndex + 1;
-		if (FirstSegment->ItemsOnWire.IsValidIndex(TargetIndex))
+		if (AllQubitsOnSecondSegment.Num() > 0) 
 		{
-			FirstSegment->ItemsOnWire[TargetIndex].GapToNextItem = OldHeadGap + (FirstSegment->SingleWireLength) + (SecondSegment->SplineComponent->GetSplineLength() - DistanceFromEndOfSegment);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("AddWireToPaths: target item index %d invalid when setting GapToNextItem"), TargetIndex);
+			// Guard the index access to avoid out-of-bounds when no items were copied
+			int TargetIndex = CurrentQubitIndex + 1;
+			if (FirstSegment->ItemsOnWire.IsValidIndex(TargetIndex))
+			{
+				FirstSegment->ItemsOnWire[TargetIndex].GapToNextItem = OldHeadGap + (FirstSegment->SingleWireLength) + (SecondSegment->SplineComponent->GetSplineLength() - DistanceFromEndOfSegment);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("AddWireToPaths: target item index %d invalid when setting GapToNextItem"), TargetIndex);
+			}
 		}
 
 		/*

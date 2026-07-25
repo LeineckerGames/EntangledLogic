@@ -90,7 +90,7 @@ public:
 	float HeadGap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
-	float ItemSize = 25.0f;
+	float ItemSize = 40.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	float SingleWireLength = 100.0f; // A single wire tile is this many cm across.
@@ -100,9 +100,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	float MovementSpeed = 100.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
-	int Capacity = 0; // 0 implies infinite within length limits
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	int32 ActiveGapIndex = 1;
@@ -137,6 +134,9 @@ public:
 
 	UFUNCTION()
 	AQubit* RemoveQubitAtIndex(int32 Index);
+
+	UFUNCTION()
+	int GetCapacity(); // Capacity = (Total Spline Length / Qubit Item Size) - 1
 
 	/*
 	UFUNCTION()

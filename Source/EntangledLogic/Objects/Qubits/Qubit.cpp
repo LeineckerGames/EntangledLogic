@@ -13,13 +13,13 @@ AQubit::AQubit()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Create Root Component
-	//DefaultRoot = CreateDefaultSubobject<USceneComponent>("DefaultRootComponent");
-	//SetRootComponent(DefaultRoot);
+	DefaultRoot = CreateDefaultSubobject<USceneComponent>("DefaultRootComponent");
+	SetRootComponent(DefaultRoot);
 
 	// Create Mesh and attach to root
 	QubitMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("QubitMesh"));
-	SetRootComponent(QubitMesh);
-	//QubitMesh->SetupAttachment(RootComponent);
+	//SetRootComponent(QubitMesh);
+	QubitMesh->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned

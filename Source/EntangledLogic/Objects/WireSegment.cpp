@@ -520,7 +520,7 @@ bool AWireSegment::LeaveWireSegment()
 
 bool AWireSegment::AddItemToWire(AQubit* QubitData)
 {
-	if (Capacity > 0 && ItemsOnWire.Num() >= Capacity)
+	if (GetCapacity() > 0 && ItemsOnWire.Num() >= GetCapacity())
 	{
 		return false;
 	}
@@ -556,13 +556,18 @@ bool AWireSegment::AddItemToWire(AQubit* QubitData)
 		NewItem.GapToNextItem = LastItemPos;
 	}
 
+	// Immediately set actor transform so it doesn't fall/appear elsewhere before the first Tick()
+	FVector WireSegmentStartLocation = StartWire->WireSpline->GetLocationAtSplineInputKey(0, ESplineCoordinateSpace::World);
+	NewItem.ItemMesh->SetWorldLocation(WireSegmentStartLocation);
+
 	ItemsOnWire.Add(NewItem);
+
 	return true;
 }
 
 bool AWireSegment::AddQubitToWire(AQubit* QubitData)
 {
-	if (Capacity > 0 && ItemsOnWire.Num() >= Capacity)
+	if (GetCapacity() > 0 && ItemsOnWire.Num() >= GetCapacity())
 	{
 		return false;
 	}
@@ -587,8 +592,14 @@ bool AWireSegment::AddQubitToWire(AQubit* QubitData)
 
 		NewItem.GapToNextItem = LastItemPos;
 	}
-
+	
+	// Immediately set actor transform so it doesn't fall/appear elsewhere before the first Tick()
+	FVector WireSegmentStartLocation = StartWire->WireSpline->GetLocationAtSplineInputKey(0, ESplineCoordinateSpace::World);
+	NewItem.QubitData->SetActorLocation(WireSegmentStartLocation);
+	
 	ItemsOnWire.Add(NewItem);
+
+	
 	return true;
 }
 
@@ -644,7 +655,7 @@ bool AWireSegment::IsEmpty()
 
 bool AWireSegment::IsFull()
 {
-	return Capacity > 0 && ItemsOnWire.Num() >= Capacity;
+	return GetCapacity() > 0 && ItemsOnWire.Num() >= GetCapacity();
 }
 
 void AWireSegment::AddTestingItemToWire(AQubit* QubitData, bool UseNewQubitFunction)
@@ -750,6 +761,12 @@ AQubit* AWireSegment::RemoveQubitAtIndex(int32 Index)
 	}
 
 	return RemovedQubit;
+}
+
+// Capacity = (Total Spline Length / Qubit Item Size) - 1
+int AWireSegment::GetCapacity()
+{
+	return (int)(SplineComponent->GetSplineLength() / ItemSize);
 }
 
 
