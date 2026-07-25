@@ -15,8 +15,8 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* FactoryDescriptionText;
 
-	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* FactoryInfoText;
+	//UPROPERTY(meta = (BindWidget))
+	//class UTextBlock* FactoryInfoText;
 
 	UPROPERTY(meta = (BindWidget))
 	class UFactoryUIBase* UIBase;
@@ -30,6 +30,8 @@ public:
 	TSubclassOf<class UQubitDisplaySlot> QubitDisplaySlotClass;
 
 	void SetFactoryDescriptionText(FString FactoryDescription);
+
+	void SetFactoryDescriptionText(FText FactoryDescription);
 
 	void SetFactoryInfoText(FString FactoryInfo);
 

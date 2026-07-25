@@ -101,8 +101,8 @@ void AFactoryBase::BeginPlay()
 	if (FactoryInfoWidget)
 	{
 		FactoryInfoWidget->SetHeaderText(GetActorNameOrLabel());
-		FactoryInfoWidget->SetFactoryDescriptionText("a gnome was here");
-		FactoryInfoWidget->SetFactoryInfoText("he was here too");
+		FactoryInfoWidget->SetFactoryDescriptionText(Description);
+		//FactoryInfoWidget->SetFactoryInfoText("he was here too");
 		FactoryInfoWidget->PopulateQubits(GetNumQubitSlots());
 	}
 

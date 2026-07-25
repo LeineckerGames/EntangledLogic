@@ -30,6 +30,10 @@ public:
 	UPROPERTY()
 	TArray<AQubit*> Qubits;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Description;
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
