@@ -60,7 +60,7 @@ void ATopDownPlayerController::AddMappingContext(UInputMappingContext* InputMapp
 					FPlayerMappableKeyProfileCreationArgs ProfileArgs;
 					UserSettings->CreateNewKeyProfile(ProfileArgs);
 				}
-				UserSettings->RegisterInputMappingContext(InputMappingContext);
+				//UserSettings->RegisterInputMappingContext(InputMappingContext);
 				UserSettings->ApplySettings();
 			}
 		}
