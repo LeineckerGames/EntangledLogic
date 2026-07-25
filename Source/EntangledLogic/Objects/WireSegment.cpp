@@ -2,6 +2,7 @@
 #include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
 #include "EntangledLogic/Core/DevSettings/FactorySettings.h"
 #include "EntangledLogic/Objects/Qubits/Qubit.h"
+#include "EntangledLogic/Core/Subsystems/QubitDataSubsystem.h"
 #include "TestingWire.h"
 
 AWireSegment::AWireSegment()
@@ -54,34 +55,37 @@ void AWireSegment::OnFactoryTick()
 
 void AWireSegment::OutputQubits()
 {
-	UFactoryOutputComponent* LastWireOutComp = EndWire->GetOutputComponents()[0];
-	if (LastWireOutComp)
+	if (EndWire)
 	{
-		AActor* CurrentActor = LastWireOutComp->OutputSlot;
-		if (CurrentActor)
+		UFactoryOutputComponent* LastWireOutComp = EndWire->GetOutputComponents()[0];
+		if (LastWireOutComp)
 		{
-			//UE_LOG(LogTemp, Display, TEXT("Found Actor to send Qubit: %s"), *CurrentActor->GetActorNameOrLabel());
-			IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(LastWireOutComp->OutputSlot);
-			if (IOInterface)
+			AActor* CurrentActor = LastWireOutComp->OutputSlot;
+			if (CurrentActor)
 			{
-				// Need a way to get the slot index from other actor and then use it here
-				UFactoryInputComponent* ConnectedInputComponent = IOInterface->GetConnectedInputComponent(LastWireOutComp);
-				if (ConnectedInputComponent)
+				//UE_LOG(LogTemp, Display, TEXT("Found Actor to send Qubit: %s"), *CurrentActor->GetActorNameOrLabel());
+				IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(LastWireOutComp->OutputSlot);
+				if (IOInterface)
 				{
-					int32 InputSlotIndex = ConnectedInputComponent->SlotIndex;
-					//UE_LOG(LogTemp, Display, TEXT("The input comp of %s has a slot index of %d"), *ConnectedInputComponent->GetOwner()->GetActorNameOrLabel(), InputSlotIndex);
-					if (IOInterface->IsQubitSlotEmpty(InputSlotIndex))
+					// Need a way to get the slot index from other actor and then use it here
+					UFactoryInputComponent* ConnectedInputComponent = IOInterface->GetConnectedInputComponent(LastWireOutComp);
+					if (ConnectedInputComponent)
 					{
-						AQubit* PoppedQubit = RemoveFrontItem();
-						if (PoppedQubit)
+						int32 InputSlotIndex = ConnectedInputComponent->SlotIndex;
+						//UE_LOG(LogTemp, Display, TEXT("The input comp of %s has a slot index of %d"), *ConnectedInputComponent->GetOwner()->GetActorNameOrLabel(), InputSlotIndex);
+						if (IOInterface->IsQubitSlotEmpty(InputSlotIndex))
 						{
-							IOInterface->TransferQubit(PoppedQubit, InputSlotIndex);
+							AQubit* PoppedQubit = RemoveFrontItem();
+							if (PoppedQubit)
+							{
+								IOInterface->TransferQubit(PoppedQubit, InputSlotIndex);
+							}
 						}
 					}
 				}
 			}
+
 		}
-	
 	}
 }
 
@@ -602,9 +606,18 @@ AQubit* AWireSegment::RemoveFrontItem()
 		ItemsOnWire[0].ItemMesh->DestroyComponent();
 	}
 
+	// Destroy qubit if present
 	if (ItemsOnWire[0].QubitData)
 	{
 		QubitToPop = ItemsOnWire[0].QubitData;
+		UE_LOG(LogTemp, Display, TEXT("Attempting to delete qubit"));
+		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
+
+		if (QubitSubsystem)
+		{
+			QubitSubsystem->DeleteQubit(*ItemsOnWire[0].QubitData);
+			ItemsOnWire[0].QubitData = nullptr;
+		}
 	}
 
 	if (ItemsOnWire.Num() > 1)
@@ -659,6 +672,19 @@ AQubit* AWireSegment::RemoveQubitAtIndex(int32 Index)
 	if (ItemsOnWire[Index].ItemMesh)
 	{
 		ItemsOnWire[Index].ItemMesh->DestroyComponent();
+	}
+
+	// Destroy qubit if present
+	if (ItemsOnWire[Index].QubitData)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Attempting to delete qubit"))
+		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
+
+		if (QubitSubsystem)
+		{
+			QubitSubsystem->DeleteQubit(*ItemsOnWire[Index].QubitData);
+			ItemsOnWire[Index].QubitData = nullptr;
+		}
 	}
 
 	// If removing the front item, replicate the adjustments made in RemoveFrontItem()
