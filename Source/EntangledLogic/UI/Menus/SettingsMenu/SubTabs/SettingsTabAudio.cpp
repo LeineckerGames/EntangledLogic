@@ -16,6 +16,10 @@ void USettingsTabAudio::NativeConstruct()
 	// Initialize the sliders with the current settings values
     UAudioModulationStatics::ActivateBusMix(GetWorld(), ControlBusMix);
     LoadVolume();
+
+    // Hide unused Ambience slider. This can be renamed and used as a Dialog slider if future teams care to.
+    // Remove the line below and adjust the blueprint accordingly.
+    if (AmbienceHorizontalBox) AmbienceHorizontalBox->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 // Master Volume

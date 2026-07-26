@@ -23,12 +23,6 @@ protected:
     // Buttons/InputKeySelectors
     // Camera
     UPROPERTY(meta = (BindWidget))
-    UInputKeySelector* RotateLeftKeySelector;
-
-    UPROPERTY(meta = (BindWidget))
-    UInputKeySelector* RotateRightKeySelector;
-
-    UPROPERTY(meta = (BindWidget))
     UInputKeySelector* ZoomInKeySelector;
 
     UPROPERTY(meta = (BindWidget))
@@ -56,28 +50,8 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     UInputKeySelector* RightKeySelector;
-
-    // Player
-    UPROPERTY(meta = (BindWidget))
-    UInputKeySelector* LeftClickKeySelector;
-
-    UPROPERTY(meta = (BindWidget))
-    UInputKeySelector* RightClickKeySelector;
-
-    // Sub-menus
-    UPROPERTY(meta = (BindWidget))
-    UWidget* RotateLeftHorizontalBox;
-
-    UPROPERTY(meta = (BindWidget))
-    UWidget* RotateRightHorizontalBox;
     
     // On change functions
-    UFUNCTION()
-    void OnRotateLeftKeySelected(FInputChord SelectedKey);
-
-    UFUNCTION()
-    void OnRotateRightKeySelected(FInputChord SelectedKey);
-
     UFUNCTION()
     void OnZoomInKeySelected(FInputChord SelectedKey);
 
@@ -104,12 +78,6 @@ protected:
 
     UFUNCTION()
     void OnRightKeySelected(FInputChord SelectedKey);
-
-    UFUNCTION()
-    void OnLeftClickKeySelected(FInputChord SelectedKey);
-
-    UFUNCTION()
-    void OnRightClickKeySelected(FInputChord SelectedKey);
 
     // Helper Functions
     UFUNCTION()

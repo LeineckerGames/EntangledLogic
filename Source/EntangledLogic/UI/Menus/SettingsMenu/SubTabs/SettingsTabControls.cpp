@@ -4,6 +4,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "UserSettings/EnhancedInputUserSettings.h"
 #include "GameplayTagContainer.h"
+#include "EntangledLogic/Player/TopDownPlayerController.h"
 
 // NativeConstruct is called when the widget is constructed and added to the viewport
 void USettingsTabControls::NativeConstruct()
@@ -11,8 +12,6 @@ void USettingsTabControls::NativeConstruct()
     Super::NativeConstruct();
 
     // Bind the button changed events to their respective functions
-    if (RotateLeftKeySelector) RotateLeftKeySelector->OnKeySelected.AddDynamic(this, &USettingsTabControls::OnRotateLeftKeySelected);
-    if (RotateRightKeySelector) RotateRightKeySelector->OnKeySelected.AddDynamic(this, &USettingsTabControls::OnRotateRightKeySelected);
     if (ZoomInKeySelector) ZoomInKeySelector->OnKeySelected.AddDynamic(this, &USettingsTabControls::OnZoomInKeySelected);
     if (ZoomOutKeySelector) ZoomOutKeySelector->OnKeySelected.AddDynamic(this, &USettingsTabControls::OnZoomOutKeySelected);
     if (RotateGateKeySelector) RotateGateKeySelector->OnKeySelected.AddDynamic(this, &USettingsTabControls::OnRotateGateSelected);
@@ -22,32 +21,9 @@ void USettingsTabControls::NativeConstruct()
     if (BackwardsKeySelector) BackwardsKeySelector->OnKeySelected.AddDynamic(this, &USettingsTabControls::OnBackwardsKeySelected);
     if (LeftKeySelector) LeftKeySelector->OnKeySelected.AddDynamic(this, &USettingsTabControls::OnLeftKeySelected);
     if (RightKeySelector) RightKeySelector->OnKeySelected.AddDynamic(this, &USettingsTabControls::OnRightKeySelected);
-    if (LeftClickKeySelector) LeftClickKeySelector->OnKeySelected.AddDynamic(this, &USettingsTabControls::OnLeftClickKeySelected);
-    if (RightClickKeySelector) RightClickKeySelector->OnKeySelected.AddDynamic(this, &USettingsTabControls::OnRightClickKeySelected);
-
-    // Hide unimplemented keybindings
-	// If someone in the future implements this, just remove these lines and the keybinds will show up in the UI
-    if (RotateLeftHorizontalBox) RotateLeftHorizontalBox->SetVisibility(ESlateVisibility::Collapsed);
-    if (RotateRightHorizontalBox) RotateRightHorizontalBox->SetVisibility(ESlateVisibility::Collapsed);
 
     // Get default key bindings / Get player saved key bindings
     RefreshButtonUI();
-}
-
-// Camera Rotate Left Rebind
-void USettingsTabControls::OnRotateLeftKeySelected(FInputChord SelectedKey)
-{
-    // Not Implemented
-    FName MappingName = FName("CMLeft");
-    ChangeCurrentKeyMapping(SelectedKey, MappingName);
-}
-
-// Camera Rotate Right Rebind
-void USettingsTabControls::OnRotateRightKeySelected(FInputChord SelectedKey)
-{
-    // Not Implemented
-    FName MappingName = FName("CMLeft");
-    ChangeCurrentKeyMapping(SelectedKey, MappingName);
 }
 
 // Camera Zoom In Right Rebind
@@ -110,24 +86,6 @@ void USettingsTabControls::OnLeftKeySelected(FInputChord SelectedKey)
 void USettingsTabControls::OnRightKeySelected(FInputChord SelectedKey)
 {
     FName MappingName = FName("MoveRight");
-    ChangeCurrentKeyMapping(SelectedKey, MappingName);
-}
-
-// Player Left Click Rebind
-void USettingsTabControls::OnLeftClickKeySelected(FInputChord SelectedKey)
-{
-    FName MappingName = FName("PlayerLeftClick");
-    ChangeCurrentKeyMapping(SelectedKey, MappingName);
-    FName MappingName1 = FName("GridLeftClick");
-    ChangeCurrentKeyMapping(SelectedKey, MappingName);
-}
-
-// Player Right Click Rebind
-void USettingsTabControls::OnRightClickKeySelected(FInputChord SelectedKey)
-{
-    FName MappingName = FName("PlayerRightClick");
-    ChangeCurrentKeyMapping(SelectedKey, MappingName);
-    FName MappingName1 = FName("CancelPlacement");
     ChangeCurrentKeyMapping(SelectedKey, MappingName);
 }
 
@@ -233,10 +191,6 @@ void USettingsTabControls::ChangeCurrentKeyMapping(FInputChord SelectedKey, FNam
 // Helper function to refresh the button UI after a key mapping change
 void USettingsTabControls::RefreshButtonUI()
 {
-    FKey RotateLeftKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("CMLeft"));
-    if (RotateLeftKey.IsValid()) RotateLeftKeySelector->SetSelectedKey(RotateLeftKey);
-    FKey RotateRightKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("CMRight"));
-    if (RotateRightKey.IsValid()) RotateRightKeySelector->SetSelectedKey(RotateRightKey);
     FKey ZoomInKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("ZoomIn"));
     if (ZoomInKey.IsValid()) ZoomInKeySelector->SetSelectedKey(ZoomInKey);
     FKey ZoomOutKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("ZoomOut"));
@@ -255,8 +209,4 @@ void USettingsTabControls::RefreshButtonUI()
     if (MoveLeftKey.IsValid()) LeftKeySelector->SetSelectedKey(MoveLeftKey);
     FKey MoveRightKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("MoveRight"));
     if (MoveRightKey.IsValid()) RightKeySelector->SetSelectedKey(MoveRightKey);
-    FKey LMBKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("PlayerLeftClick"));
-    if (LMBKey.IsValid()) LeftClickKeySelector->SetSelectedKey(LMBKey);
-    FKey RMBKey = GetCurrentKeyForMapping(GetOwningPlayer(), FName("PlayerRightClick"));
-    if (RMBKey.IsValid()) RightClickKeySelector->SetSelectedKey(RMBKey);
 }

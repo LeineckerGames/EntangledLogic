@@ -14,29 +14,35 @@ class ENTANGLEDLOGIC_API USettingsTabAudio : public UUserWidget
 {
     GENERATED_BODY()
 
-private:
-    float MasterVolume;
-    float MusicVolume;
-    float AmbienceVolume;
-    float SFXVolume;
-
 protected:
     virtual void NativeConstruct() override;
 
     // Audio Settings
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio|Modulation")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+    float MasterVolume = 0.7f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+    float MusicVolume = 0.7f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+    float AmbienceVolume = 0.7f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+    float SFXVolume = 0.7f;
+
+    UPROPERTY(EditAnywhere, Category = "Audio")
     USoundControlBusMix* ControlBusMix;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio|Modulation")
+    UPROPERTY(EditAnywhere, Category = "Audio")
     USoundControlBus* MasterBus;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio|Modulation")
+    UPROPERTY(EditAnywhere, Category = "Audio")
     USoundControlBus* MusicBus;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio|Modulation")
+    UPROPERTY(EditAnywhere, Category = "Audio")
     USoundControlBus* AmbienceBus;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio|Modulation")
+    UPROPERTY(EditAnywhere, Category = "Audio")
     USoundControlBus* SFXBus;
 
     UPROPERTY(meta = (BindWidget))
@@ -50,6 +56,10 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     USlider* SFXVolumeSlider;
+
+    // Sub-menus
+    UPROPERTY(meta = (BindWidget))
+    UWidget* AmbienceHorizontalBox;
 
     // On change functions
     UFUNCTION()

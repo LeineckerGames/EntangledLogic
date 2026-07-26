@@ -23,10 +23,6 @@ void ATopDownPlayerController::BeginPlay()
 	{
 		AddMappingContext(PlayerControls, 0);
 	}
-	if (GridControls)
-	{
-		AddMappingContext(GridControls, 1);
-	}
 }
 
 void ATopDownPlayerController::SetupInputComponent()
@@ -53,6 +49,7 @@ void ATopDownPlayerController::AddMappingContext(UInputMappingContext* InputMapp
 
 			Subsystem->AddMappingContext(InputMappingContext, Priority, Options);
 
+			// Related to customizing user inputs, but ended up breaking camera movement. A fix might be creating a seperate IMC but we ran out of time.
 			if (UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings())
 			{
 				if (!UserSettings->GetActiveKeyProfile())
@@ -60,7 +57,7 @@ void ATopDownPlayerController::AddMappingContext(UInputMappingContext* InputMapp
 					FPlayerMappableKeyProfileCreationArgs ProfileArgs;
 					UserSettings->CreateNewKeyProfile(ProfileArgs);
 				}
-				//UserSettings->RegisterInputMappingContext(InputMappingContext);
+				UserSettings->RegisterInputMappingContext(InputMappingContext);
 				UserSettings->ApplySettings();
 			}
 		}
