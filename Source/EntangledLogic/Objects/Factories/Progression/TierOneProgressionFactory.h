@@ -24,7 +24,7 @@ protected:
 
 	virtual void StartProcessingQubits() override;
 
-	void UpdateProgressionUI();
+	//void UpdateProgressionUI();
 
 public:
 

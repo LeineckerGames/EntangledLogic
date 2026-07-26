@@ -102,7 +102,10 @@ void AFactoryBase::BeginPlay()
 	OutputComponents.Sort(SortBySlotIndex<UFactoryOutputComponent>);
 
 	// Setup Floating UI
-	FactoryDisplayWindow->SetVisibility(false);
+	if (!FactoryDisplayWindow->ComponentHasTag(FName("StaticUI")))
+	{
+		FactoryDisplayWindow->SetVisibility(false);
+	}
 	FactoryWidget = FactoryDisplayWindow->GetUserWidgetObject();
 	UFactoryInfoUI* FactoryInfoWidget = nullptr;
 	UFactoryDevUI* FactoryDevWidget = nullptr;
@@ -188,9 +191,8 @@ void AFactoryBase::EnterQubitSplineMovement(float DeltaTime)
 			if (!(QubitDistances[i] >= SplineLength / 2))
 			{
 				FVector Loc = QubitSplines[i]->GetLocationAtDistanceAlongSpline(QubitDistances[i], ESplineCoordinateSpace::World);
-				FRotator Rot = QubitSplines[i]->GetRotationAtDistanceAlongSpline(QubitDistances[i], ESplineCoordinateSpace::World);
 				//UE_LOG(LogTemp, Display, TEXT("Moving Qubit Actor In Enter Spline"));
-				Qubits[i]->SetActorLocationAndRotation(Loc, Rot);
+				Qubits[i]->SetActorLocation(Loc);
 			}
 			else
 			{
@@ -214,9 +216,8 @@ void AFactoryBase::ExitQubitSplineMovement(float DeltaTime)
 			if (!(QubitDistances[i] >= SplineLength))
 			{
 				FVector Loc = QubitSplines[i]->GetLocationAtDistanceAlongSpline(QubitDistances[i], ESplineCoordinateSpace::World);
-				FRotator Rot = QubitSplines[i]->GetRotationAtDistanceAlongSpline(QubitDistances[i], ESplineCoordinateSpace::World);
 
-				Qubits[i]->SetActorLocationAndRotation(Loc, Rot);
+				Qubits[i]->SetActorLocation(Loc);
 			}
 		}
 	}
@@ -257,7 +258,7 @@ void AFactoryBase::Tick(float DeltaTime)
 
 void AFactoryBase::RotateUIToCamera()
 {
-	if (!FactoryDisplayWindow->ComponentHasTag(FName("DontRotate")))
+	if (!FactoryDisplayWindow->ComponentHasTag(FName("StaticUI")))
 	{
 		APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 		FRotator RotationTowardCamera = UKismetMathLibrary::FindLookAtRotation(
@@ -389,11 +390,13 @@ void AFactoryBase::Interact(EPlacementMode PlacementMode)
 	switch (PlacementMode)
 	{
 		case EPlacementMode::Disabled:
-			//UE_LOG(LogTemp, Display, TEXT("Selecting Actor %s"), *GetActorNameOrLabel());
-			FactoryDisplayWindow->ToggleVisibility();
-			UpdateQubitDisplay();
+			// Only toggle UI if non static UI
+			if (!FactoryDisplayWindow->ComponentHasTag(FName("StaticUI")))
+			{
+				FactoryDisplayWindow->ToggleVisibility();
+				UpdateQubitDisplay();
+			}
 
-			// Open selected pop up UI
 			break;
 		case EPlacementMode::Placing:
 			if (PlaceSFX)

@@ -17,8 +17,14 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* QubitStateGoalText;
 
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* CurrentGoalText;
+
 public:
 
-	void UpdateProgressionUI();
+	virtual void NativeConstruct() override;
+
+	UFUNCTION()
+	void UpdateProgressionUI(int32 ProgressionGoalIndex);
 
 };

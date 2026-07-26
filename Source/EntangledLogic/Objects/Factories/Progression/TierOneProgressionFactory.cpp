@@ -109,21 +109,21 @@ void ATierOneProgressionFactory::StartProcessingQubits()
 			QubitSubsystem->DeleteQubit(*Qubits[i]);
 			Qubits[i] = nullptr;
 		}
-		UpdateProgressionUI();
+		//UpdateProgressionUI();
 	}
 }
 
-void ATierOneProgressionFactory::UpdateProgressionUI()
-{
-	if (FactoryWidget) 
-	{
-		UFactoryProgressionUI* FactoryProgressionUI = Cast<UFactoryProgressionUI>(FactoryWidget);
-		if (FactoryProgressionUI)
-		{
-			FactoryProgressionUI->UpdateProgressionUI();
-		}
-	}
-}
+//void ATierOneProgressionFactory::UpdateProgressionUI()
+//{
+//	if (FactoryWidget) 
+//	{
+//		UFactoryProgressionUI* FactoryProgressionUI = Cast<UFactoryProgressionUI>(FactoryWidget);
+//		if (FactoryProgressionUI)
+//		{
+//			FactoryProgressionUI->UpdateProgressionUI();
+//		}
+//	}
+//}
 
 // Input Output Interface
 void ATierOneProgressionFactory::ConnectAllInputsAndOutputs()

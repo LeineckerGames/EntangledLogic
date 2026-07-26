@@ -296,6 +296,10 @@ void UWireSubsystem::RemoveWireFromPath(ATestingWire* RemovedWire)
 		AWireSegment* NewSegment = CreateNewSegment(RemovedWire);
 		RemovedWire->AssignedSegment = NewSegment;
 		*/
+		RemovedWire->AssignedSegment->RemoveWireThatIsAloneInSegment(RemovedWire);
+		ActiveSegments.Remove(RemovedWire->AssignedSegment);
+		RemovedWire->AssignedSegment->Destroy();
+		RemovedWire->AssignedSegment = nullptr;
 	}
 
 	/*
@@ -389,6 +393,7 @@ AWireSegment* UWireSubsystem::CreateNewSegmentFromItemData(ATestingWire* StartWi
 	{
 		FWireItemData NewItem = ItemData[i];
 
+		
 		// Create a fresh mesh component for the new segment (do not attempt to move the original component between actors)
 		UStaticMeshComponent* NewMeshComp = NewObject<UStaticMeshComponent>(NewSegment);
 		if (NewMeshComp)
@@ -410,6 +415,9 @@ AWireSegment* UWireSubsystem::CreateNewSegmentFromItemData(ATestingWire* StartWi
 
 		NewItem.ItemMesh = NewMeshComp;
 
+
+		
+
 		// Ensure front-most item uses the convention GapToNextItem == 0
 		if (i == 0)
 		{
@@ -419,6 +427,8 @@ AWireSegment* UWireSubsystem::CreateNewSegmentFromItemData(ATestingWire* StartWi
 		NewSegment->ItemsOnWire.Add(NewItem);
 	}
 
+
+	/*
 	// Position item meshes along the spline immediately if the spline has points
 	if (NewSegment->ItemsOnWire.Num() > 0 && NewSegment->SplineComponent->GetNumberOfSplinePoints() > 0)
 	{
@@ -439,6 +449,7 @@ AWireSegment* UWireSubsystem::CreateNewSegmentFromItemData(ATestingWire* StartWi
 			}
 		}
 	}
+	*/
 
 	return NewSegment;
 }
