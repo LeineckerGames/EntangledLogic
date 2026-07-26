@@ -36,5 +36,7 @@ protected:
 public:
 	void SetHeaderText(FString TextToSet);
 
+	void SetHeaderText(FText TextToSet);
+
 	bool GetIsPinned() const;
 };

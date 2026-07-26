@@ -15,12 +15,13 @@ class ENTANGLEDLOGIC_API ASimpleGateFactory : public AFactoryBase
 	int32 GetNumQubitSlots() override { return NUM_QUBIT_SLOTS; };
 
 public:
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	EQuantumGate Gate;
 
 	ASimpleGateFactory();
 
 protected:
+
+	virtual void BeginPlay() override;
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 

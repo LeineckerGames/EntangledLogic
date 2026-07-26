@@ -56,10 +56,9 @@ AActor* UGridPlacementSubsystem::SpawnActorToPlaceFromClass(TSubclassOf<AActor> 
 	//Maybe change this to be 0,0,0 idk
 	FVector SpawnLocation = FVector(0, 0, 0);
 
-	FActorSpawnParameters SpawnParams;
+	FTransform SpawnTransform = FTransform(SpawnRotation, SpawnLocation);
 
-	AActor* SelectedActorToPlace = GetWorld()->SpawnActor<AActor>(SelectedActor->GetDefaultObject()->GetClass(), SpawnLocation, SpawnRotation, SpawnParams);
-	return SelectedActorToPlace;
+	return SpawnActorToPlaceFromClass(SelectedActor, SpawnTransform);
 }
 
 AActor* UGridPlacementSubsystem::SpawnActorToPlaceFromClass(TSubclassOf<AActor> SelectedActor, FTransform SpawnTransform)
@@ -68,6 +67,7 @@ AActor* UGridPlacementSubsystem::SpawnActorToPlaceFromClass(TSubclassOf<AActor> 
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	AActor* SelectedActorToPlace = GetWorld()->SpawnActor<AActor>(SelectedActor->GetDefaultObject()->GetClass(), SpawnTransform, SpawnParams);
+
 	return SelectedActorToPlace;
 }
 

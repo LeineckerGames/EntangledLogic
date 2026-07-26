@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "UnlockablesEnum.h"
+#include "QuantumGatesEnum.h"
 #include "ItemDataStructs.generated.h"
 
 USTRUCT()
@@ -32,6 +33,8 @@ struct FItemAssetData
 	UPROPERTY(EditAnywhere)
 	EUnlockables UnlockRequirement;
 
+	UPROPERTY(EditAnywhere)
+	EQuantumGate Gate;
 };
 
 

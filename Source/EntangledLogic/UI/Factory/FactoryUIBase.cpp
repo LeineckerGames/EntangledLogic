@@ -33,7 +33,12 @@ void UFactoryUIBase::PinToggle()
 
 void UFactoryUIBase::SetHeaderText(FString TextToSet)
 {
-    HeaderText->SetText(FText::FromString(TextToSet));
+	SetHeaderText(FText::FromString(TextToSet));
+}
+
+void UFactoryUIBase::SetHeaderText(FText TextToSet)
+{
+	HeaderText->SetText(TextToSet);
 }
 
 bool UFactoryUIBase::GetIsPinned() const
