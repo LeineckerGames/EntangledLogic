@@ -31,23 +31,8 @@ struct FQubitData
 				if (CurrentQubit != QubitToAttachTo)
 				{
 					CurrentQubit->AttachEntanglementSplineToQubit(QubitToAttachTo);
+					CurrentQubit->SetEntanglementSplineVisibility(false);
 				}
-			}
-		}
-		SetEntanglementSplineVisibility(false);
-	}
-
-
-	void SetEntanglementSplineVisibility(bool VisibilityToSet)
-	{
-		//UE_LOG(LogTemp, Display, TEXT("Setting Qubit Spline Mesh visbility to %d"), VisibilityToSet);
-		for (AQubit* CurrentQubit : qubits)
-		{
-			TArray<USplineMeshComponent*> SplineMeshes;
-			CurrentQubit->GetComponents<USplineMeshComponent*>(SplineMeshes);
-			for (USplineMeshComponent* CurrentSplineMesh : SplineMeshes)
-			{
-				CurrentSplineMesh->SetVisibility(VisibilityToSet);
 			}
 		}
 	}

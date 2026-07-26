@@ -124,6 +124,7 @@ bool UQubitDataSubsystem::CombineState(AQubit& qubitA, AQubit& qubitB)
 
 	// create the new state vector via tensor product
 	qubitA.State->StateVector = kron(qubitA.State->StateVector, qubitB.State->StateVector);
+	qubitA.ToggleEntanglementFX(true);
 
 	// update state and entanglement position of B's siblings
 	for (AQubit* q : qubitB.State->qubits)
@@ -133,7 +134,10 @@ bool UQubitDataSubsystem::CombineState(AQubit& qubitA, AQubit& qubitB)
 		UE_LOG(LogTemp, Display, TEXT("Adding qubit to entanglment array"))
 		qubitA.State->qubits.Add(q);
 		qubitA.State->UpdateQubitEntanglmentSplines();
+		q->ToggleEntanglementFX(true);
 	}
+
+
 
 	return true;
 }

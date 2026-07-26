@@ -28,6 +28,12 @@ public:
 	UPROPERTY()
 	TArray<class USplineComponent*> EntanglementSplines;
 
+	UPROPERTY(EditAnywhere)
+	class UNiagaraComponent* QubitNiagaraComponent;
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* QubitEntanglementFX;
+
 	// Sets default values for this actor's properties
 	AQubit();
 
@@ -36,6 +42,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	bool UpdateSplineMovement = false;
+
+	FVector SplineOffset = FVector(0.0f, 0.0f, 7.0f);
 
 public:	
 	// Called every frame
@@ -52,4 +60,8 @@ public:
 	void AttachEntanglementSplineToQubit(AQubit* QubitToAttach);
 
 	void UpdateEntanglementSplinePointLocation(FVector EndSplinePointLocation, int32 SplineIndex);
+
+	void SetEntanglementSplineVisibility(bool VisibilityToSet);
+
+	void ToggleEntanglementFX(bool ValueToSet);
 };

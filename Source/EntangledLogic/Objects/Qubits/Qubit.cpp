@@ -4,6 +4,8 @@
 #include "Templates/SharedPointer.h"
 #include "Components/SplineComponent.h"
 #include "Components/SplineMeshComponent.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
 #include "QppPlugin.h"
 
 // Sets default values
@@ -20,12 +22,22 @@ AQubit::AQubit()
 	QubitMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("QubitMesh"));
 	//SetRootComponent(QubitMesh);
 	QubitMesh->SetupAttachment(RootComponent);
+
+	// Create Niagara Comp and attach to mesh
+	QubitNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("QubitNiagaraComponent"));
+	QubitNiagaraComponent->SetupAttachment(RootComponent);
+	QubitNiagaraComponent->SetAutoActivate(false);
 }
 
 // Called when the game starts or when spawned
 void AQubit::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (QubitEntanglementFX)
+	{
+		QubitNiagaraComponent->SetAsset(QubitEntanglementFX);
+	}
 	//State = MakeShared<FQubitData>();
 }
 
@@ -50,8 +62,8 @@ void AQubit::AttachEntanglementSplineToQubit(AQubit* QubitToAttach)
 	EntanglementSpline->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
 
 	// Set spline point locations to the corresponding qubits
-	EntanglementSpline->SetLocationAtSplinePoint(0, GetActorLocation(), ESplineCoordinateSpace::World, true);
-	EntanglementSpline->SetLocationAtSplinePoint(1, QubitToAttach->GetActorLocation(), ESplineCoordinateSpace::World, true);
+	EntanglementSpline->SetLocationAtSplinePoint(0, GetActorLocation() + SplineOffset, ESplineCoordinateSpace::World, true);
+	EntanglementSpline->SetLocationAtSplinePoint(1, QubitToAttach->GetActorLocation() + SplineOffset, ESplineCoordinateSpace::World, true);
 
 	// Make Spline Mesh and setup start / end points and attach to SplineComp
 	USplineMeshComponent* EntanglementSplineMeshComponent = NewObject<USplineMeshComponent>(this);
@@ -72,6 +84,10 @@ void AQubit::AttachEntanglementSplineToQubit(AQubit* QubitToAttach)
 	// Apply info to spline mesh comp
 	EntanglementSplineMeshComponent->SetStartAndEnd(StartPos, StartTangent, EndPos, EndTangent, true);
 	EntanglementSplineMeshComponent->SetForwardAxis(ESplineMeshAxis::Z);
+	
+	FVector QubitMeshScale = QubitMesh->GetRelativeTransform().GetScale3D();
+	EntanglementSplineMeshComponent->SetStartScale(FVector2D(QubitMeshScale.X, QubitMeshScale.Z));
+	EntanglementSplineMeshComponent->SetEndScale(FVector2D(QubitMeshScale.X, QubitMeshScale.Z));
 
 	// Add to actor and splines array
 	AddInstanceComponent(EntanglementSplineMeshComponent);
@@ -102,6 +118,18 @@ void AQubit::UpdateEntanglementSplinePointLocation(FVector EndSplinePointLocatio
 
 }
 
+void AQubit::ToggleEntanglementFX(bool ValueToSet)
+{
+	if (ValueToSet) 
+	{
+		QubitNiagaraComponent->Activate();
+	}
+	else
+	{
+		QubitNiagaraComponent->Deactivate();
+	}
+}
+
 FString AQubit::GetString()
 {
 	// open string stream
@@ -128,14 +156,24 @@ void AQubit::UpdateMeshData()
 	}
 }
 
+void AQubit::SetEntanglementSplineVisibility(bool VisibilityToSet)
+{
+	TArray<USplineMeshComponent*> SplineMeshes;
+	GetComponents<USplineMeshComponent*>(SplineMeshes);
+	for (USplineMeshComponent* CurrentSplineMesh : SplineMeshes)
+	{
+		CurrentSplineMesh->SetVisibility(VisibilityToSet);
+	}
+}
+
 void AQubit::NotifyActorBeginCursorOver()
 {
 	UpdateSplineMovement = true;
-	State->SetEntanglementSplineVisibility(true);
+	SetEntanglementSplineVisibility(true);
 }
 
 void AQubit::NotifyActorEndCursorOver()
 {
 	UpdateSplineMovement = false;
-	State->SetEntanglementSplineVisibility(false);
+	SetEntanglementSplineVisibility(false);
 }
