@@ -140,6 +140,11 @@ void UFactorySubsystem::BrodcastUpdateProgressionUIs()
 	if (isProgressionGoalPinned)
 	{
 		ProgressionGoalIndex = PersistantStats.CurrentProgressionGoals.IndexOfByKey(PersistantStats.PinnedGoal);
+		// If pinned goal was removed
+		if (ProgressionGoalIndex == INDEX_NONE)
+		{
+			ProgressionGoalIndex = 0;
+		}
 	}
 	else
 	{

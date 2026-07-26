@@ -8,6 +8,7 @@
 
 void UGoalTrackerEntry::SynchronizeProperties()
 {
+	Super::SynchronizeProperties();
 	UpdateState();
 }
 

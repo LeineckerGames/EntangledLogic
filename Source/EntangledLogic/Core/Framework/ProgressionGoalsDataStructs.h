@@ -144,6 +144,9 @@ struct FProgressionGoalsData
 	FString GoalDescription;
 
 	UPROPERTY(EditAnywhere)
+	bool AutoPinOnUnlock = false;
+
+	UPROPERTY(EditAnywhere)
 	FKetWrapper AcceptedState;
 
 	UPROPERTY(VisibleAnywhere)
