@@ -164,9 +164,8 @@ void AFactoryBase::EnterQubitSplineMovement(float DeltaTime)
 			if (!(QubitDistances[i] >= SplineLength / 2))
 			{
 				FVector Loc = QubitSplines[i]->GetLocationAtDistanceAlongSpline(QubitDistances[i], ESplineCoordinateSpace::World);
-				FRotator Rot = QubitSplines[i]->GetRotationAtDistanceAlongSpline(QubitDistances[i], ESplineCoordinateSpace::World);
 				//UE_LOG(LogTemp, Display, TEXT("Moving Qubit Actor In Enter Spline"));
-				Qubits[i]->SetActorLocationAndRotation(Loc, Rot);
+				Qubits[i]->SetActorLocation(Loc);
 			}
 			else
 			{
@@ -190,9 +189,8 @@ void AFactoryBase::ExitQubitSplineMovement(float DeltaTime)
 			if (!(QubitDistances[i] >= SplineLength))
 			{
 				FVector Loc = QubitSplines[i]->GetLocationAtDistanceAlongSpline(QubitDistances[i], ESplineCoordinateSpace::World);
-				FRotator Rot = QubitSplines[i]->GetRotationAtDistanceAlongSpline(QubitDistances[i], ESplineCoordinateSpace::World);
 
-				Qubits[i]->SetActorLocationAndRotation(Loc, Rot);
+				Qubits[i]->SetActorLocation(Loc);
 			}
 		}
 	}
