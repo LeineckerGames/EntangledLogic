@@ -59,7 +59,7 @@ public:
 
 	// Removes the front-most item from the queue
 	UFUNCTION(BlueprintCallable, Category = "Wire Segment")
-	AQubit* RemoveFrontItem();
+	AQubit* DeleteItemButNotQubitDataAtFront();
 
 	// Called when an item reaches the end of the wire segment path
 	UFUNCTION(BlueprintCallable, Category = "Wire Segment")
@@ -129,17 +129,19 @@ public:
 	UFUNCTION()
 	void RemoveWireFromStartOfSegment(ATestingWire* WireToRemove);
 
+	// Remove the wire at the start of the segment (first spline point).
+	UFUNCTION()
+	void RemoveWireThatIsAloneInSegment(ATestingWire* WireToRemove);
+
 	UFUNCTION()
 	TArray<FWireItemData> RemoveWireFromMiddleOfSegment(ATestingWire* WireToRemove);
 
 	UFUNCTION()
-	AQubit* RemoveQubitAtIndex(int32 Index);
+	bool DeleteItemAndQubitDataAtIndex(int32 Index);
 
 	UFUNCTION()
 	int GetCapacity(); // Capacity = (Total Spline Length / Qubit Item Size) - 1
 
-	/*
 	UFUNCTION()
-	TArray<float> GetInputKeysSandwichingWire(ATestingWire* WireToRemove);
-	*/
+	void OnQubitDestroyed(AActor* QubitData);
 };

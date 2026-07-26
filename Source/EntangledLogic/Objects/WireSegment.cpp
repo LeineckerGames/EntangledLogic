@@ -2,8 +2,8 @@
 #include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
 #include "EntangledLogic/Core/DevSettings/FactorySettings.h"
 #include "EntangledLogic/Objects/Qubits/Qubit.h"
-#include "EntangledLogic/Core/Subsystems/QubitDataSubsystem.h"
 #include "TestingWire.h"
+#include <EntangledLogic/Core/Subsystems/QubitDataSubsystem.h>
 
 AWireSegment::AWireSegment()
 {
@@ -55,37 +55,34 @@ void AWireSegment::OnFactoryTick()
 
 void AWireSegment::OutputQubits()
 {
-	if (EndWire)
+	UFactoryOutputComponent* LastWireOutComp = EndWire->GetOutputComponents()[0];
+	if (LastWireOutComp)
 	{
-		UFactoryOutputComponent* LastWireOutComp = EndWire->GetOutputComponents()[0];
-		if (LastWireOutComp)
+		AActor* CurrentActor = LastWireOutComp->OutputSlot;
+		if (CurrentActor)
 		{
-			AActor* CurrentActor = LastWireOutComp->OutputSlot;
-			if (CurrentActor)
+			//UE_LOG(LogTemp, Display, TEXT("Found Actor to send Qubit: %s"), *CurrentActor->GetActorNameOrLabel());
+			IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(LastWireOutComp->OutputSlot);
+			if (IOInterface)
 			{
-				//UE_LOG(LogTemp, Display, TEXT("Found Actor to send Qubit: %s"), *CurrentActor->GetActorNameOrLabel());
-				IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(LastWireOutComp->OutputSlot);
-				if (IOInterface)
+				// Need a way to get the slot index from other actor and then use it here
+				UFactoryInputComponent* ConnectedInputComponent = IOInterface->GetConnectedInputComponent(LastWireOutComp);
+				if (ConnectedInputComponent)
 				{
-					// Need a way to get the slot index from other actor and then use it here
-					UFactoryInputComponent* ConnectedInputComponent = IOInterface->GetConnectedInputComponent(LastWireOutComp);
-					if (ConnectedInputComponent)
+					int32 InputSlotIndex = ConnectedInputComponent->SlotIndex;
+					//UE_LOG(LogTemp, Display, TEXT("The input comp of %s has a slot index of %d"), *ConnectedInputComponent->GetOwner()->GetActorNameOrLabel(), InputSlotIndex);
+					if (IOInterface->IsQubitSlotEmpty(InputSlotIndex))
 					{
-						int32 InputSlotIndex = ConnectedInputComponent->SlotIndex;
-						//UE_LOG(LogTemp, Display, TEXT("The input comp of %s has a slot index of %d"), *ConnectedInputComponent->GetOwner()->GetActorNameOrLabel(), InputSlotIndex);
-						if (IOInterface->IsQubitSlotEmpty(InputSlotIndex))
+						AQubit* PoppedQubit = DeleteItemButNotQubitDataAtFront();
+						if (PoppedQubit)
 						{
-							AQubit* PoppedQubit = RemoveFrontItem();
-							if (PoppedQubit)
-							{
-								IOInterface->TransferQubit(PoppedQubit, InputSlotIndex);
-							}
+							IOInterface->TransferQubit(PoppedQubit, InputSlotIndex);
 						}
 					}
 				}
 			}
-
 		}
+	
 	}
 }
 
@@ -248,15 +245,13 @@ void AWireSegment::RemoveWireFromEndOfSegment(ATestingWire* WireToRemove) {
 			DistanceFromEndOfSegment += ItemsOnWire[1].GapToNextItem; // Use index 1 because that is the next gap.
 			// The qubit is still inside this removed ending tile, so delete it.
 			// Also adjust the array of items so that the gaps between items are still correct (handled by RemoveFrontItem).
-			AQubit* RemovedQubit = RemoveFrontItem();
-			(void)RemovedQubit;
+			DeleteItemAndQubitDataAtIndex(0);
 			// After this point the indices have shifted and index 1 no longer points to the same gap as before.
 		}
 		else
 		{
 			// Only a single item remains. Remove it and exit the loop.
-			AQubit* RemovedQubit = RemoveFrontItem();
-			(void)RemovedQubit;
+			DeleteItemAndQubitDataAtIndex(0);
 			break;
 		}
 	}
@@ -275,40 +270,44 @@ void AWireSegment::RemoveWireFromEndOfSegment(ATestingWire* WireToRemove) {
 	SplineComponent->UpdateSpline();
 }
 
-void AWireSegment::RemoveWireFromStartOfSegment(ATestingWire* WireToRemove) 
+void AWireSegment::RemoveWireFromStartOfSegment(ATestingWire* WireToRemove)
 {
 	if (!WireToRemove) return;
 
 	// Remove qubits that are present on top of this removed starting tile
-	float DistanceFromEndOfSegment = 0.0f;
-	ATestingWire* CurrentWire = EndWire;
 
+	// The location that marks the beginning of the removed wire
+	FVector FirstLocation = WireToRemove->WireSpline->GetLocationAtSplinePoint(WireToRemove->WireSpline->GetNumberOfSplinePoints() - 1, ESplineCoordinateSpace::World);
+	float FirstInputKey = SplineComponent->FindInputKeyClosestToWorldLocation(FirstLocation);
+	float FirstDistance = SplineComponent->GetSplineLength() - SplineComponent->GetDistanceAlongSplineAtSplineInputKey(FirstInputKey);
+	float SecondDistance = SplineComponent->GetSplineLength();
 
-	DistanceFromEndOfSegment += HeadGap;
+	// Skip all qubits that are before the deletion wire
+	float DistanceFromEndOfSegment = HeadGap;
+	int CurrentQubitIndex = 0;
 
-	int CurrentQubitIndex = 1;
-	int CurrentWireIndex = 0;
-	CurrentWireIndex = (int)(DistanceFromEndOfSegment / SingleWireLength);
-	int OldWireIndex = CurrentWireIndex;
-
-	while (CurrentWire)
+	while (DistanceFromEndOfSegment <= SecondDistance)
 	{
-		if (CurrentWire == WireToRemove) 
+		if (DistanceFromEndOfSegment > FirstDistance)
 		{
+			DeleteItemAndQubitDataAtIndex(CurrentQubitIndex);
 			if (ItemsOnWire.IsValidIndex(CurrentQubitIndex + 1))
 			{
 				DistanceFromEndOfSegment += ItemsOnWire[CurrentQubitIndex + 1].GapToNextItem;
+				
 			}
 			else 
 			{
 				break;
 			}
-			RemoveQubitAtIndex(CurrentQubitIndex);
+
+			
 		}
-		else {
-			if (ItemsOnWire.IsValidIndex(CurrentQubitIndex))
+		else
+		{
+			if (ItemsOnWire.IsValidIndex(CurrentQubitIndex + 1))
 			{
-				DistanceFromEndOfSegment += ItemsOnWire[CurrentQubitIndex].GapToNextItem;
+				DistanceFromEndOfSegment += ItemsOnWire[CurrentQubitIndex + 1].GapToNextItem;
 				CurrentQubitIndex++;
 			}
 			else
@@ -316,16 +315,6 @@ void AWireSegment::RemoveWireFromStartOfSegment(ATestingWire* WireToRemove)
 				break;
 			}
 		}	
-
-		CurrentWireIndex = (int)(DistanceFromEndOfSegment / SingleWireLength);
-		if (CurrentWireIndex != OldWireIndex) {
-			int n = CurrentWireIndex - OldWireIndex;
-			for (int i = 0; i < n; i++) 
-			{
-				CurrentWire = CurrentWire->GetInputWire();
-			}
-		}
-		OldWireIndex = CurrentWireIndex;
 	}
 
 	/*
@@ -343,6 +332,30 @@ void AWireSegment::RemoveWireFromStartOfSegment(ATestingWire* WireToRemove)
 			break;
 		}
 	*/
+
+	// Remove this starting wire tile from the spline
+	// If the wire to remove has three spline points, then chop off three spline points from the start of the wire segment
+	for (int i = 0; i < WireToRemove->WireSpline->GetNumberOfSplinePoints(); i++)
+	{
+		SplineComponent->RemoveSplinePoint(0, false);
+	}
+
+	// Set the previous wire as the new ending wire
+	StartWire = WireToRemove->GetOutputWire();
+
+	SplineComponent->UpdateSpline();
+}
+
+void AWireSegment::RemoveWireThatIsAloneInSegment(ATestingWire* WireToRemove)
+{
+	if (!WireToRemove) return;
+
+	int32 CurrentQubitIndex = 0;
+
+	while (ItemsOnWire.Num() > 0)
+	{
+		DeleteItemAndQubitDataAtIndex(CurrentQubitIndex);		
+	}
 
 	// Remove this starting wire tile from the spline
 	// If the wire to remove has three spline points, then chop off three spline points from the start of the wire segment
@@ -410,25 +423,35 @@ TArray<FWireItemData> AWireSegment::RemoveWireFromMiddleOfSegment(ATestingWire* 
 
 	// Delete all qubits that on the deletion wire or before the deletion wire
 	DistanceFromEndOfSegment = HeadGap;
-	CurrentQubitIndex = 0;
-
 	while (DistanceFromEndOfSegment <= SecondDistance)
 	{
-		if (ItemsOnWire.IsValidIndex(CurrentQubitIndex + 1))
+		bool MarkForTrueDeletion = DistanceFromEndOfSegment > FirstDistance;
+
+		if (ItemsOnWire.IsValidIndex(1))
 		{
-			DistanceFromEndOfSegment += ItemsOnWire[CurrentQubitIndex + 1].GapToNextItem;
+			DistanceFromEndOfSegment += ItemsOnWire[1].GapToNextItem;
 		}
 		else
 		{
 			break;
 		}
-		RemoveQubitAtIndex(CurrentQubitIndex);
+
+		if (MarkForTrueDeletion)
+		{
+			// Qubits that are on the deletion wire are not getting transferred to the next segment, 
+			// so the qubit should be deleted entirely
+			DeleteItemAndQubitDataAtIndex(0);
+		}
+		else
+		{
+			DeleteItemButNotQubitDataAtFront();
+		}
 	}
 	HeadGap = DistanceFromEndOfSegment - SecondDistance;
 	
 	// Remove this middle wire tile from the spline, as well as all to the right of it (towards the end of the spline)
 	int i = SplineComponent->GetNumberOfSplinePoints() - 1;
-	while (i > FirstInputKey)
+	while (i > SecondInputKey)
 	{
 		SplineComponent->RemoveSplinePoint(i);
 		i--;
@@ -498,12 +521,12 @@ void AWireSegment::Tick(float DeltaTime)
 
 		if (ItemsOnWire[i].ItemMesh)
 		{
-			ItemsOnWire[i].ItemMesh->SetWorldLocationAndRotation(Loc, Rot);
+			ItemsOnWire[i].ItemMesh->SetWorldLocation(Loc);
 		}
 
 		if (ItemsOnWire[i].QubitData)
 		{
-			ItemsOnWire[i].QubitData->SetActorLocationAndRotation(Loc, Rot);
+			ItemsOnWire[i].QubitData->SetActorLocation(Loc);
 		}
 		
 	}
@@ -599,13 +622,14 @@ bool AWireSegment::AddQubitToWire(AQubit* QubitData)
 	
 	ItemsOnWire.Add(NewItem);
 
+	NewItem.QubitData->OnDestroyed.AddDynamic(this, &AWireSegment::OnQubitDestroyed);
 	
 	return true;
 }
 
 
-// Returns a nullptr if fails
-AQubit* AWireSegment::RemoveFrontItem()
+// Removes the front item on the wire, without deleting the qubit data. Returns the qubit data, or a nullptr if the function fails.
+AQubit* AWireSegment::DeleteItemButNotQubitDataAtFront()
 {
 	AQubit* QubitToPop = nullptr;
 
@@ -617,22 +641,9 @@ AQubit* AWireSegment::RemoveFrontItem()
 		ItemsOnWire[0].ItemMesh->DestroyComponent();
 	}
 
-	// Destroy qubit if present
 	if (ItemsOnWire[0].QubitData)
 	{
 		QubitToPop = ItemsOnWire[0].QubitData;
-
-		// Below code is commented out to prevent a crash. Need to refactor qubit deletion, which will render the below code obsolete. 
-		/*
-		UE_LOG(LogTemp, Display, TEXT("Attempting to delete qubit"));
-		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
-		
-		if (QubitSubsystem)
-		{
-			QubitSubsystem->DeleteQubit(*ItemsOnWire[0].QubitData);
-			ItemsOnWire[0].QubitData = nullptr;
-		}
-		*/
 	}
 
 	if (ItemsOnWire.Num() > 1)
@@ -672,37 +683,40 @@ void AWireSegment::AddTestingItemToWire(AQubit* QubitData, bool UseNewQubitFunct
 	AddItemToWire(QubitData);
 }
 
-AQubit* AWireSegment::RemoveQubitAtIndex(int32 Index)
+// Returns false if the function fails.
+bool AWireSegment::DeleteItemAndQubitDataAtIndex(int32 Index)
 {
 	// Invalid index
 	if (!ItemsOnWire.IsValidIndex(Index))
 	{
-		return nullptr;
+		return false;
 	}
 
-	// Capture return value
 	AQubit* RemovedQubit = ItemsOnWire[Index].QubitData;
+
+	UWorld* world = GetWorld();
+	if (world)
+	{
+		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
+
+		if (QubitSubsystem)
+		{
+			QubitSubsystem->DeleteQubit(*RemovedQubit);
+			ItemsOnWire[Index].QubitData = nullptr;
+		}
+		else 
+		{
+			return false;
+		}
+	}
+	else {
+		return false;
+	}
 
 	// Destroy mesh if present
 	if (ItemsOnWire[Index].ItemMesh)
 	{
 		ItemsOnWire[Index].ItemMesh->DestroyComponent();
-	}
-
-	// Destroy qubit if present
-	if (ItemsOnWire[Index].QubitData)
-	{
-		// Below code is commented out to prevent a crash. Need to refactor qubit deletion, which will render the below code obsolete. 
-		/*
-		UE_LOG(LogTemp, Display, TEXT("Attempting to delete qubit"))	
-		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
-
-		if (QubitSubsystem)
-		{
-			QubitSubsystem->DeleteQubit(*ItemsOnWire[Index].QubitData);
-			ItemsOnWire[Index].QubitData = nullptr;
-		}
-		*/
 	}
 
 	// If removing the front item, replicate the adjustments made in RemoveFrontItem()
@@ -767,7 +781,9 @@ AQubit* AWireSegment::RemoveQubitAtIndex(int32 Index)
 		ActiveGapIndex = FMath::Clamp(ActiveGapIndex, 1, ItemsOnWire.Num() - 1);
 	}
 
-	return RemovedQubit;
+	
+
+	return true;
 }
 
 // Capacity = (Total Spline Length / Qubit Item Size) - 1
@@ -775,5 +791,17 @@ int AWireSegment::GetCapacity()
 {
 	return (int)(SplineComponent->GetSplineLength() / ItemSize);
 }
+
+
+void AWireSegment::OnQubitDestroyed(AActor* QubitData)
+{
+	/*
+	for (int i = 0; i < ItemsOnWire.Num(); i++) 
+	{
+		if (ItemsOnWire[i].QubitData == QubitData) DeleteItemAndQubitDataAtIndex(i);
+	}
+	*/
+}
+
 
 
