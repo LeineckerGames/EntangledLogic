@@ -27,7 +27,10 @@ void UFactoryProgressionUI::UpdateProgressionUI(int32 ProgressionGoalIndex)
 
 			// Set State Info
 			QubitStateGoalText->SetText(FText::FromString(FactorySubsytem->PersistantStats.CurrentProgressionGoals[ProgressionGoalIndex].ProgressionGoalsData.AcceptedState.ConvertKetToString(
-				FactorySubsytem->PersistantStats.CurrentProgressionGoals[ProgressionGoalIndex].ProgressionGoalsData.AcceptedState.ConvertToKet())));
+				FactorySubsytem->PersistantStats.CurrentProgressionGoals[ProgressionGoalIndex].ProgressionGoalsData.AcceptedState.ConvertToKet(), false)));
+		
+			// Set Current Goal Text
+			CurrentGoalText->SetText(FText::FromString(FactorySubsytem->PersistantStats.CurrentProgressionGoals[ProgressionGoalIndex].ProgressionGoalsData.GoalTitle));
 		}
 	}
 	

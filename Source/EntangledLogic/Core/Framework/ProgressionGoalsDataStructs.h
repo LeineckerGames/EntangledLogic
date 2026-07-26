@@ -67,7 +67,7 @@ struct FKetWrapper
 		}
 
 		// push qpp's display to the stream
-		UE_LOG(LogTemp, Display, TEXT("Converted the Complex Number Arr to : %s"), *ConvertKetToString(NewKet));
+		//UE_LOG(LogTemp, Display, TEXT("Converted the Complex Number Arr to : %s"), *ConvertKetToString(NewKet));
 		return NewKet;
 	}
 
@@ -83,6 +83,26 @@ struct FKetWrapper
 		std::string s = oss1.str();
 		std::replace(s.begin(), s.end(), '\n', ' ');
 		//s.append("\n");
+
+		// string from stream
+		return FString(s.c_str());
+	}
+
+	FString ConvertKetToString(qpp::ket KetToConvert, bool RemoveNextLines)
+	{
+		// open string stream
+		std::ostringstream oss1;
+
+		// push qpp's display to the stream
+		oss1 << qpp::disp(KetToConvert);
+
+		// remove newlines
+		std::string s = oss1.str();
+		if (RemoveNextLines)
+		{
+			std::replace(s.begin(), s.end(), '\n', ' ');
+			//s.append("\n");
+		}
 
 		// string from stream
 		return FString(s.c_str());

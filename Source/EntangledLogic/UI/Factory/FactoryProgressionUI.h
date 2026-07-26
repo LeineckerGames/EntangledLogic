@@ -17,6 +17,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* QubitStateGoalText;
 
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* CurrentGoalText;
+
 public:
 
 	virtual void NativeConstruct() override;
