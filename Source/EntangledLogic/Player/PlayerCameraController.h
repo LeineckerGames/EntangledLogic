@@ -63,7 +63,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Background Music")
 	class USoundBase* BackgroundMusic;
 
-	UPROPERTY(EditAnywhere, Category = "Progression Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Progression Data")
 	class UProgressionGoalsDataAsset* ProgressionGoalsDataAsset;
 
 public:	

@@ -6,6 +6,7 @@
 #include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "EntangledLogic/Objects/Qubits/Qubit.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
+#include "EntangledLogic/Core/Subsystems/QubitDataSubsystem.h"
 #include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
 #include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
 #include "EntangledLogic/Core/Framework/SortBySlotIndex.h"
@@ -50,6 +51,20 @@ AFactoryBase::AFactoryBase()
 	FactoryNiagaraComponent->SetupAttachment(FactoryMesh);
 	FactoryNiagaraComponent->SetAutoActivate(false);
 
+}
+
+void AFactoryBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
+	if (QubitSubsystem)
+	{
+		for (AQubit* CurrentQubit : Qubits)
+		{
+			QubitSubsystem->DeleteQubit(*CurrentQubit);
+		}
+	}
+
+	Super::EndPlay(EndPlayReason);
 }
 
 // Called when the game starts or when spawned

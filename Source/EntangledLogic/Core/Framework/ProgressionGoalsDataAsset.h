@@ -5,7 +5,7 @@
 #include "EntangledLogic/Core/Framework/ProgressionGoalsDataStructs.h"
 #include "ProgressionGoalsDataAsset.generated.h"
 
-UCLASS()
+UCLASS(BlueprintType)
 class ENTANGLEDLOGIC_API UProgressionGoalsDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
