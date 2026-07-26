@@ -76,6 +76,11 @@ void ATierOneProgressionFactory::EndPlay(const EEndPlayReason::Type EndPlayReaso
 void ATierOneProgressionFactory::OnFactoryTick()
 {
 	Super::OnFactoryTick();
+
+}
+
+void ATierOneProgressionFactory::StartProcessingQubits()
+{
 	UFactorySubsystem* FactorySubsytem = GetWorld()->GetSubsystem<UFactorySubsystem>();
 	UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
 	if (FactorySubsytem && QubitSubsystem)
@@ -106,11 +111,6 @@ void ATierOneProgressionFactory::OnFactoryTick()
 		}
 		UpdateProgressionUI();
 	}
-}
-
-void ATierOneProgressionFactory::StartProcessingQubits()
-{
-	
 }
 
 void ATierOneProgressionFactory::UpdateProgressionUI()
