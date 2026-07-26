@@ -64,6 +64,8 @@ void UQubitDataSubsystem::SetState(AQubit& qubit, ENamedState namedState)
 
 void UQubitDataSubsystem::Apply(AQubit& qubit, EQuantumGate gate)
 {
+	if (!IsValid(&qubit)) return;
+
 	unsigned long LongEntPos = static_cast<unsigned long>(qubit.EntanglementPosition);
 	cmat gateMatrix = GetGateMatrix(gate);
 	

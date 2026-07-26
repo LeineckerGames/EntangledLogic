@@ -621,14 +621,18 @@ AQubit* AWireSegment::RemoveFrontItem()
 	if (ItemsOnWire[0].QubitData)
 	{
 		QubitToPop = ItemsOnWire[0].QubitData;
+
+		// Below code is commented out to prevent a crash. Need to refactor qubit deletion, which will render the below code obsolete. 
+		/*
 		UE_LOG(LogTemp, Display, TEXT("Attempting to delete qubit"));
 		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
-
+		
 		if (QubitSubsystem)
 		{
 			QubitSubsystem->DeleteQubit(*ItemsOnWire[0].QubitData);
 			ItemsOnWire[0].QubitData = nullptr;
 		}
+		*/
 	}
 
 	if (ItemsOnWire.Num() > 1)
@@ -688,7 +692,9 @@ AQubit* AWireSegment::RemoveQubitAtIndex(int32 Index)
 	// Destroy qubit if present
 	if (ItemsOnWire[Index].QubitData)
 	{
-		UE_LOG(LogTemp, Display, TEXT("Attempting to delete qubit"))
+		// Below code is commented out to prevent a crash. Need to refactor qubit deletion, which will render the below code obsolete. 
+		/*
+		UE_LOG(LogTemp, Display, TEXT("Attempting to delete qubit"))	
 		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
 
 		if (QubitSubsystem)
@@ -696,6 +702,7 @@ AQubit* AWireSegment::RemoveQubitAtIndex(int32 Index)
 			QubitSubsystem->DeleteQubit(*ItemsOnWire[Index].QubitData);
 			ItemsOnWire[Index].QubitData = nullptr;
 		}
+		*/
 	}
 
 	// If removing the front item, replicate the adjustments made in RemoveFrontItem()

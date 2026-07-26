@@ -97,7 +97,7 @@ void ATierOneProgressionFactory::OnFactoryTick()
 						FactorySubsytem->SetProgressionGoalCount(FactorySubsytem->PersistantStats.CurrentProgressionGoals[j],
 							FactorySubsytem->PersistantStats.CurrentProgressionGoals[j].ProgressionGoalCount + 1);
 					}
-					
+					NumOfProgressionGoals = FactorySubsytem->PersistantStats.CurrentProgressionGoals.Num();
 				}
 			}
 			// Delete Qubit
