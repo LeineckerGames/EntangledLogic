@@ -134,6 +134,21 @@ void UFactorySubsystem::RepopulateWidgets()
 	}
 }
 
+void UFactorySubsystem::BrodcastUpdateProgressionUIs()
+{
+	int32 ProgressionGoalIndex;
+	if (isProgressionGoalPinned)
+	{
+		ProgressionGoalIndex = PersistantStats.CurrentProgressionGoals.IndexOfByKey(PersistantStats.PinnedGoal);
+	}
+	else
+	{
+		// Change this to most recent qubit accepted
+		ProgressionGoalIndex = 0;
+	}
+	UpdateProgressionUIs.Broadcast(ProgressionGoalIndex);
+}
+
 // Refresh widget data without repopulating dynamic containers
 void UFactorySubsystem::UpdateWidgets()
 {
@@ -191,12 +206,18 @@ void UFactorySubsystem::SetCanTick(bool CanTickValue)
 	CanTick = CanTickValue;
 }
 
+void UFactorySubsystem::SetIsProgressionGoalPinned(bool IsPinned)
+{
+	isProgressionGoalPinned = IsPinned;
+}
+
 void UFactorySubsystem::Tick(float DeltaTime)
 {
 	if (CanTick)
 	{
 		CanTick = false;
 		OnFactoryTick.Broadcast();
+		BrodcastUpdateProgressionUIs();
 	}
 }
 

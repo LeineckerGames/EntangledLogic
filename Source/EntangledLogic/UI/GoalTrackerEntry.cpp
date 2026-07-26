@@ -53,10 +53,15 @@ void UGoalTrackerEntry::TogglePin()
 	if (FactorySubsystem)
 	{
 		if (FactorySubsystem->PersistantStats.PinnedGoal == Goal)
+		{
 			FactorySubsystem->PersistantStats.PinnedGoal = EProgressionGoals::NONE;
+			FactorySubsystem->SetIsProgressionGoalPinned(false);
+		}
 		else
+		{
 			FactorySubsystem->PersistantStats.PinnedGoal = Goal;
-		
+			FactorySubsystem->SetIsProgressionGoalPinned(true);
+		}
 		FactorySubsystem->UpdateWidgets();
 	}
 }

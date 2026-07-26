@@ -19,6 +19,9 @@ protected:
 
 public:
 
-	void UpdateProgressionUI();
+	virtual void NativeConstruct() override;
+
+	UFUNCTION()
+	void UpdateProgressionUI(int32 ProgressionGoalIndex);
 
 };
