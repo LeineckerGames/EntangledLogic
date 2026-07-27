@@ -151,7 +151,7 @@ void AQubit::UpdateMeshData()
 		if (QubitSubsystem)
 		{
 			FVector BlochVector = QubitSubsystem->GetBlochVector(*this);
-			QubitMesh->SetCustomPrimitiveDataVector4(0, FVector4(BlochVector));
+			QubitMesh->SetCustomPrimitiveDataVector3(0, BlochVector);
 		}
 	}
 }
