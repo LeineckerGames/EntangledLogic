@@ -44,6 +44,7 @@ void AXGateFactory::OnQubitProcessed()
 		{
 			//UE_LOG(LogTemp, Display, TEXT("Applying the X Gate on the qubit"))
 			QubitSubsystem->Apply(*Qubits[0], EQuantumGate::X_Gate);
+			TriggerFactoryEmmiter(Qubits[0]);
 			CurrentSplineMode = QubitSplineMode::EXIT_MODE;
 			UpdateQubitDisplay();
 		}

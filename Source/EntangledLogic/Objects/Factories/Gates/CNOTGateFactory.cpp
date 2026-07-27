@@ -101,6 +101,7 @@ void ACNOTGateFactory::OnQubitProcessed()
 		{
 			UE_LOG(LogTemp, Display, TEXT("Applying the CNOT Gate on the qubit"));
 			QubitSubsystem->ApplyControlled(*Qubits[0], *Qubits[1], EQuantumGate::X_Gate);
+			TriggerFactoryEmmiter(Qubits[0]);
 			CurrentSplineMode = QubitSplineMode::EXIT_MODE;
 			UpdateQubitDisplay();
 		}

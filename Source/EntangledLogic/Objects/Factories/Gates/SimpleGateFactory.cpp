@@ -57,6 +57,7 @@ void ASimpleGateFactory::OnQubitProcessed()
 		{
 			UE_LOG(LogTemp, Display, TEXT("Applying %s on the qubit"), *UEnum::GetValueAsString(Gate))
 			QubitSubsystem->Apply(*Qubits[0], Gate);
+			TriggerFactoryEmmiter(Qubits[0]);
 			CurrentSplineMode = QubitSplineMode::EXIT_MODE;
 			UpdateQubitDisplay();
 		}

@@ -226,8 +226,22 @@ void AFactoryBase::ExitQubitSplineMovement(float DeltaTime)
 void AFactoryBase::OnQubitProcessed()
 {
 	IsQubitProcessed = true;
-	FactoryNiagaraComponent->Activate(true);
 	// Modify Qubit in child Gate class
+}
+
+void AFactoryBase::TriggerFactoryEmmiter(AQubit* QubitData)
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		UQubitDataSubsystem* QubitSubsystem = World->GetSubsystem<UQubitDataSubsystem>();
+		if (QubitSubsystem)
+		{
+			FVector BlochVector = QubitSubsystem->GetBlochVector(*QubitData);
+			FactoryNiagaraComponent->SetCustomPrimitiveDataVector3(0, BlochVector);
+		}
+	}
+	FactoryNiagaraComponent->Activate(true);
 }
 
 // Called every frame

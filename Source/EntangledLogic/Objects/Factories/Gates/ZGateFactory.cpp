@@ -75,6 +75,7 @@ void AZGateFactory::OnQubitProcessed()
 		{
 			UE_LOG(LogTemp, Display, TEXT("Applying the Z Gate on the qubit"));
 			QubitSubsystem->Apply(*Qubits[0], EQuantumGate::Z_Gate);
+			TriggerFactoryEmmiter(Qubits[0]);
 			CurrentSplineMode = QubitSplineMode::EXIT_MODE;
 			UpdateQubitDisplay();
 		}

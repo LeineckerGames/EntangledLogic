@@ -75,6 +75,7 @@ void AYGateFactory::OnQubitProcessed()
 		{
 			UE_LOG(LogTemp, Display, TEXT("Applying the Y Gate on the qubit"));
 			QubitSubsystem->Apply(*Qubits[0], EQuantumGate::Y_Gate);
+			TriggerFactoryEmmiter(Qubits[0]);
 			CurrentSplineMode = QubitSplineMode::EXIT_MODE;
 			UpdateQubitDisplay();
 		}

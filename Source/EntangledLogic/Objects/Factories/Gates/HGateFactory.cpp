@@ -75,6 +75,7 @@ void AHGateFactory::OnQubitProcessed()
 		{
 			UE_LOG(LogTemp, Display, TEXT("Applying the H Gate on the qubit"));
 			QubitSubsystem->Apply(*Qubits[0], EQuantumGate::H_Gate);
+			TriggerFactoryEmmiter(Qubits[0]);
 			CurrentSplineMode = QubitSplineMode::EXIT_MODE;
 			UpdateQubitDisplay();
 		}
