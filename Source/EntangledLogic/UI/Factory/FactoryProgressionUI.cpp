@@ -20,17 +20,16 @@ void UFactoryProgressionUI::UpdateProgressionUI(int32 ProgressionGoalIndex)
 	{
 		if (FactorySubsytem->PersistantStats.CurrentProgressionGoals.Num() > 0)
 		{
+			FProgressionGoal CurrentGoal = FactorySubsytem->PersistantStats.CurrentProgressionGoals[ProgressionGoalIndex];
 			// Set ProgressionCountText
-			FString GoalCountString = FString::Printf(TEXT("%d / %d"), FactorySubsytem->PersistantStats.CurrentProgressionGoals[ProgressionGoalIndex].ProgressionGoalCount
-				, FactorySubsytem->PersistantStats.CurrentProgressionGoals[ProgressionGoalIndex].ProgressionGoalsData.RequiredStatesAmount);
+			FString GoalCountString = FString::Printf(TEXT("%d / %d"), CurrentGoal.ProgressionGoalCount, CurrentGoal.ProgressionGoalsData.RequiredStatesAmount);
 			ProgressionCountText->SetText(FText::FromString(GoalCountString));
 
 			// Set State Info
-			QubitStateGoalText->SetText(FText::FromString(FactorySubsytem->PersistantStats.CurrentProgressionGoals[ProgressionGoalIndex].ProgressionGoalsData.AcceptedState.ConvertKetToString(
-				FactorySubsytem->PersistantStats.CurrentProgressionGoals[ProgressionGoalIndex].ProgressionGoalsData.AcceptedState.ConvertToKet(), false)));
+			QubitStateGoalText->SetText(FText::FromString(CurrentGoal.ProgressionGoalsData.AcceptedState.ConvertToString(true)));
 		
 			// Set Current Goal Text
-			CurrentGoalText->SetText(FText::FromString(FactorySubsytem->PersistantStats.CurrentProgressionGoals[ProgressionGoalIndex].ProgressionGoalsData.GoalTitle));
+			CurrentGoalText->SetText(FText::FromString(CurrentGoal.ProgressionGoalsData.GoalTitle));
 		}
 	}
 	

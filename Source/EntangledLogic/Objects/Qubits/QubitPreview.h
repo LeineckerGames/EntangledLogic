@@ -14,7 +14,8 @@ class ENTANGLEDLOGIC_API AQubitPreview : public AActor
 	
 public:	
 
-	class TSharedRef<FKetWrapper> State = MakeShared<FKetWrapper>();
+	//class TSharedRef<FKetWrapper> State = MakeShared<FKetWrapper>();
+	FKetWrapper State;
 	int32 EntanglementPosition;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -33,5 +34,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void UpdateMeshData();
 
 };

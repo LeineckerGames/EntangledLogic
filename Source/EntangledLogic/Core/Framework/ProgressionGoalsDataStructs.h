@@ -91,27 +91,39 @@ struct FKetWrapper
 		return FString(s.c_str());
 	}
 
-	FString ConvertToString()
+	FString ConvertToString(bool UseNewLines = false)
 	{
 		FString output = FString("");
+		char delimiter = UseNewLines ? '\n' : ' ';
 
 		for (auto& c : ComplexNumArr)
 		{
 			if (c.RealNumber && c.ImaginaryNumber)
 			{
-				output.Append(FString::Printf(TEXT("%.3g%+.3gi "), c.RealNumber, c.ImaginaryNumber));
+				output.Append(FString::Printf(TEXT("%.3g%+.3gi"), c.RealNumber, c.ImaginaryNumber));
 			}
 			else if (c.ImaginaryNumber)
 			{
-				output.Append(FString::Printf(TEXT("%.3gi "), c.ImaginaryNumber));
+				output.Append(FString::Printf(TEXT("%.3gi"), c.ImaginaryNumber));
 			}
 			else
 			{
-				output.Append(FString::Printf(TEXT("%.3g "), c.RealNumber));
+				output.Append(FString::Printf(TEXT("%.3g"), c.RealNumber));
 			}
+			output.AppendChar(delimiter);
 		}
 		
 		return output.LeftChop(1);;
+	}
+
+	FVector GetBlochVector()
+	{
+		if (QubitsInSystem == 1) {
+			qpp::cmat rho = qpp::prj(ConvertToKet());
+			std::vector<double> x = qpp::rho2bloch(rho);
+			return FVector(x[0], x[1], x[2]);
+		}
+		return FVector(0, 0, 1);
 	}
 };
 

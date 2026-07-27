@@ -1,4 +1,5 @@
 #include "EntangledLogic/Objects/Qubits/QubitPreview.h"
+#include "EntangledLogic/Core/Subsystems/QubitDataSubsystem.h"
 
 // Sets default values
 AQubitPreview::AQubitPreview()
@@ -28,4 +29,11 @@ void AQubitPreview::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
+
+void AQubitPreview::UpdateMeshData()
+{
+	QubitMesh->SetCustomPrimitiveDataVector3(0, State.GetBlochVector());
+}
+
+
 

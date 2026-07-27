@@ -15,13 +15,25 @@ void ATierOneProgressionFactory::BeginPlay()
 	Super::BeginPlay();
 
 	UWorld* World = GetWorld();
-	if (World)
+	if (World && QubitPreviewClass)
 	{
-		FVector SpawnLocation = GetActorLocation() + FVector(0, 0, 80);
+		FVector SpawnLocation = GetActorLocation() + QubitPreviewOffset;
 		FRotator SpawnRotation = FRotator::ZeroRotator;
 		FActorSpawnParameters SpawnParams;
-		//QubitPreview = GetWorld()->SpawnActor<AQubitPreview>(QubitPreviewClass, SpawnLocation, SpawnRotation, SpawnParams);
-		//QubitPreview->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, true));
+		QubitPreview = GetWorld()->SpawnActor<AQubitPreview>(QubitPreviewClass, SpawnLocation, SpawnRotation, SpawnParams);
+		QubitPreview->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, true));
+
+		FKetWrapper ZeroState;
+		ZeroState.QubitsInSystem = 1;
+		ZeroState.ComplexNumArr.Add(FComplexNumber(1));
+		ZeroState.ComplexNumArr.Add(FComplexNumber(0));
+		QubitPreview->State = ZeroState;
+
+		UFactorySubsystem* FactorySubsytem = GetWorld()->GetSubsystem<UFactorySubsystem>();
+		if (FactorySubsytem)
+		{
+			FactorySubsytem->UpdateProgressionUIs.AddUObject(this, &ATierOneProgressionFactory::UpdateQubitPreview);
+		}
 	}
 }
 
@@ -127,6 +139,20 @@ void ATierOneProgressionFactory::StartProcessingQubits()
 			Qubits[i] = nullptr;
 		}
 		//UpdateProgressionUI();
+	}
+}
+
+void ATierOneProgressionFactory::UpdateQubitPreview(int32 GoalIndex)
+{
+	UFactorySubsystem* FactorySubsytem = GetWorld()->GetSubsystem<UFactorySubsystem>();
+	if (FactorySubsytem && QubitPreview)
+	{
+		if (FactorySubsytem->PersistantStats.CurrentProgressionGoals.Num() > 0)
+		{
+			FProgressionGoal CurrentGoal = FactorySubsytem->PersistantStats.CurrentProgressionGoals[GoalIndex];
+			QubitPreview->State = CurrentGoal.ProgressionGoalsData.AcceptedState;
+			QubitPreview->UpdateMeshData();
+		}
 	}
 }
 

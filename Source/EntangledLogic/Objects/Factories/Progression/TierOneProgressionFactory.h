@@ -16,7 +16,12 @@ class ENTANGLEDLOGIC_API ATierOneProgressionFactory : public AFactoryBase
 	
 	class AQubitPreview* QubitPreview;
 
+public:
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	TSubclassOf<AQubitPreview> QubitPreviewClass;
+
+	UPROPERTY(BlueprintReadwrite, EditAnywhere)
+	FVector QubitPreviewOffset;
 
 protected:
 
@@ -29,6 +34,8 @@ protected:
 	virtual void StartProcessingQubits() override;
 
 	//void UpdateProgressionUI();
+
+	void UpdateQubitPreview(int32 GoalIndex);
 
 public:
 
