@@ -71,24 +71,7 @@ struct FKetWrapper
 		return NewKet;
 	}
 
-	FString ConvertKetToString(qpp::ket KetToConvert)
-	{
-		// open string stream
-		std::ostringstream oss1;
-
-		// push qpp's display to the stream
-		oss1 << qpp::disp(KetToConvert);
-
-		// remove newlines
-		std::string s = oss1.str();
-		std::replace(s.begin(), s.end(), '\n', ' ');
-		//s.append("\n");
-
-		// string from stream
-		return FString(s.c_str());
-	}
-
-	FString ConvertKetToString(qpp::ket KetToConvert, bool RemoveNextLines)
+	FString ConvertKetToString(qpp::ket KetToConvert, bool RemoveNextLines = true)
 	{
 		// open string stream
 		std::ostringstream oss1;

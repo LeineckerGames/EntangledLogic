@@ -2,15 +2,27 @@
 #include "Components/WidgetComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
 #include "EntangledLogic/Objects/Qubits/Qubit.h"
+#include "EntangledLogic/Objects/Qubits/QubitPreview.h"
 #include "EntangledLogic/Interfaces/InputOutputInterface.h"
 #include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
 #include "EntangledLogic/Core/Subsystems/QubitDataSubsystem.h"
 #include "EntangledLogic/Core/Framework/QubitDataStructs.h"
 #include "EntangledLogic/UI/Factory/FactoryProgressionUI.h"
 
-ATierOneProgressionFactory::ATierOneProgressionFactory()
+
+void ATierOneProgressionFactory::BeginPlay()
 {
-	Qubits.SetNum(NUM_QUBIT_SLOTS);
+	Super::BeginPlay();
+
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		FVector SpawnLocation = GetActorLocation() + FVector(0, 0, 80);
+		FRotator SpawnRotation = FRotator::ZeroRotator;
+		FActorSpawnParameters SpawnParams;
+		//QubitPreview = GetWorld()->SpawnActor<AQubitPreview>(QubitPreviewClass, SpawnLocation, SpawnRotation, SpawnParams);
+		//QubitPreview->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, true));
+	}
 }
 
 void ATierOneProgressionFactory::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -67,6 +79,11 @@ void ATierOneProgressionFactory::EndPlay(const EEndPlayReason::Type EndPlayReaso
 				// Updates the previous factory to connect to the current
 				InputSlotActorInputOutputInterface->ConnectAllOutputs();
 			}
+		}
+
+		if (QubitPreview)
+		{
+			QubitPreview->Destroy();
 		}
 
 	}
