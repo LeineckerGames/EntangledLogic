@@ -13,10 +13,14 @@ class ENTANGLEDLOGIC_API ATierOneProgressionFactory : public AFactoryBase
 	static constexpr int32 NUM_QUBIT_SLOTS = 4;
 
 	int32 GetNumQubitSlots() override { return NUM_QUBIT_SLOTS; };
-
-	ATierOneProgressionFactory();
 	
+	class AQubitPreview* QubitPreview;
+
+	TSubclassOf<AQubitPreview> QubitPreviewClass;
+
 protected:
+
+	virtual void BeginPlay() override;
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
