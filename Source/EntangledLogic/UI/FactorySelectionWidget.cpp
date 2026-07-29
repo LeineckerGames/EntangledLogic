@@ -17,7 +17,7 @@ void UFactorySelectionWidget::PopulateInventory()
 {
 	if (InventoryItemSlotClass && FactoriesTable)
 	{
-		InventoryWrapBox->ClearChildren();
+		InventoryHorizontalBox->ClearChildren();
 
 		TArray<FName> FactoriesNames = FactoriesTable->GetRowNames();
 		FString ContextString;
@@ -37,7 +37,7 @@ void UFactorySelectionWidget::PopulateInventory()
 					ItemSlot->SetFactoryDescription(RowData->ItemTextData.Description.ToString());
 					ItemSlot->SetFactoryActorClass(RowData->ItemAssetData.ActorComponent);
 					ItemSlot->FactorySelectionWidget = this;
-					InventoryWrapBox->AddChildToWrapBox(ItemSlot);
+					InventoryHorizontalBox->AddChildToHorizontalBox(ItemSlot);
 				}
 			}
 		}

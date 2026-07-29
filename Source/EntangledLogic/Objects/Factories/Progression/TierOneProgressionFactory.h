@@ -33,6 +33,8 @@ protected:
 
 	virtual void StartProcessingQubits() override;
 
+	virtual void OnLoadCompleted() override;
+
 	//void UpdateProgressionUI();
 
 	void UpdateQubitPreview(int32 GoalIndex);

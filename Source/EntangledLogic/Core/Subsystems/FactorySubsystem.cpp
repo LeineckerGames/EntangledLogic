@@ -79,6 +79,13 @@ void UFactorySubsystem::AddProgressionGoal(EProgressionGoals ProgressionGoalToAd
 		NewProgressionGoal.ProgressionGoalsData = *ProgressionGoalData;
 		NewProgressionGoal.ProgressionGoal = ProgressionGoalToAdd;
 		PersistantStats.CurrentProgressionGoals.Add(NewProgressionGoal);
+		// Auto Pin
+		if(ProgressionGoalData->AutoPinOnUnlock)
+		{
+			PersistantStats.PinnedGoal = ProgressionGoalToAdd;
+			SetIsProgressionGoalPinned(true);
+			UpdateWidgets();
+		}
 		UE_LOG(LogTemp, Display, TEXT("Added Progression Num() = %d"), PersistantStats.CurrentProgressionGoals.Num())
 	}
 }
@@ -167,6 +174,7 @@ void UFactorySubsystem::UpdateWidgets()
 			if (PlayerHUD)
 			{
 				PlayerHUD->UpdateGoalTrackerWidget();
+				BrodcastUpdateProgressionUIs();
 			}
 		}
 	}

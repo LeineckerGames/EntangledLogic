@@ -156,17 +156,14 @@ void ATierOneProgressionFactory::UpdateQubitPreview(int32 GoalIndex)
 	}
 }
 
-//void ATierOneProgressionFactory::UpdateProgressionUI()
-//{
-//	if (FactoryWidget) 
-//	{
-//		UFactoryProgressionUI* FactoryProgressionUI = Cast<UFactoryProgressionUI>(FactoryWidget);
-//		if (FactoryProgressionUI)
-//		{
-//			FactoryProgressionUI->UpdateProgressionUI();
-//		}
-//	}
-//}
+void ATierOneProgressionFactory::OnLoadCompleted()
+{
+	Super::OnLoadCompleted();
+	if (QubitPreview)
+	{
+		QubitPreview->SetActorLocation(GetActorLocation() + QubitPreviewOffset);
+	}
+}
 
 // Input Output Interface
 void ATierOneProgressionFactory::ConnectAllInputsAndOutputs()

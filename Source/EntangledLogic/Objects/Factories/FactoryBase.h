@@ -82,7 +82,7 @@ protected:
 
 	void TriggerFactoryEmmiter(AQubit* QubitData);
 
-	void OnLoadCompleted();
+	virtual void OnLoadCompleted();
 
 	bool IsQubitProcessed = false;
 
