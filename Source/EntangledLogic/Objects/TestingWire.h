@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/SplineComponent.h"
+#include "EntangledLogic/Interfaces/FactoryVariantInterface.h"
 #include "Wire.h"
 #include "TestingWire.generated.h"
 
@@ -9,7 +10,7 @@
 class AWireSegment; // Forward Declaration
 
 UCLASS()
-class ENTANGLEDLOGIC_API ATestingWire : public AWire
+class ENTANGLEDLOGIC_API ATestingWire : public AWire, public IFactoryVariantInterface
 {
 	GENERATED_BODY()
 	
@@ -70,4 +71,21 @@ public:
 	// Splines are defined by points, as well as information on how to connect these points (e.g. tangents).
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing", meta = (AllowPrivateAccess = "true"))
 	USplineComponent* WireSpline;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "FactoryVariant")
+	TSubclassOf<AActor> GetNextVariant(TSubclassOf<AActor> CurrentClass);
+
+	// Variants: configure the three Blueprint actor classes.
+	UPROPERTY(EditAnywhere, Category = "Variants")
+	TSubclassOf<AActor> VariantA;
+
+	UPROPERTY(EditAnywhere, Category = "Variants")
+	TSubclassOf<AActor> VariantB;
+
+	UPROPERTY(EditAnywhere, Category = "Variants")
+	TSubclassOf<AActor> VariantC;
+
+	// Internal counter used to cycle behavior: first swap-only, second swap+rotate, repeat.
+	UPROPERTY(VisibleInstanceOnly, Category = "Variants")
+	int32 VariantSwapCounter = 0;
 };

@@ -44,6 +44,9 @@ protected:
 
 	void AddGridPlacementIMC();
 
+	// Helper: swap currently selected factory to a different factory class while preserving transform/selection state.
+	void SwapSelectedFactoryWithClass(TSubclassOf<AActor> NewClass);
+
 	FRotator FactoryCreationRotator = FRotator(0.0f, 0.0f, 0.0f);
 
 	AActor* CreateFactoryFromSaveData(FFactorySaveData FactorySaveData);
