@@ -22,6 +22,7 @@ enum class EProgressionGoals : uint8
 	T_Gate_Tutorial_135,
 	T_Gate_Tutorial_225,
 	T_Gate_Tutorial_315,
+	CNOT_Gate_Tutorial,
 	Gnome_Test
 };
 
