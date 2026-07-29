@@ -7,7 +7,6 @@
 #include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "EntangledLogic/Interfaces/InputOutputInterface.h"
-#include "EntangledLogic/Interfaces/FactoryVariantInterface.h"
 #include "EntangledLogic/Core/Framework/FactorySaveGame.h"
 #include "EntangledLogic/Player/TopDownPlayerController.h"
 #include "EntangledLogic/Player/PlayerCameraController.h"
@@ -186,63 +185,11 @@ void UGridPlacementSubsystem::MoveSelectedFactoryOnGrid(FVector Location)
 
 void UGridPlacementSubsystem::RotateSelectedActor()
 {
-	// If the selected factory supports variant-swapping, use that instead of just rotating in-place.
-	if (SelectedFactory && SelectedFactory->GetClass()->ImplementsInterface(UFactoryVariantInterface::StaticClass()))
-	{
-		// Ask the factory for the next variant class in its cycle.
-		TSubclassOf<AActor> NextClass = IFactoryVariantInterface::Execute_GetNextVariant(SelectedFactory, SelectedFactory->GetClass());
-		if (NextClass)
-		{
-			SetSelectedFactory(NextClass);
-			// return;
-		}
-	}
-
-	// Fallback: regular rotation behavior (keeps previous behavior).
 	if (SelectedFactory)
 	{
 		FRotator Rotator = FRotator(0.0f, 90.0f, 0.0f);
 		FQuat QuatRotation = FQuat(Rotator);
 		SelectedFactory->AddActorLocalRotation(QuatRotation, false, 0, ETeleportType::None);
-		FactoryCreationRotator = SelectedFactory->GetActorRotation();
-	}
-}
-
-void UGridPlacementSubsystem::SwapSelectedFactoryWithClass(TSubclassOf<AActor> NewClass)
-{
-	if (!SelectedFactory || !NewClass)
-	{
-		return;
-	}
-
-	// Preserve transform and current placement rotation
-	FTransform CurrentTransform = SelectedFactory->GetActorTransform();
-
-	// Keep visibility / overlay state while swapping
-	bool bInputsVisible = false;
-	IInputOutputInterface* IOInterfaceBefore = Cast<IInputOutputInterface>(SelectedFactory);
-	if (IOInterfaceBefore)
-	{
-		// Keep inputs visible while editing (default true so user can continue editing).
-		bInputsVisible = true;
-		IOInterfaceBefore->DisconnectAllInputsAndOutputs();
-	}
-
-	// Destroy current selected actor and spawn the replacement class at same transform.
-	SelectedFactory->Destroy();
-	SelectedFactory = SpawnActorToPlaceFromClass(NewClass, CurrentTransform);
-	SelectedFactoryClass = NewClass;
-
-	// Restore input/output visibility for the new actor if applicable.
-	IInputOutputInterface* IOInterfaceAfter = Cast<IInputOutputInterface>(SelectedFactory);
-	if (IOInterfaceAfter)
-	{
-		IOInterfaceAfter->SetAllInputOutputsVisibility(bInputsVisible);
-	}
-
-	// Update internal rotator to reflect the newly spawned actor orientation.
-	if (SelectedFactory)
-	{
 		FactoryCreationRotator = SelectedFactory->GetActorRotation();
 	}
 }
