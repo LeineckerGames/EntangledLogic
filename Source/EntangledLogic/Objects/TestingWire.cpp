@@ -155,3 +155,42 @@ FVector ATestingWire::GetPointAtIndex(int32 i)
 	
 	return PointsArray[i]->GetComponentLocation();	
 }
+
+TSubclassOf<AActor> ATestingWire::GetNextVariant_Implementation(TSubclassOf<AActor> CurrentClass)
+{
+	// Require all three variants to be configured to enable variant behavior.
+	if (!VariantA || !VariantB || !VariantC)
+	{
+		return CurrentClass;
+	}
+
+	// Determine the next variant in the cycle A -> B -> C -> A ...
+	TSubclassOf<AActor> NextClass = nullptr;
+	if (CurrentClass == VariantA)
+	{
+		NextClass = VariantB;
+	}
+	else if (CurrentClass == VariantB)
+	{
+		NextClass = VariantC;
+	}
+	else if (CurrentClass == VariantC)
+	{
+		NextClass = VariantA;
+	}
+	else
+	{
+		// If current class isn't one of the configured variants, pick VariantA as a safe default.
+		NextClass = VariantA;
+	}
+
+	// Increment counter; on every second call rotate this actor 90 degrees before swap.
+	VariantSwapCounter++;
+	if ((VariantSwapCounter % 2) == 0)
+	{
+		const FRotator Rotator(0.0f, 90.0f, 0.0f);
+		AddActorLocalRotation(Rotator, false, nullptr, ETeleportType::None);
+	}
+
+	return NextClass;
+}
