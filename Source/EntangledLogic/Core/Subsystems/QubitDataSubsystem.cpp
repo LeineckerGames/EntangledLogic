@@ -55,6 +55,7 @@ AQubit* UQubitDataSubsystem::SpawnQubit(FVector SpawnLocation)
 	return SpawnQubit(SpawnLocation, ENamedState::Zero);
 }
 
+// Manually set a qubit's state vector
 // can desync entanglement groups, use only for initialization
 void UQubitDataSubsystem::SetState(AQubit& qubit, ENamedState namedState)
 {
@@ -62,6 +63,7 @@ void UQubitDataSubsystem::SetState(AQubit& qubit, ENamedState namedState)
 	qubit.UpdateMeshData();
 }
 
+// Apply the specified gate to a single qubit
 void UQubitDataSubsystem::Apply(AQubit& qubit, EQuantumGate gate)
 {
 	if (!IsValid(&qubit)) return;
@@ -76,6 +78,7 @@ void UQubitDataSubsystem::Apply(AQubit& qubit, EQuantumGate gate)
 	qubit.UpdateMeshData();
 }
 
+// Apply the specified gate to the target qubit, controlled by the control qubit
 void UQubitDataSubsystem::ApplyControlled(AQubit& control, AQubit& target, EQuantumGate gate)
 {
 	// if target and control are not already entangled, create a shared state
@@ -83,27 +86,87 @@ void UQubitDataSubsystem::ApplyControlled(AQubit& control, AQubit& target, EQuan
 
 	unsigned long LongEntPosT = static_cast<unsigned long>(target.EntanglementPosition);
 	unsigned long LongEntPosC = static_cast<unsigned long>(control.EntanglementPosition);
+	unsigned long StateSize = static_cast<unsigned long>(target.State->qubits.Num());
 	cmat gateMatrix = GetGateMatrix(gate);
 
 	target.State->StateVector = applyCTRL(target.State->StateVector, gateMatrix, { LongEntPosC }, { LongEntPosT });
 
 	// check disentanglement - currently assumes at most 2-qubit entanglement
-	/*if (entanglement(target.State->StateVector) == 0)
+	
+	std::vector<idx> Partition = { LongEntPosC }; // includes control
+	std::vector<idx> Complement = complement(Partition, StateSize);
+	//std::vector<idx> t = complement({ LongEntPosC }, 2);
+	//UE_LOG(LogTemp, Display, TEXT("Complement = %"), Mutualinfo)
+	double MutualInfo = qmutualinfo(prj(target.State->StateVector), Partition, Complement);
+
+	UE_LOG(LogTemp, Display, TEXT("mutual info = %f"), MutualInfo)
+
+	if (MutualInfo == 0)
 	{
-		cmat rho1 = ptrace1(target.State->StateVector);
-		cmat rho2 = ptrace2(target.State->StateVector);
+		UE_LOG(LogTemp, Display, TEXT("Disentangling qubits"))
+		cmat rhoC = ptrace(target.State->StateVector, Partition);
+		cmat rhoP = ptrace(target.State->StateVector, Complement);
+
+		TSharedRef<FQubitData> StateP = MakeShared<FQubitData>();
+		StateP->StateVector = rho2pure(rhoP);
+
+		TSharedRef<FQubitData> StateC = MakeShared<FQubitData>();
+		StateC->StateVector = rho2pure(rhoC);
+
+		TSharedRef<FQubitData> OldState = target.State;
+
+		int j = 0;
+		for (idx i : Partition)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Adding qubit %d to partition"), i)
+			AQubit* q = OldState->qubits[i];
+			q->State = StateP;
+			q->EntanglementPosition = j++;
+			StateP->qubits.Add(q);
+		}
+
+		j = 0;
+		for (idx i : Complement)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Adding qubit %d to complement"), i)
+			AQubit* q = OldState->qubits[i];
+			q->State = StateC;
+			q->EntanglementPosition = j++;
+			StateC->qubits.Add(q);
+		}
+
+		/*
+		int32 j = 0;
+		for (idx i : Complement)
+		{
+			target.State->qubits[i]->EntanglementPosition = j++;
+		}
 		
-		control.State = MakeShared<FQubitData>();
-		control.State->StateVector = rho2pure(rho1);
+		j = 0;
+		for (idx i : Partition)
+		{
+			target.State->qubits[i]->State = StateP;
+			target.State->qubits[i]->EntanglementPosition = j++;
+			StateP->qubits.Add(target.State->qubits[i]);
+		}
+
+		for (AQubit* q : StateP->qubits) {
+			target.State->qubits.Remove(q);
+		}*/
+
+
+		/*control.State = MakeShared<FQubitData>();
+		control.State->StateVector = rho2pure(rhoC);
 		control.State->qubits.Add(&control);
 		control.EntanglementPosition = 0;
 
-		target.State->StateVector = rho2pure(rho2);
+		target.State->StateVector = rho2pure(rhoT);
 		target.State->qubits.RemoveSingle(&control);
-		target.EntanglementPosition = 0;
+		target.EntanglementPosition = 0;*/
 
-		control.State->UpdateQubitEntanglmentSplines();
-	}*/
+		StateP->UpdateQubitEntanglmentSplines();
+		StateC->UpdateQubitEntanglmentSplines();
+	}
 
 	control.UpdateMeshData();
 	target.UpdateMeshData();
@@ -131,19 +194,15 @@ bool UQubitDataSubsystem::CombineState(AQubit& qubitA, AQubit& qubitB)
 	{
 		q->EntanglementPosition += aLen;
 		q->State = qubitA.State;
-		UE_LOG(LogTemp, Display, TEXT("Adding qubit to entanglment array"))
+		UE_LOG(LogTemp, Display, TEXT("Adding qubit to entanglment group"))
 		qubitA.State->qubits.Add(q);
 		qubitA.State->UpdateQubitEntanglmentSplines();
 		q->ToggleEntanglementFX(true);
 	}
-
-
-
 	return true;
 }
 
 // Destroys this qubit and all qubits entangled with it
-// Todo: convert pointers outside of state structs into weak object pointers?
 void UQubitDataSubsystem::DeleteQubit(AQubit& qubit)
 {
 	if (&qubit)
@@ -156,6 +215,7 @@ void UQubitDataSubsystem::DeleteQubit(AQubit& qubit)
 	}
 }
 
+// Returns the 
 // curently only works for unentangled qubits
 FVector UQubitDataSubsystem::GetBlochVector(AQubit& qubit)
 {
@@ -167,6 +227,7 @@ FVector UQubitDataSubsystem::GetBlochVector(AQubit& qubit)
 	return FVector(0, 0, 1);
 }
 
+// Returns the state vector form of a named state
 qpp::ket UQubitDataSubsystem::GetStateAsVector(ENamedState state)
 {
 	switch (state)
@@ -180,7 +241,7 @@ qpp::ket UQubitDataSubsystem::GetStateAsVector(ENamedState state)
 	return st.z0;
 }
 
-
+// Returns the density matrix form of a named state
 qpp::cmat UQubitDataSubsystem::GetStateAsMatrix(ENamedState state)
 {
 	switch (state)
