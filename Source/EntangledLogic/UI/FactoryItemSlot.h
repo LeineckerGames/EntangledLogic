@@ -31,6 +31,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Inventory Slot", meta = (BindWidget))
 	class UImage* ItemIcon;
 
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	class USoundBase* HoverSFX;
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	class USoundBase* ClickSFX;
+
 	// Factory Info
 	FString FactoryName;
 

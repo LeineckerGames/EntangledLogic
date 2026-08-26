@@ -50,6 +50,9 @@ protected:
 
 	void SetInputOutputVisibility(bool isValid);
 
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	class USoundBase* CancelSFX;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -74,4 +77,5 @@ public:
 
 	void DisableOutline();
 
+	void PlayDeselectSFX();
 };

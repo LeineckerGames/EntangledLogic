@@ -2,6 +2,7 @@
 #include "Components/Image.h"
 #include "Blueprint/UserWidget.h"
 #include "FactorySelectionWidget.h"
+#include "Kismet/GameplayStatics.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 
 void UFactoryItemSlot::NativeOnInitialized()
@@ -28,6 +29,11 @@ FReply UFactoryItemSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, co
 	// Set the held factory to item selection.
 	GridPlacement->SetFactoryCreationRotator(FRotator(0.0f, 0.0f, 0.0f));
 	GridPlacement->SetSelectedFactory(FactoryActor);
+
+	if (ClickSFX)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), ClickSFX);
+	}
 	
 
 	// Return Handled so mouse doesnt click below
@@ -40,6 +46,12 @@ void UFactoryItemSlot::NativeOnMouseEnter(const FGeometry& InGeometry, const FPo
 	{
 		FactorySelectionWidget->SetNameAndDescriptionText(FactoryName, FactoryDescription);
 	}
+
+	if (HoverSFX)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), HoverSFX);
+	}
+
 }
 
 void UFactoryItemSlot::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)

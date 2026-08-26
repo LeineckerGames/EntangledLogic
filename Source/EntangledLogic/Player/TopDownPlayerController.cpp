@@ -1,5 +1,6 @@
 #include "TopDownPlayerController.h"
 #include "EnhancedInputSubsystems.h"
+#include "UserSettings/EnhancedInputUserSettings.h"
 #include "EntangledLogic/UI/PlayerHUD.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 
@@ -16,6 +17,12 @@ void ATopDownPlayerController::BeginPlay()
 	UGridPlacementSubsystem* GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
 	APlayerHUD* PlayerHUD = Cast<APlayerHUD>(GetHUD());
 	PlayerHUD->UpdatePlayerControlsUI(GridPlacement->GetPlacementMode());
+
+	// SetupInputComponent runs too early so added here for Settings to remap controls
+	if (PlayerControls)
+	{
+		AddMappingContext(PlayerControls, 0);
+	}
 }
 
 void ATopDownPlayerController::SetupInputComponent()
@@ -41,7 +48,18 @@ void ATopDownPlayerController::AddMappingContext(UInputMappingContext* InputMapp
 			Options.bForceImmediately = true;
 
 			Subsystem->AddMappingContext(InputMappingContext, Priority, Options);
-			//UE_LOG(LogTemp, Display, TEXT("Player Controls mapping context added"));
+
+			// Related to customizing user inputs, but ended up breaking camera movement. A fix might be creating a seperate IMC but we ran out of time.
+			if (UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings())
+			{
+				if (!UserSettings->GetActiveKeyProfile())
+				{
+					FPlayerMappableKeyProfileCreationArgs ProfileArgs;
+					UserSettings->CreateNewKeyProfile(ProfileArgs);
+				}
+				UserSettings->RegisterInputMappingContext(InputMappingContext);
+				UserSettings->ApplySettings();
+			}
 		}
 	}
 }

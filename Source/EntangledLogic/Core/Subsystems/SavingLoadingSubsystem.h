@@ -9,6 +9,7 @@
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FRequestToLoadAll, int32 SlotIndex)
 DECLARE_MULTICAST_DELEGATE(FOnSaveDirectoryUpdated)
+DECLARE_MULTICAST_DELEGATE(FOnLoadFinished)
 
 UCLASS()
 class ENTANGLEDLOGIC_API USavingLoadingSubsystem : public UGameInstanceSubsystem
@@ -48,5 +49,8 @@ public:
 	FSlotMetadata GetMetadataForSlot(int32 SlotIndex);
 
 	FRequestToLoadAll RequestToLoadAll;
+
+	FOnLoadFinished OnLoadFinished;
+
 	FOnSaveDirectoryUpdated OnSaveDirectoryUpdated;
 };

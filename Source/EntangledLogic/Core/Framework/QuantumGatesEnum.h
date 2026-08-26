@@ -8,7 +8,8 @@ enum class EQuantumGate : uint8
 	Y_Gate,
 	Z_Gate,
 	H_Gate,
-	S_Gate // maybe
+	S_Gate, // maybe
+	T_Gate
 };
 
 UENUM()

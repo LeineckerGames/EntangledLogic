@@ -18,7 +18,7 @@ public:
 	class UTextBlock* FactoryTextBox;
 
 	UPROPERTY(meta = (BindWidget))
-	class UWrapBox* InventoryWrapBox;
+	class UHorizontalBox* InventoryHorizontalBox;
 
 	UPROPERTY(EditAnywhere)
 	class UDataTable* FactoriesTable;

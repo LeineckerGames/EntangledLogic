@@ -1,6 +1,8 @@
 #include "FactorySubsystem.h"
 #include "EntangledLogic/Core/Framework/UnlockablesEnum.h"
 #include "EntangledLogic/Core/Framework/FactorySaveGame.h"
+#include "EntangledLogic/Core/DevSettings/FactorySettings.h"
+#include "EntangledLogic/Core/Framework/ProgressionGoalsDataAsset.h"
 #include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
 #include "EntangledLogic/Core/Subsystems/GlobalAudioSubsystem.h"
 #include "EntangledLogic/UI/PlayerHUD.h"
@@ -27,7 +29,65 @@ void UFactorySubsystem::OnWorldBeginPlay(UWorld& InWorld)
 		FTimerHandle TimerHandle;
 		World->GetTimerManager().SetTimer(TimerHandle, this, &UFactorySubsystem::SetTickTrue, 2, true);
 	}
-	
+
+}
+
+void UFactorySubsystem::SetProgressionGoalCount(FProgressionGoal &ProgressionGoal, int32 ValueToSet)
+{
+	int32 requirement = ProgressionGoal.ProgressionGoalsData.RequiredStatesAmount;
+	ProgressionGoal.ProgressionGoalCount = ValueToSet >= requirement? requirement : ValueToSet;
+	UE_LOG(LogTemp, Display, TEXT("Setting Progression Goal %s to value %d"),
+								  *UEnum::GetValueAsString(ProgressionGoal.ProgressionGoal),
+								  ProgressionGoal.ProgressionGoalCount)
+
+	if (ProgressionGoal.ProgressionGoalCount >= requirement)
+	{
+		FProgressionGoal GoalToRemove = ProgressionGoal;
+		// Add all the unlocks
+		for (EUnlockables CurrentUnlock : ProgressionGoal.ProgressionGoalsData.UnlockablesOnCompletion)
+		{
+			UnlockProgression(CurrentUnlock);
+		}
+
+		// Add next progressions
+		for (auto NextGoal : ProgressionGoal.ProgressionGoalsData.NextProgressionGoals) {
+			FProgressionGoalsData* NextProgressionGoal = ProgressionGoalsDataAsset->ProgressionGoals.Find(NextGoal);
+			if (NextProgressionGoal)
+			{
+				UE_LOG(LogTemp, Display, TEXT("Unlocking Next Progression Goal"))
+				AddProgressionGoal(NextGoal);
+			}
+		}
+
+		// Remove old goal
+		PersistantStats.CurrentProgressionGoals.Remove(GoalToRemove);
+
+		RepopulateWidgets();
+	}
+	else
+	{
+		UpdateWidgets();
+	}
+}
+
+void UFactorySubsystem::AddProgressionGoal(EProgressionGoals ProgressionGoalToAdd)
+{
+	FProgressionGoalsData* ProgressionGoalData = ProgressionGoalsDataAsset->ProgressionGoals.Find(ProgressionGoalToAdd);
+	if (ProgressionGoalData)
+	{
+		FProgressionGoal NewProgressionGoal;
+		NewProgressionGoal.ProgressionGoalsData = *ProgressionGoalData;
+		NewProgressionGoal.ProgressionGoal = ProgressionGoalToAdd;
+		PersistantStats.CurrentProgressionGoals.Add(NewProgressionGoal);
+		// Auto Pin
+		if(ProgressionGoalData->AutoPinOnUnlock)
+		{
+			PersistantStats.PinnedGoal = ProgressionGoalToAdd;
+			SetIsProgressionGoalPinned(true);
+			UpdateWidgets();
+		}
+		UE_LOG(LogTemp, Display, TEXT("Added Progression Num() = %d"), PersistantStats.CurrentProgressionGoals.Num())
+	}
 }
 
 bool UFactorySubsystem::GetTickPaused() const
@@ -59,10 +119,11 @@ bool UFactorySubsystem::CheckIfUnlocked(EUnlockables UnlockToCheck)
 void UFactorySubsystem::UnlockProgression(EUnlockables ProgressionToUnlock)
 {
 	UnlockablesMap.Emplace(ProgressionToUnlock, true);
-	RepopulateFactorySelectionWidget();
+	// RepopulateWidgets();
 }
 
-void UFactorySubsystem::RepopulateFactorySelectionWidget()
+// Refresh widgets, clearing and repopulating dynamic containers
+void UFactorySubsystem::RepopulateWidgets()
 {
 	UWorld* World = GetWorld();
 	if (World)
@@ -74,6 +135,46 @@ void UFactorySubsystem::RepopulateFactorySelectionWidget()
 			if (PlayerHUD)
 			{
 				PlayerHUD->RepopulateFactorySelectionWidget();
+				PlayerHUD->RepopulateGoalTrackerWidget();
+			}
+		}
+	}
+}
+
+void UFactorySubsystem::BrodcastUpdateProgressionUIs()
+{
+	int32 ProgressionGoalIndex;
+	if (isProgressionGoalPinned)
+	{
+		ProgressionGoalIndex = PersistantStats.CurrentProgressionGoals.IndexOfByKey(PersistantStats.PinnedGoal);
+		// If pinned goal was removed
+		if (ProgressionGoalIndex == INDEX_NONE)
+		{
+			ProgressionGoalIndex = 0;
+		}
+	}
+	else
+	{
+		// Change this to most recent qubit accepted
+		ProgressionGoalIndex = 0;
+	}
+	UpdateProgressionUIs.Broadcast(ProgressionGoalIndex);
+}
+
+// Refresh widget data without repopulating dynamic containers
+void UFactorySubsystem::UpdateWidgets()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		APlayerController* PlayerController = World->GetFirstPlayerController();
+		if (PlayerController)
+		{
+			APlayerHUD* PlayerHUD = Cast<APlayerHUD>(PlayerController->GetHUD());
+			if (PlayerHUD)
+			{
+				PlayerHUD->UpdateGoalTrackerWidget();
+				BrodcastUpdateProgressionUIs();
 			}
 		}
 	}
@@ -118,12 +219,18 @@ void UFactorySubsystem::SetCanTick(bool CanTickValue)
 	CanTick = CanTickValue;
 }
 
+void UFactorySubsystem::SetIsProgressionGoalPinned(bool IsPinned)
+{
+	isProgressionGoalPinned = IsPinned;
+}
+
 void UFactorySubsystem::Tick(float DeltaTime)
 {
 	if (CanTick)
 	{
 		CanTick = false;
 		OnFactoryTick.Broadcast();
+		BrodcastUpdateProgressionUIs();
 	}
 }
 
@@ -136,11 +243,13 @@ void UFactorySubsystem::SaveData(UFactorySaveGame* SaveGame)
 {
 	UE_LOG(LogTemp, Display, TEXT("Saving PersistantStats Data"));
 	SaveGame->PersistantStats = PersistantStats;
+	SaveGame->UnlockablesMap = UnlockablesMap;
 }
 
 void UFactorySubsystem::LoadData(UFactorySaveGame* SaveGame)
 {
 	UE_LOG(LogTemp, Display, TEXT("Loading PersistantStats Data"));
 	PersistantStats = SaveGame->PersistantStats;
-
+	UnlockablesMap = SaveGame->UnlockablesMap;
+	RepopulateWidgets();
 }

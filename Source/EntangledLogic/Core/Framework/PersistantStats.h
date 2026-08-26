@@ -1,5 +1,6 @@
 #pragma once
 
+#include "EntangledLogic/Core/Framework/ProgressionGoalsDataStructs.h"
 #include "PersistantStats.generated.h"
 
 USTRUCT(BlueprintType)
@@ -9,6 +10,12 @@ struct FPersistantStats
 
 	UPROPERTY()
 	int32 GnomesMurdered;
+	
+	UPROPERTY()
+	TArray<FProgressionGoal> CurrentProgressionGoals;
+
+	UPROPERTY();
+	EProgressionGoals PinnedGoal;
 
 	UPROPERTY()
 	float SpeedOfItemOnWire;

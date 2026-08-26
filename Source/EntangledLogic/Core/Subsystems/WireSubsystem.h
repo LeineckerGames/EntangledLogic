@@ -22,6 +22,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Wire System")
 	void RemoveWireFromPath(ATestingWire* RemovedWire);
 
+	/*
+	// Create a wire segment directly from an array of world-space spline points.
+	UFUNCTION(BlueprintCallable, Category = "Wire System")
+	AWireSegment* CreateNewSegmentFromSplinePoints(const TArray<FVector>& SplinePoints);
+	*/
+
 protected:
 	// A list of all active continuous paths in the world
 	UPROPERTY()
@@ -29,6 +35,9 @@ protected:
 
 	// Helper function to spin up a brand new segment
 	AWireSegment* CreateNewSegment(ATestingWire* StartWire);
+
+	UFUNCTION()
+	AWireSegment* CreateNewSegmentFromItemData(ATestingWire* StartWire, const TArray<FWireItemData>& ItemData);
 };
 
 

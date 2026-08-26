@@ -1,7 +1,9 @@
 #include "WireSegment.h"
 #include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
 #include "EntangledLogic/Core/DevSettings/FactorySettings.h"
+#include "EntangledLogic/Objects/Qubits/Qubit.h"
 #include "TestingWire.h"
+#include <EntangledLogic/Core/Subsystems/QubitDataSubsystem.h>
 
 AWireSegment::AWireSegment()
 {
@@ -53,7 +55,7 @@ void AWireSegment::OnFactoryTick()
 
 void AWireSegment::OutputQubits()
 {
-	UFactoryOutputComponent* LastWireOutComp = LastWire->GetOutputComponents()[0];
+	UFactoryOutputComponent* LastWireOutComp = EndWire->GetOutputComponents()[0];
 	if (LastWireOutComp)
 	{
 		AActor* CurrentActor = LastWireOutComp->OutputSlot;
@@ -71,7 +73,7 @@ void AWireSegment::OutputQubits()
 					//UE_LOG(LogTemp, Display, TEXT("The input comp of %s has a slot index of %d"), *ConnectedInputComponent->GetOwner()->GetActorNameOrLabel(), InputSlotIndex);
 					if (IOInterface->IsQubitSlotEmpty(InputSlotIndex))
 					{
-						AQubit* PoppedQubit = RemoveFrontItem();
+						AQubit* PoppedQubit = DeleteItemButNotQubitDataAtFront();
 						if (PoppedQubit)
 						{
 							IOInterface->TransferQubit(PoppedQubit, InputSlotIndex);
@@ -94,31 +96,373 @@ bool AWireSegment::IsQubitAtEndOfSpline() const
 	return false;
 }
 
-void AWireSegment::InitializeSegment(ATestingWire* StartWire)
+void AWireSegment::InitializeSegment(ATestingWire* NewStartWire)
 {
-	if (!StartWire) return;
+	if (!NewStartWire) return;
 
-	FirstWire = StartWire;
+	StartWire = NewStartWire;
 	SplineComponent->ClearSplinePoints();
 
-	ATestingWire* CurrentWire = StartWire;
+	ATestingWire* CurrentWire = NewStartWire;
 	int32 PointIndex = 0;
 
 	// Traverse the linked list of wires
 	while (CurrentWire != nullptr)
 	{
-		// Add spline points at each wire's world location
-		SplineComponent->AddSplinePoint(CurrentWire->GetActorLocation() + FVector(0.0f, 0.0f, 20.0f), ESplineCoordinateSpace::World, false);
+		// Take the wire's spline points and add them to the end of the wire segment
+		for (int i = 0; i < CurrentWire->WireSpline->GetNumberOfSplinePoints(); i++)
+		{
+			SplineComponent->AddSplinePoint(
+				CurrentWire->WireSpline->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::World),
+				ESplineCoordinateSpace::World,
+				false
+			);
+
+			SplineComponent->SetRotationAtSplinePoint(
+				PointIndex,
+				CurrentWire->WireSpline->GetRotationAtSplinePoint(i, ESplineCoordinateSpace::World),
+				ESplineCoordinateSpace::World
+			);
+
+			/*
+			SplineComponent->SetScaleAtSplinePoint(
+				PointIndex,
+				CurrentWire->WireSpline->GetScaleAtSplinePoint(i),
+				ESplineCoordinateSpace::World
+			);
+			*/
+
+			// Making it linear so it flows cleanly block-to-block, adjust as needed
+			SplineComponent->SetSplinePointType(PointIndex, ESplinePointType::Linear);
+			PointIndex++;
+		}
+		
+		EndWire = CurrentWire;
+		CurrentWire = CurrentWire->GetOutputWire();
+	}
+
+	SplineComponent->UpdateSpline();
+
+
+}
+
+void AWireSegment::AddWireToEndOfSegment(ATestingWire* WireToAdd)
+{
+	if (!WireToAdd) return;	
+
+	float PointIndex;
+	// Take the wire's spline points and add them to the end of the wire segment
+	for (int i = 0; i < WireToAdd->WireSpline->GetNumberOfSplinePoints(); i++)
+	{
+		SplineComponent->AddSplinePoint(
+			WireToAdd->WireSpline->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::World),
+			ESplineCoordinateSpace::World,
+			false
+		);
+
+		PointIndex = SplineComponent->GetNumberOfSplinePoints() - 1;
+
+		SplineComponent->SetRotationAtSplinePoint(
+			PointIndex,
+			WireToAdd->WireSpline->GetRotationAtSplinePoint(i, ESplineCoordinateSpace::World),
+			ESplineCoordinateSpace::World
+		);
+
+		/*
+		SplineComponent->SetScaleAtSplinePoint(
+			PointIndex,
+			CurrentWire->WireSpline->GetScaleAtSplinePoint(i),
+			ESplineCoordinateSpace::World
+		);
+		*/
+
+		// Making it linear so it flows cleanly block-to-block, adjust as needed
+		SplineComponent->SetSplinePointType(PointIndex, ESplinePointType::Linear);
+	}
+
+	EndWire = WireToAdd;
+
+	SplineComponent->UpdateSpline();
+
+	HeadGap += SingleWireLength;
+	bIsFrontBlocked = false;
+}
+
+void AWireSegment::AddWireToStartOfSegment(ATestingWire* WireToAdd) {
+
+	if (!WireToAdd) return;
+
+	float PointIndex = 0;
+
+	// Take the wire's spline points and add them to the start of the wire segment
+	for (int i = 0; i < WireToAdd->WireSpline->GetNumberOfSplinePoints(); i++)
+	{
+		SplineComponent->AddSplinePointAtIndex(
+			WireToAdd->WireSpline->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::World),
+			PointIndex,
+			ESplineCoordinateSpace::World,
+			false
+		);
+
+		SplineComponent->SetRotationAtSplinePoint(
+			PointIndex,
+			WireToAdd->WireSpline->GetRotationAtSplinePoint(i, ESplineCoordinateSpace::World),
+			ESplineCoordinateSpace::World
+		);
+
+		/*
+		SplineComponent->SetScaleAtSplinePoint(
+			PointIndex,
+			CurrentWire->WireSpline->GetScaleAtSplinePoint(i),
+			ESplineCoordinateSpace::World
+		);
+		*/
 
 		// Making it linear so it flows cleanly block-to-block, adjust as needed
 		SplineComponent->SetSplinePointType(PointIndex, ESplinePointType::Linear);
 
-		LastWire = CurrentWire;
-		CurrentWire = CurrentWire->GetOutputWire();
 		PointIndex++;
 	}
 
+	StartWire = WireToAdd;
+
 	SplineComponent->UpdateSpline();
+}
+
+void AWireSegment::RemoveWireFromEndOfSegment(ATestingWire* WireToRemove) {
+
+	if (!WireToRemove) return;
+
+	// Remove qubits that are present on top of this removed ending tile
+	float DistanceFromEndOfSegment = 0.0f;
+
+	DistanceFromEndOfSegment += HeadGap;
+	while (DistanceFromEndOfSegment <= SingleWireLength)
+	{
+		// If there is at least one more item behind the front, use its gap value.
+		if (ItemsOnWire.Num() > 1)
+		{
+			DistanceFromEndOfSegment += ItemsOnWire[1].GapToNextItem; // Use index 1 because that is the next gap.
+			// The qubit is still inside this removed ending tile, so delete it.
+			// Also adjust the array of items so that the gaps between items are still correct (handled by RemoveFrontItem).
+			DeleteItemAndQubitDataAtIndex(0);
+			// After this point the indices have shifted and index 1 no longer points to the same gap as before.
+		}
+		else
+		{
+			// Only a single item remains. Remove it and exit the loop.
+			DeleteItemAndQubitDataAtIndex(0);
+			break;
+		}
+	}
+	HeadGap -= SingleWireLength;
+
+	// Remove this ending wire tile from the spline
+	// If the wire to remove has three spline points, then chop off three spline points from the end of the wire segment
+	for (int i = 0; i < WireToRemove->WireSpline->GetNumberOfSplinePoints(); i++)
+	{
+		SplineComponent->RemoveSplinePoint(SplineComponent->GetNumberOfSplinePoints() - 1, false);
+	}
+
+	// Set the previous wire as the new ending wire
+	EndWire = WireToRemove->GetInputWire();
+
+	SplineComponent->UpdateSpline();
+}
+
+void AWireSegment::RemoveWireFromStartOfSegment(ATestingWire* WireToRemove)
+{
+	if (!WireToRemove) return;
+
+	// Remove qubits that are present on top of this removed starting tile
+
+	// The location that marks the beginning of the removed wire
+	FVector FirstLocation = WireToRemove->WireSpline->GetLocationAtSplinePoint(WireToRemove->WireSpline->GetNumberOfSplinePoints() - 1, ESplineCoordinateSpace::World);
+	float FirstInputKey = SplineComponent->FindInputKeyClosestToWorldLocation(FirstLocation);
+	float FirstDistance = SplineComponent->GetSplineLength() - SplineComponent->GetDistanceAlongSplineAtSplineInputKey(FirstInputKey);
+	float SecondDistance = SplineComponent->GetSplineLength();
+
+	// Skip all qubits that are before the deletion wire
+	float DistanceFromEndOfSegment = HeadGap;
+	int CurrentQubitIndex = 0;
+
+	while (DistanceFromEndOfSegment <= SecondDistance)
+	{
+		if (DistanceFromEndOfSegment > FirstDistance)
+		{
+			DeleteItemAndQubitDataAtIndex(CurrentQubitIndex);
+			if (ItemsOnWire.IsValidIndex(CurrentQubitIndex + 1))
+			{
+				DistanceFromEndOfSegment += ItemsOnWire[CurrentQubitIndex + 1].GapToNextItem;
+				
+			}
+			else 
+			{
+				break;
+			}
+
+			
+		}
+		else
+		{
+			if (ItemsOnWire.IsValidIndex(CurrentQubitIndex + 1))
+			{
+				DistanceFromEndOfSegment += ItemsOnWire[CurrentQubitIndex + 1].GapToNextItem;
+				CurrentQubitIndex++;
+			}
+			else
+			{
+				break;
+			}
+		}	
+	}
+
+	/*
+	// If there is at least one more item behind the front, use its gap value.
+		if (ItemsOnWire.Num() > 1)
+		{
+			DistanceFromEndOfSegment += ItemsOnWire[1].GapToNextItem; // Use index 1 because that is the next gap.
+			
+		}
+		else
+		{
+			// Only a single item remains. Remove it and exit the loop.
+			AQubit* RemovedQubit = RemoveFrontItem();
+			(void)RemovedQubit;
+			break;
+		}
+	*/
+
+	// Remove this starting wire tile from the spline
+	// If the wire to remove has three spline points, then chop off three spline points from the start of the wire segment
+	for (int i = 0; i < WireToRemove->WireSpline->GetNumberOfSplinePoints(); i++)
+	{
+		SplineComponent->RemoveSplinePoint(0, false);
+	}
+
+	// Set the previous wire as the new ending wire
+	StartWire = WireToRemove->GetOutputWire();
+
+	SplineComponent->UpdateSpline();
+}
+
+void AWireSegment::RemoveWireThatIsAloneInSegment(ATestingWire* WireToRemove)
+{
+	if (!WireToRemove) return;
+
+	int32 CurrentQubitIndex = 0;
+
+	while (ItemsOnWire.Num() > 0)
+	{
+		DeleteItemAndQubitDataAtIndex(CurrentQubitIndex);		
+	}
+
+	// Remove this starting wire tile from the spline
+	// If the wire to remove has three spline points, then chop off three spline points from the start of the wire segment
+	for (int i = 0; i < WireToRemove->WireSpline->GetNumberOfSplinePoints(); i++)
+	{
+		SplineComponent->RemoveSplinePoint(0, false);
+	}
+
+	// Set the previous wire as the new ending wire
+	StartWire = WireToRemove->GetOutputWire();
+
+	SplineComponent->UpdateSpline();
+}
+
+/*
+TArray<float> AWireSegment::GetInputKeysSandwichingWire(ATestingWire* WireToRemove)
+{
+	TArray<float> ret = TArray<float>();
+
+	SplineComponent->FindInputKeyClosestToWorldLocation(WireToRemove->GetPointAtIndex(0));
+
+	return TArray<FSplinePoint>();
+}
+*/
+ 
+TArray<FWireItemData> AWireSegment::RemoveWireFromMiddleOfSegment(ATestingWire* WireToRemove)
+{
+	if (!WireToRemove) return TArray<FWireItemData>();
+
+	UE_LOG(LogTemp, Display, TEXT("RemoveWireFromMiddleOfSegment()"));
+
+	TArray<FWireItemData> ret = TArray<FWireItemData>(); // Return all qubits that are before the wire to remove. These qubits will go on the new segment.
+
+	// The location that marks the beginning of the removed wire
+	FVector FirstLocation = WireToRemove->WireSpline->GetLocationAtSplinePoint(WireToRemove->WireSpline->GetNumberOfSplinePoints() - 1, ESplineCoordinateSpace::World);
+	// The location that marks the end of the removed wire
+	FVector SecondLocation = WireToRemove->WireSpline->GetLocationAtSplinePoint(0, ESplineCoordinateSpace::World);
+
+	float FirstInputKey = SplineComponent->FindInputKeyClosestToWorldLocation(FirstLocation);
+	float SecondInputKey = SplineComponent->FindInputKeyClosestToWorldLocation(SecondLocation);
+
+	float FirstDistance = SplineComponent->GetSplineLength() - SplineComponent->GetDistanceAlongSplineAtSplineInputKey(FirstInputKey);
+	float SecondDistance = SplineComponent->GetSplineLength() - SplineComponent->GetDistanceAlongSplineAtSplineInputKey(SecondInputKey);
+
+	// Save to an array all qubits that are before the deletion wire
+	float DistanceFromEndOfSegment = HeadGap;
+	int CurrentQubitIndex = 0;
+
+	while (DistanceFromEndOfSegment <= FirstDistance)
+	{
+		if (ItemsOnWire.IsValidIndex(CurrentQubitIndex + 1))
+		{
+			DistanceFromEndOfSegment += ItemsOnWire[CurrentQubitIndex + 1].GapToNextItem;
+			ret.Add(ItemsOnWire[CurrentQubitIndex]); // Collect all qubits that appear before the wire to delete
+
+			if (CurrentQubitIndex == 0) ret[0].GapToNextItem = HeadGap; // Temporarily store HeadGap into this spot to retrieve it later when making the segment.
+		
+			CurrentQubitIndex++;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	// Delete all qubits that on the deletion wire or before the deletion wire
+	DistanceFromEndOfSegment = HeadGap;
+	while (DistanceFromEndOfSegment <= SecondDistance)
+	{
+		bool MarkForTrueDeletion = DistanceFromEndOfSegment > FirstDistance;
+
+		if (ItemsOnWire.IsValidIndex(1))
+		{
+			DistanceFromEndOfSegment += ItemsOnWire[1].GapToNextItem;
+		}
+		else
+		{
+			break;
+		}
+
+		if (MarkForTrueDeletion)
+		{
+			// Qubits that are on the deletion wire are not getting transferred to the next segment, 
+			// so the qubit should be deleted entirely
+			DeleteItemAndQubitDataAtIndex(0);
+		}
+		else
+		{
+			DeleteItemButNotQubitDataAtFront();
+		}
+	}
+	HeadGap = DistanceFromEndOfSegment - SecondDistance;
+	
+	// Remove this middle wire tile from the spline, as well as all to the right of it (towards the end of the spline)
+	int i = SplineComponent->GetNumberOfSplinePoints() - 1;
+	while (i > SecondInputKey)
+	{
+		SplineComponent->RemoveSplinePoint(i);
+		i--;
+	}
+
+	// Set the previous wire as the new ending wire
+	EndWire = WireToRemove->GetInputWire();
+
+	SplineComponent->UpdateSpline();
+	
+	return ret;
 }
 
 void AWireSegment::Tick(float DeltaTime)
@@ -140,19 +484,10 @@ void AWireSegment::Tick(float DeltaTime)
 		// Use a while loop in case multiple items exit in a single frame
 		while (HeadGap <= 0.0f && !ItemsOnWire.IsEmpty())
 		{
-			// Attempt to leave the segment
-			if (LeaveWireSegment())
-			{
-				// Successfully left! RemoveFrontItem() is assumed to have been called.
-				// The while loop will evaluate the new HeadGap of the new front item next.
-			}
-			else
-			{
-				// LeaveWireSegment failed or returned false. Stop moving and block the line.
-				HeadGap = 0.0f;
-				bIsFrontBlocked = true;
-				break;
-			}
+			// Stop moving and block the line.
+			HeadGap = 0.0f;
+			bIsFrontBlocked = true;
+			break;
 		}
 	}
 	else
@@ -184,7 +519,16 @@ void AWireSegment::Tick(float DeltaTime)
 		FVector Loc = SplineComponent->GetLocationAtDistanceAlongSpline(CurrentDistanceAlongSpline, ESplineCoordinateSpace::World);
 		FRotator Rot = SplineComponent->GetRotationAtDistanceAlongSpline(CurrentDistanceAlongSpline, ESplineCoordinateSpace::World);
 
-		ItemsOnWire[i].ItemMesh->SetWorldLocationAndRotation(Loc, Rot);
+		if (ItemsOnWire[i].ItemMesh)
+		{
+			ItemsOnWire[i].ItemMesh->SetWorldLocation(Loc);
+		}
+
+		if (ItemsOnWire[i].QubitData)
+		{
+			ItemsOnWire[i].QubitData->SetActorLocation(Loc);
+		}
+		
 	}
 }
 
@@ -199,7 +543,7 @@ bool AWireSegment::LeaveWireSegment()
 
 bool AWireSegment::AddItemToWire(AQubit* QubitData)
 {
-	if (Capacity > 0 && ItemsOnWire.Num() >= Capacity)
+	if (GetCapacity() > 0 && ItemsOnWire.Num() >= GetCapacity())
 	{
 		return false;
 	}
@@ -235,12 +579,57 @@ bool AWireSegment::AddItemToWire(AQubit* QubitData)
 		NewItem.GapToNextItem = LastItemPos;
 	}
 
+	// Immediately set actor transform so it doesn't fall/appear elsewhere before the first Tick()
+	FVector WireSegmentStartLocation = StartWire->WireSpline->GetLocationAtSplineInputKey(0, ESplineCoordinateSpace::World);
+	NewItem.ItemMesh->SetWorldLocation(WireSegmentStartLocation);
+
 	ItemsOnWire.Add(NewItem);
+
 	return true;
 }
 
-// Returns a nullptr if fails
-AQubit* AWireSegment::RemoveFrontItem()
+bool AWireSegment::AddQubitToWire(AQubit* QubitData)
+{
+	if (GetCapacity() > 0 && ItemsOnWire.Num() >= GetCapacity())
+	{
+		return false;
+	}
+
+	FWireItemData NewItem;
+
+	NewItem.QubitData = QubitData;
+
+	if (ItemsOnWire.IsEmpty())
+	{
+		HeadGap = SplineComponent->GetSplineLength();
+		NewItem.GapToNextItem = 0.0f;
+		ActiveGapIndex = 1;
+	}
+	else
+	{
+		float LastItemPos = SplineComponent->GetSplineLength() - HeadGap;
+		for (int32 i = 1; i < ItemsOnWire.Num(); i++)
+		{
+			LastItemPos -= ItemsOnWire[i].GapToNextItem;
+		}
+
+		NewItem.GapToNextItem = LastItemPos;
+	}
+	
+	// Immediately set actor transform so it doesn't fall/appear elsewhere before the first Tick()
+	FVector WireSegmentStartLocation = StartWire->WireSpline->GetLocationAtSplineInputKey(0, ESplineCoordinateSpace::World);
+	NewItem.QubitData->SetActorLocation(WireSegmentStartLocation);
+	
+	ItemsOnWire.Add(NewItem);
+
+	NewItem.QubitData->OnDestroyed.AddDynamic(this, &AWireSegment::OnQubitDestroyed);
+	
+	return true;
+}
+
+
+// Removes the front item on the wire, without deleting the qubit data. Returns the qubit data, or a nullptr if the function fails.
+AQubit* AWireSegment::DeleteItemButNotQubitDataAtFront()
 {
 	AQubit* QubitToPop = nullptr;
 
@@ -250,6 +639,11 @@ AQubit* AWireSegment::RemoveFrontItem()
 	{
 		QubitToPop = ItemsOnWire[0].QubitData;
 		ItemsOnWire[0].ItemMesh->DestroyComponent();
+	}
+
+	if (ItemsOnWire[0].QubitData)
+	{
+		QubitToPop = ItemsOnWire[0].QubitData;
 	}
 
 	if (ItemsOnWire.Num() > 1)
@@ -276,12 +670,138 @@ bool AWireSegment::IsEmpty()
 
 bool AWireSegment::IsFull()
 {
-	return Capacity > 0 && ItemsOnWire.Num() >= Capacity;
+	return GetCapacity() > 0 && ItemsOnWire.Num() >= GetCapacity();
 }
 
-void AWireSegment::AddTestingItemToWire(AQubit* QubitData)
+void AWireSegment::AddTestingItemToWire(AQubit* QubitData, bool UseNewQubitFunction)
 {
+	if (UseNewQubitFunction)
+	{
+		AddQubitToWire(QubitData);
+		return;
+	}
 	AddItemToWire(QubitData);
 }
 
-////Get output factory and send qubits
+// Returns false if the function fails.
+bool AWireSegment::DeleteItemAndQubitDataAtIndex(int32 Index)
+{
+	// Invalid index
+	if (!ItemsOnWire.IsValidIndex(Index))
+	{
+		return false;
+	}
+
+	AQubit* RemovedQubit = ItemsOnWire[Index].QubitData;
+
+	UWorld* world = GetWorld();
+	if (world)
+	{
+		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
+
+		if (QubitSubsystem)
+		{
+			QubitSubsystem->DeleteQubit(*RemovedQubit);
+			ItemsOnWire[Index].QubitData = nullptr;
+		}
+		else 
+		{
+			return false;
+		}
+	}
+	else {
+		return false;
+	}
+
+	// Destroy mesh if present
+	if (ItemsOnWire[Index].ItemMesh)
+	{
+		ItemsOnWire[Index].ItemMesh->DestroyComponent();
+	}
+
+	// If removing the front item, replicate the adjustments made in RemoveFrontItem()
+	if (Index == 0)
+	{
+		if (ItemsOnWire.Num() > 1)
+		{
+			// Add the gap of the (soon-to-be) new front item to HeadGap
+			HeadGap += ItemsOnWire[1].GapToNextItem;
+
+			// Remove the front item
+			ItemsOnWire.RemoveAt(0);
+
+			// Ensure the new front has zero gap-to-next (by convention)
+			if (ItemsOnWire.Num() > 0)
+			{
+				ItemsOnWire[0].GapToNextItem = 0.0f;
+			}
+
+			ActiveGapIndex = FMath::Max(1, ActiveGapIndex - 1);
+		}
+		else
+		{
+			// Last item removed
+			ItemsOnWire.RemoveAt(0);
+			ActiveGapIndex = 1;
+		}
+
+		// Clearing front-blocked state as front item no longer blocks
+		bIsFrontBlocked = false;
+	}
+	else
+	{
+		// Removing from middle or end:
+		const int32 NumBefore = ItemsOnWire.Num();
+
+		// If there is an item behind the removed one, it must inherit the removed gap so that distances stay consistent.
+		// gap_{k+1} (old) becomes gap_{k+1} + gap_k (old), where gap_k is ItemsOnWire[Index].GapToNextItem.
+		if (Index < NumBefore - 1)
+		{
+			ItemsOnWire[Index + 1].GapToNextItem += ItemsOnWire[Index].GapToNextItem;
+		}
+
+		// Remove the item
+		ItemsOnWire.RemoveAt(Index);
+
+		// If the removal was before the ActiveGapIndex, shift ActiveGapIndex down so it continues to point
+		// at the same logical gap as before (indexes shifted left).
+		if (Index < ActiveGapIndex)
+		{
+			ActiveGapIndex = FMath::Max(1, ActiveGapIndex - 1);
+		}
+	}
+
+	// Clamp ActiveGapIndex to a safe, valid range
+	if (ItemsOnWire.Num() <= 1)
+	{
+		ActiveGapIndex = 1;
+	}
+	else
+	{
+		ActiveGapIndex = FMath::Clamp(ActiveGapIndex, 1, ItemsOnWire.Num() - 1);
+	}
+
+	
+
+	return true;
+}
+
+// Capacity = (Total Spline Length / Qubit Item Size) - 1
+int AWireSegment::GetCapacity()
+{
+	return (int)(SplineComponent->GetSplineLength() / ItemSize);
+}
+
+
+void AWireSegment::OnQubitDestroyed(AActor* QubitData)
+{
+	/*
+	for (int i = 0; i < ItemsOnWire.Num(); i++) 
+	{
+		if (ItemsOnWire[i].QubitData == QubitData) DeleteItemAndQubitDataAtIndex(i);
+	}
+	*/
+}
+
+
+

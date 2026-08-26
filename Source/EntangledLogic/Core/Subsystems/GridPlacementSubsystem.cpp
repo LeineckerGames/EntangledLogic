@@ -56,10 +56,9 @@ AActor* UGridPlacementSubsystem::SpawnActorToPlaceFromClass(TSubclassOf<AActor> 
 	//Maybe change this to be 0,0,0 idk
 	FVector SpawnLocation = FVector(0, 0, 0);
 
-	FActorSpawnParameters SpawnParams;
+	FTransform SpawnTransform = FTransform(SpawnRotation, SpawnLocation);
 
-	AActor* SelectedActorToPlace = GetWorld()->SpawnActor<AActor>(SelectedActor->GetDefaultObject()->GetClass(), SpawnLocation, SpawnRotation, SpawnParams);
-	return SelectedActorToPlace;
+	return SpawnActorToPlaceFromClass(SelectedActor, SpawnTransform);
 }
 
 AActor* UGridPlacementSubsystem::SpawnActorToPlaceFromClass(TSubclassOf<AActor> SelectedActor, FTransform SpawnTransform)
@@ -68,6 +67,7 @@ AActor* UGridPlacementSubsystem::SpawnActorToPlaceFromClass(TSubclassOf<AActor> 
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	AActor* SelectedActorToPlace = GetWorld()->SpawnActor<AActor>(SelectedActor->GetDefaultObject()->GetClass(), SpawnTransform, SpawnParams);
+
 	return SelectedActorToPlace;
 }
 
@@ -235,6 +235,15 @@ void UGridPlacementSubsystem::PickupFactory(AActor* FactoryToPickup)
 void UGridPlacementSubsystem::DeselectSelectedActor()
 {
 	//UE_LOG(LogTemp, Display, TEXT("Deselecting Actor"));
+	if (IsValid(SelectedFactory))
+	{
+		UGridPlacementComponent* SelectedFactoryGPC = SelectedFactory->GetComponentByClass<UGridPlacementComponent>();
+		if (SelectedFactoryGPC)
+		{
+			SelectedFactoryGPC->PlayDeselectSFX();
+		}
+	}
+
 	DeleteSelectedFactory();
 	SelectedFactoryClass = nullptr;
 	SetPlacementMode(EPlacementMode::Disabled);
@@ -328,6 +337,7 @@ void UGridPlacementSubsystem::DeleteSelectedFactory()
 	if (IsValid(SelectedFactory))
 	{
 		SelectedFactory->Destroy();
+		SelectedFactory = nullptr;
 	}
 	SelectedFactory = nullptr;
 }
@@ -497,6 +507,13 @@ AActor* UGridPlacementSubsystem::CreateFactoryFromSaveData(FFactorySaveData Fact
 {
 	// Might want to add nulls checks for each SaveData
 	AActor* NewFactory = SpawnActorToPlaceFromClass(FactorySaveData.FactoryClass, FactorySaveData.FactoryTransform);
+
+	IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(NewFactory);
+	if (IOInterface)
+	{
+		IOInterface->SetAllInputOutputsVisibility(false);
+		IOInterface->ConnectAllInputsAndOutputs();
+	}
 
 	// Remove Collision Overaly on spawn
 	UGridPlacementComponent* FactoryGPC = NewFactory->GetComponentByClass<UGridPlacementComponent>();

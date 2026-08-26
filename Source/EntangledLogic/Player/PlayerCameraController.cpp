@@ -10,8 +10,10 @@
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
+#include "EntangledLogic/Core/Framework/ProgressionGoalsDataAsset.h"
 #include "EntangledLogic/UI/PlayerHUD.h"
 #include "EntangledLogic/Core/Subsystems/GlobalAudioSubsystem.h"
+#include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -46,6 +48,8 @@ void APlayerCameraController::BeginPlay()
 	Super::BeginPlay();
 	
 	TopDownPlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+	// Used for on hover events on actors
+	TopDownPlayerController->bEnableMouseOverEvents = true;
 	GridPlacement = GetWorld()->GetSubsystem<UGridPlacementSubsystem>();
 
 	// Creates Dynamic Grid Material instance
@@ -70,14 +74,34 @@ void APlayerCameraController::BeginPlay()
 
 
 	UE_LOG(LogTemp, Display, TEXT("Before Background ambience"));
+	
 	// Starts music
-
 	UGlobalAudioSubsystem* GlobalAudio = GetWorld()->GetGameInstance()->GetSubsystem<UGlobalAudioSubsystem>();
 	if (GlobalAudio)
 	{
 		GlobalAudio->SetBackgroundMusic(BackgroundMusic);
 		UE_LOG(LogTemp, Display, TEXT("Starting Background ambience"));
 		GlobalAudio->StartBackgroundAmbience();
+	}
+
+	// Loading progression data here bc the UDevSettings will not work at all.
+	UFactorySubsystem* FactorySubsystem = GetWorld()->GetSubsystem<UFactorySubsystem>();
+	if (!IsValid(FactorySubsystem))
+	{
+		UE_LOG(LogTemp, Error, TEXT("FactorySubsystem IS NULL"))
+	}
+
+	if (!IsValid(ProgressionGoalsDataAsset))
+	{
+		UE_LOG(LogTemp, Error, TEXT("ProgressionGoalsDataAsset IS NULL"))
+	}
+
+	if (FactorySubsystem && ProgressionGoalsDataAsset)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Running progression start"))
+		FactorySubsystem->ProgressionGoalsDataAsset = ProgressionGoalsDataAsset;
+		FactorySubsystem->AddProgressionGoal(EProgressionGoals::Wire_Tutorial);
+		FactorySubsystem->RepopulateWidgets();
 	}
 }
 
@@ -144,7 +168,7 @@ void APlayerCameraController::ZoomCamera(const FInputActionValue& Value)
 {
 	float ZoomDirection = Value.Get<float>();
 	
-	SpringArm->TargetArmLength = FMath::Clamp(SpringArm->TargetArmLength + (ZoomDirection * ZoomSpeed), 300.0f, 5000.0f);
+	SpringArm->TargetArmLength = FMath::Clamp(SpringArm->TargetArmLength + (ZoomDirection * ZoomSpeed), 100.0f, 5000.0f);
 	ZoomSensitivityMultiplier = 1.0f + ((SpringArm->TargetArmLength - 1500.0f) / 3500.0f) * 1.5f;
 
 	// Scale Grid by multiplier as well

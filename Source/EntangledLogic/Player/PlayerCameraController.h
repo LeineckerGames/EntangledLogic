@@ -63,6 +63,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Background Music")
 	class USoundBase* BackgroundMusic;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Progression Data")
+	class UProgressionGoalsDataAsset* ProgressionGoalsDataAsset;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

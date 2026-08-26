@@ -1,4 +1,5 @@
 #include "XGateFactory.h"
+#include "Components/SplineComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
 #include "EntangledLogic/Interfaces/InputOutputInterface.h"
@@ -10,6 +11,10 @@
 AXGateFactory::AXGateFactory()
 {
 	Qubits.SetNum(NUM_QUBIT_SLOTS);
+
+	// Create Qubit movement spline
+	QubitSplines.Add(CreateDefaultSubobject<USplineComponent>(TEXT("QubitSpline0")));
+	QubitSplines[0]->SetupAttachment(FactoryMesh);
 }
 
 // Need to add the deletion of qubits once they transfer
@@ -37,8 +42,10 @@ void AXGateFactory::OnQubitProcessed()
 		UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
 		if (QubitSubsystem)
 		{
-			UE_LOG(LogTemp, Display, TEXT("Applying the X Gate on the qubit"))
+			//UE_LOG(LogTemp, Display, TEXT("Applying the X Gate on the qubit"))
 			QubitSubsystem->Apply(*Qubits[0], EQuantumGate::X_Gate);
+			TriggerFactoryEmmiter(Qubits[0]);
+			CurrentSplineMode = QubitSplineMode::EXIT_MODE;
 			UpdateQubitDisplay();
 		}
 	}

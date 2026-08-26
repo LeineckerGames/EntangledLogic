@@ -24,6 +24,9 @@ struct FWireItemData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	AQubit* QubitData = nullptr;
+
+	// Add UpdateMaterial function
+	// Material instance
 };
 
 UCLASS()
@@ -56,7 +59,7 @@ public:
 
 	// Removes the front-most item from the queue
 	UFUNCTION(BlueprintCallable, Category = "Wire Segment")
-	AQubit* RemoveFrontItem();
+	AQubit* DeleteItemButNotQubitDataAtFront();
 
 	// Called when an item reaches the end of the wire segment path
 	UFUNCTION(BlueprintCallable, Category = "Wire Segment")
@@ -74,10 +77,10 @@ public:
 
 	// Subsystem Data
 	UPROPERTY(BlueprintReadOnly, Category = "Wire Segment")
-	ATestingWire* FirstWire;
+	ATestingWire* StartWire;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Wire Segment")
-	ATestingWire* LastWire;
+	ATestingWire* EndWire;
 
 	// Queue Data
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
@@ -87,21 +90,58 @@ public:
 	float HeadGap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
-	float ItemSize = 25.0f;
+	float ItemSize = 40.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
+	float SingleWireLength = 100.0f; // A single wire tile is this many cm across.
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
+	FVector SplineOffset = FVector(0.0f, 0.0f, 20.0f);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	float MovementSpeed = 100.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wire Data")
-	int Capacity = 0; // 0 implies infinite within length limits
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	int32 ActiveGapIndex = 1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Wire Data")
 	bool bIsFrontBlocked = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug", meta = (AllowPrivateAccess = "true"))
 	UStaticMesh* TestingItemMesh;
 
 	UFUNCTION()
-	void AddTestingItemToWire(AQubit* QubitData);
+	void AddTestingItemToWire(AQubit* QubitData, bool UseNewQubitFunction);
 
+	// Using to refactor the qubits movement
+	bool AddQubitToWire(AQubit* QubitData);
+
+	UFUNCTION()
+	void AddWireToEndOfSegment(ATestingWire* WireToAdd);
+
+	UFUNCTION()
+	void AddWireToStartOfSegment(ATestingWire* WireToAdd);
+
+	UFUNCTION()
+	void RemoveWireFromEndOfSegment(ATestingWire* WireToRemove);
+
+	// Remove the wire at the start of the segment (first spline point).
+	UFUNCTION()
+	void RemoveWireFromStartOfSegment(ATestingWire* WireToRemove);
+
+	// Remove the wire at the start of the segment (first spline point).
+	UFUNCTION()
+	void RemoveWireThatIsAloneInSegment(ATestingWire* WireToRemove);
+
+	UFUNCTION()
+	TArray<FWireItemData> RemoveWireFromMiddleOfSegment(ATestingWire* WireToRemove);
+
+	UFUNCTION()
+	bool DeleteItemAndQubitDataAtIndex(int32 Index);
+
+	UFUNCTION()
+	int GetCapacity(); // Capacity = (Total Spline Length / Qubit Item Size) - 1
+
+	UFUNCTION()
+	void OnQubitDestroyed(AActor* QubitData);
 };

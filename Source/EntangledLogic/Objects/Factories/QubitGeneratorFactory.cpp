@@ -92,7 +92,8 @@ void AQubitGeneratorFactory::OnFactoryTick()
 							if (QubitSubsystem)
 							{
 								UE_LOG(LogTemp, Display, TEXT("Creating and Send a new Qubit"));
-								IOInterface->TransferQubit(QubitSubsystem->NewQubit(), InputSlotIndex);
+								FVector QubitSpawnLocation = CurrentOutputComponent->GetComponentTransform().GetLocation();
+								IOInterface->TransferQubit(QubitSubsystem->SpawnQubit(QubitSpawnLocation), InputSlotIndex);
 							}
 						}
 					}

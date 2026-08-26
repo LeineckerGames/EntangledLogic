@@ -11,12 +11,23 @@ void UFactoryInfoUI::SetFactoryDescriptionText(FString FactoryDescription)
 	FactoryDescriptionText->SetText(FText::FromString(*FactoryDescription));
 }
 
+void UFactoryInfoUI::SetFactoryDescriptionText(FText FactoryDescription)
+{
+	FactoryDescriptionText->SetText(FactoryDescription);
+}
+
 void UFactoryInfoUI::SetFactoryInfoText(FString FactoryInfo)
 {
-	FactoryInfoText->SetText(FText::FromString(*FactoryInfo));
+	
+	//FactoryInfoText->SetText(FText::FromString(*FactoryInfo));
 }
 
 void UFactoryInfoUI::SetHeaderText(FString FactoryHeader)
+{
+	SetHeaderText(FText::FromString(*FactoryHeader));
+}
+
+void UFactoryInfoUI::SetHeaderText(FText FactoryHeader)
 {
 	UIBase->SetHeaderText(FactoryHeader);
 }

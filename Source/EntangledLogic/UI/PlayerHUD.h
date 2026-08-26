@@ -8,6 +8,7 @@ class UFactorySelectionWidget;
 class UPlayerControlsUI;
 class UPauseMenuWidget;
 class USettingsMenuWidget;
+class UGoalTracker;
 
 enum class EPlacementMode : uint8;
 UCLASS()
@@ -22,6 +23,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<UPlayerControlsUI> PlayerControlsUIClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<UGoalTracker> GoalTrackerClass;
+
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UPauseMenuWidget> PauseMenuWidgetClass;
 
@@ -31,6 +35,10 @@ public:
 	APlayerHUD();
 
 	void RepopulateFactorySelectionWidget();
+
+	void RepopulateGoalTrackerWidget();
+
+	void UpdateGoalTrackerWidget();
 
 	void UpdatePlayerControlsUI();
 
@@ -56,6 +64,9 @@ protected:
 
 	UPROPERTY()
 	UPlayerControlsUI* PlayerControlsUIWidget;
+
+	UPROPERTY()
+	UGoalTracker* GoalTrackerWidget;
 
 	UPROPERTY()
 	UPauseMenuWidget* PauseMenuWidget;

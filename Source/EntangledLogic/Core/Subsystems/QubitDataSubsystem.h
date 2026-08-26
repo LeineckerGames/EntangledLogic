@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "QppPlugin.h"
+#include <vector>
 #include "QubitDataSubsystem.generated.h"
 
 enum class EQuantumGate : uint8;
@@ -16,9 +17,16 @@ class ENTANGLEDLOGIC_API UQubitDataSubsystem : public UWorldSubsystem
 	GENERATED_BODY()
 	
 public:
+	UPROPERTY()
+	TSubclassOf<AQubit> QubitClass;
+
 	AQubit* NewQubit();
 
 	AQubit* NewQubit(ENamedState namedState);
+
+	AQubit* SpawnQubit(FVector SpawnLocation);
+
+	AQubit* SpawnQubit(FVector SpawnLocation, ENamedState namedState);
 
 	void SetState(AQubit& qubit, ENamedState namedState);
 
@@ -26,9 +34,13 @@ public:
 
 	void ApplyControlled(AQubit& control, AQubit& target, EQuantumGate gate);
 
+	void SeperateState(AQubit& qubit, std::vector<qpp::idx> Partition);
+
 	bool CombineState(AQubit& qubitA, AQubit& qubitB);
 
 	void DeleteQubit(AQubit& qubit);
+
+	FVector GetBlochVector(AQubit& qubit);
 
 private:
 	qpp::ket GetStateAsVector(ENamedState state);

@@ -4,9 +4,18 @@
 #include "GameFramework/Actor.h"
 #include "EntangledLogic/Interfaces/FactoryInteractionInterface.h"
 #include "EntangledLogic/Interfaces/InputOutputInterface.h"
+#include "EntangledLogic/Core/Framework/ItemDataStructs.h"
 #include "FactoryBase.generated.h"
 
 class AQubit;
+
+UENUM()
+enum class QubitSplineMode : uint8
+{
+	START_MODE,
+	PROCESSING_MODE,
+	EXIT_MODE
+};
 
 UCLASS()
 class ENTANGLEDLOGIC_API AFactoryBase : public AActor, public IFactoryInteractionInterface, public IInputOutputInterface
@@ -19,11 +28,18 @@ public:
 
 	static constexpr int32 NUM_QUBIT_SLOTS = 0;
 
+	UPROPERTY()
 	TArray<AQubit*> Qubits;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (RowType = "ItemData"))
+	FDataTableRowHandle FactoryData;
+
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class USceneComponent* DefaultRoot;
@@ -43,17 +59,44 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UWidgetComponent* FactoryDisplayWindow;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<class USplineComponent*> QubitSplines;
+
+	QubitSplineMode CurrentSplineMode = QubitSplineMode::START_MODE;
+
+	TArray<float> QubitDistances;
+
 	class UUserWidget* FactoryWidget;
 
 	float ProcesssingTime = 1.0f;
 
 	bool OutputQubits();
 
-	void StartProcessingQubits();
+	virtual void StartProcessingQubits();
+
+	void EnterQubitSplineMovement(float DeltaTime);
+	
+	void ExitQubitSplineMovement(float DeltaTime);
 
 	virtual void OnQubitProcessed();
 
+	void TriggerFactoryEmmiter(AQubit* QubitData);
+
+	virtual void OnLoadCompleted();
+
 	bool IsQubitProcessed = false;
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	class USoundBase* PlaceSFX;
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	class USoundBase* DeleteSFX;
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraComponent* FactoryNiagaraComponent;
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* FactoryQubitModifyFX;
 
 public:	
 	// Called every frame

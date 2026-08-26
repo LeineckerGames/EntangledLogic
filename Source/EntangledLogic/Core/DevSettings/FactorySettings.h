@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "Engine/DeveloperSettings.h"
 #include "Engine/StaticMesh.h"
+#include "EntangledLogic/Core/Framework/ProgressionGoalsDataAsset.h"
+#include "EntangledLogic/Objects/Qubits/Qubit.h"
 #include "FactorySettings.generated.h"
 
 /**
@@ -18,4 +20,10 @@ public:
 	// The default mesh to use for a Qubit traveling along a wire
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Wire Settings")
 	TSoftObjectPtr<UStaticMesh> QubitMesh;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Progression Data")
+	//UProgressionGoals* ProgressionGoalsDataAsset;
+
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Qubit Settings")
+	TSubclassOf<AQubit> QubitClass;
 };

@@ -7,6 +7,7 @@
 #include "FactorySubsystem.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnFactoryTick)
+DECLARE_MULTICAST_DELEGATE_OneParam(FUpdateProgressionUIs, int32)
 
 enum class EUnlockables : uint8;
 UCLASS()
@@ -26,6 +27,8 @@ protected:
 
 public:
 
+	class UProgressionGoalsDataAsset* ProgressionGoalsDataAsset;
+
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 
 	virtual void Tick(float DeltaTime) override;
@@ -42,15 +45,29 @@ public:
 
 	FPersistantStats PersistantStats;
 
+	bool isProgressionGoalPinned = false;
+
+	FUpdateProgressionUIs UpdateProgressionUIs;
+
+	void BrodcastUpdateProgressionUIs();
+
+	void SetProgressionGoalCount(FProgressionGoal &ProgressionGoal, int32 ValueToSet);
+
+	void AddProgressionGoal(EProgressionGoals ProgressionGoalToAdd);
+
 	FOnFactoryTick OnFactoryTick;
 
 	bool CheckIfUnlocked(EUnlockables UnlockToCheck);
 
 	void UnlockProgression(EUnlockables ProgressionToUnlock);
 
-	void RepopulateFactorySelectionWidget();
+	void RepopulateWidgets();
+
+	void UpdateWidgets();
 
 	void SetTickPaused(bool TickPausedValue);
+
+	void SetIsProgressionGoalPinned(bool IsPinned);
 
 	virtual void SaveData(class UFactorySaveGame* SaveGame) override;
 

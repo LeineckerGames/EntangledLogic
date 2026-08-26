@@ -77,6 +77,7 @@ void USavingLoadingSubsystem::OnLoadGameFinished(const FString& SlotName, const 
 		{
 			FactorySaveRef = LoadedFactorySaveGame;
 			FactorySaveRef->LoadAllData(FactorySaveRef, RegisteredUObjects);
+			OnLoadFinished.Broadcast();
 		}
 	}
 }

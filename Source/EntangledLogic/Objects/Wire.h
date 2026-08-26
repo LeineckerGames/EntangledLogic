@@ -43,6 +43,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "InputOutputs")
 	TArray<class UFactoryOutputComponent*> OutputComponents;
 
+	void OnLoadCompleted();
+
 	/*
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UWidgetComponent* FactoryDisplayWindow;

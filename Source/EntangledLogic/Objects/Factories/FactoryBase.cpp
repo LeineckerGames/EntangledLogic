@@ -1,13 +1,19 @@
 #include "FactoryBase.h"
 #include "Components/WidgetComponent.h"
+#include "Components/SplineComponent.h"
 #include "EntangledLogic/Core/Components/GridPlacementComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryInputComponent.h"
 #include "EntangledLogic/Objects/Factories/Components/FactoryOutputComponent.h"
+#include "EntangledLogic/Objects/Qubits/Qubit.h"
 #include "EntangledLogic/Core/Subsystems/GridPlacementSubsystem.h"
+#include "EntangledLogic/Core/Subsystems/QubitDataSubsystem.h"
 #include "EntangledLogic/Core/Subsystems/FactorySubsystem.h"
+#include "EntangledLogic/Core/Subsystems/SavingLoadingSubsystem.h"
 #include "EntangledLogic/Core/Framework/SortBySlotIndex.h"
 #include "EntangledLogic/UI/Factory/FactoryInfoUI.h"
 #include "EntangledLogic/UI/Factory/FactoryDevUI.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Camera/PlayerCameraManager.h"
@@ -39,6 +45,26 @@ AFactoryBase::AFactoryBase()
 	// Create Grid Placement and attach to mesh
 	GridPlacementComponent = CreateDefaultSubobject<UGridPlacementComponent>(TEXT("GridPlacementComponent"));
 	GridPlacementComponent->SetupAttachment(FactoryMesh);
+
+	// Create Niagara Comp and attach to mesh
+	FactoryNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("FactoryNiagaraComponent"));
+	FactoryNiagaraComponent->SetupAttachment(FactoryMesh);
+	FactoryNiagaraComponent->SetAutoActivate(false);
+
+}
+
+void AFactoryBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	UQubitDataSubsystem* QubitSubsystem = GetWorld()->GetSubsystem<UQubitDataSubsystem>();
+	if (QubitSubsystem)
+	{
+		for (AQubit* CurrentQubit : Qubits)
+		{
+			QubitSubsystem->DeleteQubit(*CurrentQubit);
+		}
+	}
+
+	Super::EndPlay(EndPlayReason);
 }
 
 // Called when the game starts or when spawned
@@ -54,9 +80,19 @@ void AFactoryBase::BeginPlay()
 		{
 			FactorySubsystem->OnFactoryTick.AddUObject(this, &AFactoryBase::OnFactoryTick);
 		}
+
+		USavingLoadingSubsystem* SavingLoadingSubsystem = World->GetGameInstance()->GetSubsystem<USavingLoadingSubsystem>();
+		if (SavingLoadingSubsystem)
+		{
+			SavingLoadingSubsystem->OnLoadFinished.AddUObject(this, &AFactoryBase::OnLoadCompleted);
+		}
 	}
 
-	//Qubits.SetNum(NUM_QUBIT_SLOTS);
+	Qubits.SetNum(GetNumQubitSlots());
+	QubitDistances.Init(0.0f, GetNumQubitSlots());
+	// This is causing a crash QubitDistances isnt being created correctly?
+	//UE_LOG(LogTemp, Display, TEXT("Qubit Distance %f"), QubitDistances[0]);
+
 	// Get Attached Inputs and Outputs and add them to the array
 	GetComponents<UFactoryInputComponent>(InputComponents);
 	GetComponents<UFactoryOutputComponent>(OutputComponents);
@@ -66,7 +102,10 @@ void AFactoryBase::BeginPlay()
 	OutputComponents.Sort(SortBySlotIndex<UFactoryOutputComponent>);
 
 	// Setup Floating UI
-	FactoryDisplayWindow->SetVisibility(false);
+	if (!FactoryDisplayWindow->ComponentHasTag(FName("StaticUI")))
+	{
+		FactoryDisplayWindow->SetVisibility(false);
+	}
 	FactoryWidget = FactoryDisplayWindow->GetUserWidgetObject();
 	UFactoryInfoUI* FactoryInfoWidget = nullptr;
 	UFactoryDevUI* FactoryDevWidget = nullptr;
@@ -79,9 +118,18 @@ void AFactoryBase::BeginPlay()
 	// UI for 1x1 Factories
 	if (FactoryInfoWidget)
 	{
-		FactoryInfoWidget->SetHeaderText(GetActorNameOrLabel());
-		FactoryInfoWidget->SetFactoryDescriptionText("a gnome was here");
-		FactoryInfoWidget->SetFactoryInfoText("he was here too");
+		if (FactoryData.DataTable != nullptr)
+		{
+			FItemData* RowData = FactoryData.DataTable->FindRow<FItemData>(FactoryData.RowName, TEXT("Context String"));
+
+			if (RowData)
+			{
+				FactoryInfoWidget->SetHeaderText(RowData->ItemTextData.Name);
+				FactoryInfoWidget->SetFactoryDescriptionText(RowData->ItemTextData.Description);
+			}
+		}
+
+		//FactoryInfoWidget->SetFactoryInfoText("he was here too");
 		FactoryInfoWidget->PopulateQubits(GetNumQubitSlots());
 	}
 
@@ -90,7 +138,12 @@ void AFactoryBase::BeginPlay()
 	{
 		FactoryDevWidget->SetHeaderText("Dev Menu");
 	}
-	
+
+	if (FactoryQubitModifyFX)
+	{
+		FactoryNiagaraComponent->SetAsset(FactoryQubitModifyFX);
+	}
+
 }
 
 void AFactoryBase::StartProcessingQubits()
@@ -116,6 +169,55 @@ void AFactoryBase::StartProcessingQubits()
 			{
 				FTimerHandle TimerHandle;
 				World->GetTimerManager().SetTimer(TimerHandle, this, &AFactoryBase::OnQubitProcessed, ProcesssingTime);
+				//CurrentSplineMode = QubitSplineMode::PROCESSING_MODE;
+			}
+		}
+	}
+}
+
+void AFactoryBase::EnterQubitSplineMovement(float DeltaTime)
+{
+	
+	for (int i = 0; i < QubitSplines.Num(); i++)
+	{
+		if (Qubits[i])
+		{
+			//UE_LOG(LogTemp, Display, TEXT("Moving Qubit Name = %s"), *Qubits[i]->GetActorNameOrLabel())
+
+			float SplineLength = QubitSplines[i]->GetSplineLength();
+
+			QubitDistances[i] += ProcesssingTime * 100.0f * DeltaTime;
+
+			if (!(QubitDistances[i] >= SplineLength / 2))
+			{
+				FVector Loc = QubitSplines[i]->GetLocationAtDistanceAlongSpline(QubitDistances[i], ESplineCoordinateSpace::World);
+				//UE_LOG(LogTemp, Display, TEXT("Moving Qubit Actor In Enter Spline"));
+				Qubits[i]->SetActorLocation(Loc);
+			}
+			else
+			{
+				CurrentSplineMode = QubitSplineMode::PROCESSING_MODE;
+			}
+		}
+	}
+		
+}
+
+void AFactoryBase::ExitQubitSplineMovement(float DeltaTime)
+{
+	for (int i = 0; i < QubitSplines.Num(); i++)
+	{
+		if (Qubits[i])
+		{
+			float SplineLength = QubitSplines[i]->GetSplineLength();
+			// Might want to add a multiplier to processing time
+			QubitDistances[i] += ProcesssingTime * 100.0f * DeltaTime;
+
+			if (!(QubitDistances[i] >= SplineLength))
+			{
+				FVector Loc = QubitSplines[i]->GetLocationAtDistanceAlongSpline(QubitDistances[i], ESplineCoordinateSpace::World);
+
+				Qubits[i]->SetActorLocation(Loc);
 			}
 		}
 	}
@@ -127,6 +229,21 @@ void AFactoryBase::OnQubitProcessed()
 	// Modify Qubit in child Gate class
 }
 
+void AFactoryBase::TriggerFactoryEmmiter(AQubit* QubitData)
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		UQubitDataSubsystem* QubitSubsystem = World->GetSubsystem<UQubitDataSubsystem>();
+		if (QubitSubsystem)
+		{
+			FVector BlochVector = QubitSubsystem->GetBlochVector(*QubitData);
+			FactoryNiagaraComponent->SetCustomPrimitiveDataVector3(0, BlochVector);
+		}
+	}
+	FactoryNiagaraComponent->Activate(true);
+}
+
 // Called every frame
 void AFactoryBase::Tick(float DeltaTime)
 {
@@ -135,16 +252,35 @@ void AFactoryBase::Tick(float DeltaTime)
 	{
 		RotateUIToCamera();
 	}
+
+	// Update Qubit Spline Movement
+	switch (CurrentSplineMode)
+	{
+		case QubitSplineMode::START_MODE:
+			EnterQubitSplineMovement(DeltaTime);
+			break;
+
+		case QubitSplineMode::PROCESSING_MODE:
+			// Maybe add particles that spawn during this
+			break;
+
+		case QubitSplineMode::EXIT_MODE:
+			ExitQubitSplineMovement(DeltaTime);
+			break;
+	}
 }
 
 void AFactoryBase::RotateUIToCamera()
 {
-	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
-	FRotator RotationTowardCamera = UKismetMathLibrary::FindLookAtRotation(
-		FactoryDisplayWindow->GetComponentLocation() ,
-		CameraManager->GetTransformComponent()->GetComponentLocation());
-	//FRotator RotationTowardCamera = UKismetMathLibrary::NegateRotator(CameraManager->GetCameraRotation());
-	FactoryDisplayWindow->SetWorldRotation(RotationTowardCamera);
+	if (!FactoryDisplayWindow->ComponentHasTag(FName("StaticUI")))
+	{
+		APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+		FRotator RotationTowardCamera = UKismetMathLibrary::FindLookAtRotation(
+			FactoryDisplayWindow->GetComponentLocation(),
+			CameraManager->GetTransformComponent()->GetComponentLocation());
+			//FRotator RotationTowardCamera = UKismetMathLibrary::NegateRotator(CameraManager->GetCameraRotation());
+			FactoryDisplayWindow->SetWorldRotation(RotationTowardCamera);
+	}
 }
 
 // set the linked qubits of each QubitDisplaySlot
@@ -170,41 +306,44 @@ bool AFactoryBase::OutputQubits()
 	int32 SlotNumber = 0;
 	int32 ValidQubitCount = 0;
 	int32 QubitCount = 0;
+	TArray<IInputOutputInterface*> ValidInputOutputInterfaces;
+	TArray<int32> ValidInputSlotIndices;
 	for (UFactoryOutputComponent* CurrentOutputComponent : OutputComponents)
 	{
 		if (CurrentOutputComponent->OutputSlot && Qubits[SlotNumber] != nullptr)
 		{
-			AActor* CurrentActor = CurrentOutputComponent->OutputSlot;
-			if (CurrentActor)
+			//UE_LOG(LogTemp, Display, TEXT("Found Actor to send Qubit: %s"), *CurrentActor->GetActorNameOrLabel());
+			IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(CurrentOutputComponent->OutputSlot);
+			if (IOInterface)
 			{
-				//UE_LOG(LogTemp, Display, TEXT("Found Actor to send Qubit: %s"), *CurrentActor->GetActorNameOrLabel());
-				IInputOutputInterface* IOInterface = Cast<IInputOutputInterface>(CurrentOutputComponent->OutputSlot);
-				if (IOInterface)
+				UFactoryInputComponent* ConnectedInputComponent = IOInterface->GetConnectedInputComponent(CurrentOutputComponent);
+				if (ConnectedInputComponent)
 				{
-					// Need a way to get the slot index from other actor and then use it here
-					UFactoryInputComponent* ConnectedInputComponent = IOInterface->GetConnectedInputComponent(CurrentOutputComponent);
-					if (ConnectedInputComponent)
+					QubitCount++;
+					int32 InputSlotIndex = ConnectedInputComponent->SlotIndex;
+					//UE_LOG(LogTemp, Display, TEXT("The input comp of %s has a slot index of %d"), *ConnectedInputComponent->GetOwner()->GetActorNameOrLabel(), InputSlotIndex);
+					if (IOInterface->IsQubitSlotEmpty(InputSlotIndex))
 					{
-						QubitCount++;
-						int32 InputSlotIndex = ConnectedInputComponent->SlotIndex;
-						//UE_LOG(LogTemp, Display, TEXT("The input comp of %s has a slot index of %d"), *ConnectedInputComponent->GetOwner()->GetActorNameOrLabel(), InputSlotIndex);
-						if (IOInterface->IsQubitSlotEmpty(InputSlotIndex))
-						{
-							IOInterface->TransferQubit(Qubits[SlotNumber], InputSlotIndex);
-							Qubits[SlotNumber] = nullptr;
-							UpdateQubitDisplay();
-							ValidQubitCount++;
-						}
+						ValidInputOutputInterfaces.Add(IOInterface);
+						ValidInputSlotIndices.Add(InputSlotIndex);
+						ValidQubitCount++;
 					}
 				}
 			}
 		}
-		SlotNumber++;
 	}
 
-	// Makes sure all qubits succeded
+	// Makes sure all qubits succeded and then ouput the qubits
 	if (QubitCount != 0 && ValidQubitCount == QubitCount)
 	{
+		for (IInputOutputInterface* CurrentIOInterface : ValidInputOutputInterfaces)
+		{
+			CurrentIOInterface->TransferQubit(Qubits[SlotNumber], ValidInputSlotIndices[SlotNumber]);
+			Qubits[SlotNumber] = nullptr;
+			QubitDistances[SlotNumber] = 0.0f;
+			UpdateQubitDisplay();
+			SlotNumber++;
+		}
 		return true;
 	}
 	return false;
@@ -265,14 +404,19 @@ void AFactoryBase::Interact(EPlacementMode PlacementMode)
 	switch (PlacementMode)
 	{
 		case EPlacementMode::Disabled:
-			//UE_LOG(LogTemp, Display, TEXT("Selecting Actor %s"), *GetActorNameOrLabel());
-			FactoryDisplayWindow->ToggleVisibility();
-			UpdateQubitDisplay();
+			// Only toggle UI if non static UI
+			if (!FactoryDisplayWindow->ComponentHasTag(FName("StaticUI")))
+			{
+				FactoryDisplayWindow->ToggleVisibility();
+				UpdateQubitDisplay();
+			}
 
-			// Open selected pop up UI
 			break;
 		case EPlacementMode::Placing:
-
+			if (PlaceSFX)
+			{
+				UGameplayStatics::PlaySound2D(GetWorld(), PlaceSFX);
+			}
 			break;
 		case EPlacementMode::Editing:
 		{
@@ -290,8 +434,18 @@ void AFactoryBase::Interact(EPlacementMode PlacementMode)
 			TArray<FGridCoordinate> GridLocations = GridPlacement->GridComponentToCoordinates(GridPlacementComponent);
 			GridPlacement->SetPlacedPositionMap(GridLocations, GridPlacementComponent->GetFactoryShape(), nullptr);
 			Destroy();
+			if (DeleteSFX)
+			{
+				UGameplayStatics::PlaySound2D(GetWorld(), DeleteSFX);
+			}
 		} break;
 	}
+}
+
+void AFactoryBase::OnLoadCompleted()
+{
+	ConnectAllInputs();
+	ConnectAllOutputs();
 }
 
 // Input Output Interface
@@ -336,6 +490,7 @@ bool AFactoryBase::IsQubitSlotEmpty(int32 QubitSlotIndex)
 void AFactoryBase::TransferQubit(AQubit* QubitToTransfer, int32 QubitSlotIndex)
 {
 	Qubits[QubitSlotIndex] = QubitToTransfer;
+	CurrentSplineMode = QubitSplineMode::START_MODE;
 	StartProcessingQubits();
 	UpdateQubitDisplay();
 }

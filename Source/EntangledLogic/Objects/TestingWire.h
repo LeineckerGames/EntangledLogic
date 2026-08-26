@@ -1,8 +1,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/SplineComponent.h"
 #include "Wire.h"
 #include "TestingWire.generated.h"
+
 
 class AWireSegment; // Forward Declaration
 
@@ -45,4 +47,27 @@ public:
 	// Which segment/path does this wire currently belong to?
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Testing")
 	AWireSegment* AssignedSegment;
+
+	
+	// The points for the spline to attach to, are attached to this component. Access them using:
+	//		TArray<USceneComponent*> PointsArray;
+	//		PointsRoot->GetChildrenComponents(true, PointsArray);
+	// PointsArray stores the points, and now you can access a specific one using PointsArray[index]->GetComponentLocation();
+	// Create new points in the Blueprint Editor.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* PointsRoot;
+
+	// Minimum required point; this is default first point, attached to the PointsRoot by default
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing", meta = (AllowPrivateAccess = "true"))
+	USceneComponent* DefaultPoint;
+	
+
+	UFUNCTION()
+	FVector GetPointAtIndex(int32 i);
+
+
+	// Qubits follow the path defined by this spline.
+	// Splines are defined by points, as well as information on how to connect these points (e.g. tangents).
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Testing", meta = (AllowPrivateAccess = "true"))
+	USplineComponent* WireSpline;
 };
