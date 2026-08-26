@@ -1,1 +1,1 @@
-- 
+The Qubit Data Subsystem handles all [[Qubit]] state actions and modifications, and serves as the main point of contact with [[Quantum++|Q++]]
