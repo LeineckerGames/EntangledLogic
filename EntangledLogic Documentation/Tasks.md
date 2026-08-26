@@ -1,0 +1,9 @@
+- [ ] Make all gates inherit from a single gate class
+- [ ] Eliminate extra compile time due to qpp plugin
+	- [ ] Learn how to properly forward-declare qpp plugin
+- [ ] Fix [[Known Issues & Bugs]]
+- [ ] Clean up various UIs (e.g. add button on the qubit data UI)
+- [ ] Remove leftover content from early development (e.g. early factories)
+- [ ] Refactor various systems and code to improve cleanliness
+	- [ ] Clean up Player Camera Controller 
+- [ ] Add comments to code
