@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "QppPlugin.h"
+#include <vector>
 #include "QubitDataSubsystem.generated.h"
 
 enum class EQuantumGate : uint8;
@@ -32,6 +33,8 @@ public:
 	void Apply(AQubit& qubit, EQuantumGate gate);
 
 	void ApplyControlled(AQubit& control, AQubit& target, EQuantumGate gate);
+
+	void SeperateState(AQubit& qubit, std::vector<qpp::idx> Partition);
 
 	bool CombineState(AQubit& qubitA, AQubit& qubitB);
 

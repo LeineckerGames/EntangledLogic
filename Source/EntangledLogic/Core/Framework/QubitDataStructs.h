@@ -7,12 +7,10 @@
 #include "QubitDataStructs.generated.h"
 
 USTRUCT()
+// Each QubitData holds the data for a system of entangled qubits.
 struct FQubitData
 {
 	GENERATED_USTRUCT_BODY()
-
-	//bool bIsDensityMatrix = false;
-	//qpp::cmat DensityMatrix;
 
 	//UPROPERTY()
 	qpp::ket StateVector;
