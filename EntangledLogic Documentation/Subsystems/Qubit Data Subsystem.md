@@ -2,11 +2,14 @@ The Qubit Data Subsystem handles all [[Qubit]] state actions and modifications, 
 
 
 ### Creating Qubits
-`SpawnQubit()` should be used for creating qubits
+`SpawnQubit()`should generally be used for creating qubits, as it will also place them in the world. For uses that don't require the actor in-world, consider using an [[FKetWrapper]] rather than a AQubit.
 
+### Maximum Entanglement
+This const represents the maximum size of an entangled group that an operation is allowed to produce. If an operation would produce a larger group, it cannot proceed. This is necessary because the time of quantum operations scales exponentially(!) with entangled group size. Currently, the maximum entanglement is set to 3.
 
-	AQubit* SpawnQubit(FVector SpawnLocation);
-	AQubit* SpawnQubit(FVector SpawnLocation, ENamedState namedState);
+> [!caution] To do
+> Currently, qubits will simply pass through a gate attempting an operation which would exceed maximum entanglement with no effect. However, ideally, the qubits would become stuck and the gate would show an error, to make this behavior clear to the player.
+
 
 	void SetState(AQubit& qubit, ENamedState namedState);
 
