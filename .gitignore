@@ -311,5 +311,10 @@ RELEASE_MSG
 
 Build/*
 Config/DefaultEngine.ini
+
+# obsidian
 "EntangledLogic Documentation/.obsidian/workspace.json"
 "EntangledLogic Documentation/.obsidian/graph.json"
+EntangledLogic Documentation/.obsidian/workspace.json
+EntangledLogic Documentation/.obsidian/graph.json
+EntangledLogic Documentation/.obsidian/app.json
