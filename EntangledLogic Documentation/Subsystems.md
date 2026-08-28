@@ -1,6 +1,6 @@
 
 #### [[Qubit Data Subsystem]]
-The Qubit Data Subsystem handles all [[Qubit]] state actions and modifications, and serves as the main point of contact with [[Quantum++|Q++]].
+The Qubit Data Subsystem handles all [[AQubit|Qubit]] state actions and modifications, and serves as the main point of contact with [[Quantum++|Q++]].
 #### [[Wire Subsystem]]
 Short explanation of the subsystem
 #### [[Grid Placement Subsystem]]

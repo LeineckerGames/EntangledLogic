@@ -119,7 +119,6 @@ void UQubitDataSubsystem::ApplyControlled(AQubit& control, AQubit& target, EQuan
 			SeperateState(target, Partition);
 			break;
 		}
-
 	}
 
 	control.UpdateMeshData();
@@ -136,7 +135,6 @@ void UQubitDataSubsystem::SeperateState(AQubit& qubit, std::vector<idx> Partitio
 	TSharedRef<FQubitData> StateP = MakeShared<FQubitData>();
 	TSharedRef<FQubitData> StateC = MakeShared<FQubitData>();
 	StateP->StateVector = rho2pure(rhoP);
-
 	StateC->StateVector = rho2pure(rhoC);
 
 	int j = 0;
