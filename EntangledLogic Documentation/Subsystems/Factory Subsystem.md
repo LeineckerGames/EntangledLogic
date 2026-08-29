@@ -20,7 +20,7 @@ Within the editor there is the [[Progression Goals Data Asset]] where all the in
 
 Whenever a progression goal is added it gets add to the `CurrentProgressionGoals` array within the [[Persistent Stats Struct|Persistant Stats]]. This is used to keep track of all the active progression goals and used when checking if a valid qubit has entered the a [[Progression Factories|Progression Factory]].
 
-Once a [[Progression Goals Data Structs|Progression Goal]] has been completed add the next progression goals to `CurrentProgressionGoals` and will unlock any factories specified in the [[Progression Goals Data Structs|Progression Goal]].
+Once a [[Progression Goals Data Structs|Progression Goal]] has been completed add the next progression goals to `CurrentProgressionGoals` and will unlock any factories specified in the [[Progression Goals Data Structs|Progression Goal]]. This then broadcasts to the [[Factory Selection Widget]] and the [[Goal Tracker Widget]] to update any factories / values.
 
 ## Progression Unlocks
 ***
@@ -29,3 +29,4 @@ Unlockable are handles through [Unreal's TMap](https://dev.epicgames.com/documen
 ```
 TMap<EUnlockables, bool> UnlockablesMap;
 ```
+
