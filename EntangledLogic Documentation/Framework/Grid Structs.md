@@ -1,8 +1,9 @@
 The Grid Structs stores the definition for the `FGridCoordinate` which is used within the [[Grid Placement Subsystem]].
 
 # Grid Coordinate
-
+***
 The `FGridCoordinate` stores two values for the X and Y position
+
 ```
 	int32 XCoordinate;
 	int32 YCoordinate;
