@@ -19,7 +19,7 @@ All Grid Positioning is being handled through [Unreal's TMap](https://dev.epicga
 TMap<FGridCoordinate, AActor*> PlacedPositionMap;
 ```
 
-The `PlacedPositionMap` stores the [[Grid Structs|FGridCoordinate]] as the key of the map and it stores a reference to an `AActor` that is used to lookup the current actor in the position.
+The `PlacedPositionMap` stores the [[Grid Structs#Grid Coordinate|FGridCoordinate]] as the key of the map and it stores a reference to an `AActor` that is used to lookup the current actor in the position.
 
 To update the `PlacedPositionMap` you can use the function `SetPlacedPositionMap()`
 
@@ -30,7 +30,7 @@ void SetPlacedPositionMap(int32 GridXPosition, int32 GridYPosition, AActor* Plac
 void SetPlacedPositionMap(TArray<FGridCoordinate> GridLocations, TArray<bool> FactoryShape, AActor* PlacedFactory);
 ```
 
-The `PlacedPositionMap` is also used along side the [[Saving and Loading Subsystem]] to create a [[Save Data Structs|Factory Save Data]] that is used to save factory information.
+The `PlacedPositionMap` is also used along side the [[Saving and Loading Subsystem]] to create a [[Save Data Structs#Factory Save Data|Factory Save Data]] that is used to save factory information.
 
 ## Factory Placement
 ***
