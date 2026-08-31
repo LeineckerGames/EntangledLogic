@@ -1,5 +1,0 @@
----
-aliases:
-  - qubit
-  - qubits
----
